@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-navy: #1D2939;
+  --secondary-gold: #FACC15;
+  /* Updated to your requested color #F4F4F4 */
+  --bg-light: #F4F4F4; 
+  --text-dark: #1F2937;
+}
+
+/* Fix: White line aur side-scrolling ko rokne ke liye */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: transparent !important;
+}
+
+body {
+  /* Automatically uses the updated #F4F4F4 from :root */
+  background-color: transparent !important;
+  color: var(--text-dark);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass Card ko "Elevated Card" mein convert kiya */
+.glass-card {
+  background-color: transparent !important;
+  /* Border thoda soft kiya taaki #F4F4F4 background par clean lage */
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border-radius: 24px; 
+}
+
+/* Custom Navy Button */
+.btn-navy {
+  background-color: var(--primary-navy);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-navy:hover {
+  background-color: #111827;
+  transform: translateY(-1px);
+}
+
+/* Wicket ya Live highlight ke liye */
+.highlight-amber {
+  color: var(--secondary-gold);
+}
+
+/* Extra Safety: Sabhi elements ke liye overflow control */
+* {
+  box-sizing: border-box;
+}
