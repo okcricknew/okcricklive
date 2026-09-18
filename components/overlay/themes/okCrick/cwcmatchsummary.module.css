@@ -1,0 +1,266 @@
+@font-face {
+  font-family: 'ScoreFont';
+  src: url('/fonts/okcrick/jJunter.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'cwcFonts';
+  src: url('/fonts/okcrick/cwcFonts.ttf') format('truetype');
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  background: transparent;
+}
+
+/* Compact Broadcast Card Frame */
+.scorecardContainer {
+  width: 940px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.matchStatusBar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 24px; /* Sleek height */
+}
+
+.matchStatusContent {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 45px;
+  color: #fff;
+}
+
+.matchStatusText {
+  background: #00bbf0;
+  color: #fff;
+  padding: 1px 20px;
+  font-size: 11px; /* Sharper small font */
+  font-family: 'cwcFonts';
+  font-weight: bold;
+  letter-spacing: 1px;
+  clip-path: polygon(6% 0%, 94% 0%, 100% 50%, 94% 100%, 6% 100%, 0% 50%);
+}
+
+.topHeaderSection {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.teamsHeader {
+  background: #3c0354;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 55px; /* Reduced from 75px for TV proportion */
+}
+
+.teamBox {
+  background: #fff;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-size: 26px; /* Compact & modern */
+  font-weight: bold;
+  color: #1b023a;
+  letter-spacing: .5px;
+}
+
+.teamLeft {
+  justify-content: center;
+  font-family: 'cwcFonts';
+  padding-left: 20px;
+  padding-right: 40px;
+  clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%);
+}
+
+.teamRight {
+  justify-content: center;
+  font-family: 'cwcFonts';
+  padding-right: 20px;
+  padding-left: 40px;
+  clip-path: polygon(8% 0%, 100% 0%, 100% 100%, 8% 100%, 0% 50%);
+}
+
+.vsLogo {
+  width: 80px;
+  background: #3c0354;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.venueBar {
+  background: #3c0354;
+  font-family: 'cwcFonts';
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 0;
+  letter-spacing: 3px;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.lowerScorecardLayout {
+  display: grid;
+  grid-template-columns: 24px 1fr 24px; /* Slightly thinner edge banners */
+  width: 100%;
+}
+
+.sidePatternContainer {
+  background-image: url("/themes/OkCrick/middleb.png");
+  background-repeat: repeat-y;
+  background-position: top center;
+  background-size: 240px auto;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.matchDataGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #fff;
+}
+
+.dataColumn {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.borderRight {
+  position: relative;
+}
+
+.borderRight::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #cbd5e1;
+  z-index: 5;
+}
+
+.scoreRowBlue,
+.oversRow {
+  background: linear-gradient(to bottom, #00cbff 0%, #00a4d6 100%);
+  color: #fff;
+  font-family: 'cwcFonts';
+  font-size: 22px; /* Balanced TV Text */
+  font-weight: bold;
+  padding: 6px 15px; /* Compact padding */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #008cb8;
+}
+
+.scoreRowBlue::before {
+  content: "⚡";
+  font-size: 16px;
+}
+
+.oversRow {
+  font-size: 16px;
+  padding: 6px 15px;
+  background: linear-gradient(to bottom, #00b9eb 0%, #0093bd 100%);
+  border-top: 2px solid #007fa3;
+  border-bottom: 2px solid #007fa3;
+}
+
+.oversRow::before {
+  content: "⚪";
+  font-size: 12px;
+}
+
+/* Highly Optimized Rows for Broadcast View */
+.playerRow {
+  height: 28px; /* Sleeker Broadcast Row height */
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.name {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-family: 'cwcFonts';
+  font-size: 14px;
+  color: #1b023a;
+  padding-left: 15px;
+  background: linear-gradient(to bottom, #fff 60%, #f4f7fa 100%);
+}
+
+.runs,
+.stat {
+  width: 55px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 14px;
+  padding-right: 12px;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: inset 8px 0 8px -3px rgba(0, 0, 0, .08);
+  background: linear-gradient(to bottom, #fff 60%, #f4f7fa 100%);
+  font-weight: bold;
+  font-family: 'cwcFonts';
+  color: #1b023a;
+}
+
+.ballss {
+  width: 50px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 12px;
+  font-size: 13px;
+  font-family: 'cwcFonts';
+  background: linear-gradient(to bottom, #fff 60%, #f4f7fa 100%);
+  color: #718096;
+}
+
+/* Sleek Result Banner at bottom */
+.bottomBanner {
+  background: linear-gradient(to bottom, #00cbff 0%, #009acc 100%);
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'cwcFonts';
+  letter-spacing: .5px;
+}

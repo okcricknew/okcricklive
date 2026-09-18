@@ -1,0 +1,134 @@
+@font-face {
+  font-family: 'cwcFonts';
+  src: url('/fonts/okcrick/cwcFonts.ttf') format('truetype');
+}
+
+/* ROOT - Batting Panel jaisa fixed root layout */
+.overlayRoot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 999999;
+}
+
+/* 1280x720 Canvas Container */
+.lowerThird {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  pointer-events: auto;
+}
+
+/* COMMON IMAGE (Batting Panel wala exact object-fit fill) */
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.eventWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+/* BATTING PANEL LAYER FIX STRUCTURE */
+.pngLayerFix {
+  position: absolute;
+  inset: 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* 1. BACKGROUND MASK LAYER */
+.eventBgMask {
+  position: absolute;
+  inset: 0;
+  z-index: 999999;
+  transition: filter 0.3s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 2. TEXT LAYER */
+.titleWrap {
+  position: absolute;
+  top: 93%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999999; 
+  width: auto;
+  max-width: 90%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.eventText {
+  position: relative;
+  font-size: 30px;
+  font-weight: 900;
+  font-family: 'cwcFonts', 'Impact', sans-serif;
+  color: #fff;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 3. PARDA LAYERS WITH ANIMATION */
+.eventLeft {
+  position: absolute;
+  inset: 0;
+  z-index: 1000000;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  animation: leftCurtain 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.eventRight {
+  position: absolute;
+  inset: 0;
+  z-index: 1000000;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  animation: rightCurtain 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* CURTAIN ANIMATIONS */
+@keyframes leftCurtain {
+  0% { 
+    transform: translateX(0) translateZ(0); 
+  }
+  10% { 
+    transform: translateX(-100%) translateZ(0); 
+  }
+  88% { 
+    transform: translateX(-100%) translateZ(0); 
+  }
+  100% { 
+    transform: translateX(0) translateZ(0); 
+  }
+}
+
+@keyframes rightCurtain {
+  0% { 
+    transform: translateX(0) translateZ(0); 
+  }
+  10% { 
+    transform: translateX(100%) translateZ(0); 
+  }
+  88% { 
+    transform: translateX(100%) translateZ(0); 
+  }
+  100% { 
+    transform: translateX(0) translateZ(0); 
+  }
+}

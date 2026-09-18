@@ -1,0 +1,338 @@
+@font-face {
+  font-family: 'ScoreFont';
+  src: url('/fonts/okcrick/jJunter.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'cwcFonts';
+  src: url('/fonts/okcrick/cwcFonts.ttf') format('truetype');
+}
+
+/* ROOT & STRUCTURE CONTAINER */
+.overlayRoot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.lowerThird {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  pointer-events: auto;
+  /* Pure container par entry aur exit animation control karne ke liye classes */
+  animation: vShapeIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Jab animation out trigger karni ho */
+.lowerThirdOut {
+  animation: aShapeOut 0.8s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+}
+
+/* DYNAMIC PNG LAYERING ENGINE CLASSES */
+.pngLayerFix {
+  position: absolute;
+  inset: 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.overlay {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ================= LEFT WRAPPER BATTING ================= */
+.battingWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.teamBg { z-index: 1; }
+.batsman { z-index: 2; }
+.stripLeft { z-index: 3; }
+
+.teamLeftEx {
+  position: absolute;
+  left: 230px;
+  bottom: 25px;
+  z-index: 20;
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 30px;
+  color: #c30490;
+}
+
+.teamLeftExx {
+  position: absolute;
+  left: 190px;
+  bottom: 18px;
+
+  width: 260px;
+  text-align: center;
+
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 28px;
+  color: #c30490;
+
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.05;
+  z-index: 23;
+}
+
+.teamLeft {
+  position: absolute;
+  left: 190px;
+  bottom: 15px; /* Alignment area */
+
+  width: 260px;
+  height: 60px; /* Fixed height for precise vertical alignment */
+
+  /* Flexbox Vertical & Horizontal Center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 24px; /* Slightly adjusted for multi-line fit */
+  color: #c30490;
+
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.1;
+  z-index: 23;
+}
+
+
+.logoLeft {
+  position: absolute;
+  left: 70px;
+  bottom: 15px;
+  height: 70px;
+  width: 70px;
+  object-fit: cover;
+  z-index: 20;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ================= CENTER WRAPPER MATCH SCORE ================= */
+.centerWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.mainScore {
+  z-index: 4;
+}
+
+.scoreEx {
+  position: absolute;
+  left: 46.5%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 25px;
+  color: #fff;
+  text-align: center;
+}
+
+.line1Ex {
+  color: #ffffff;
+  font-size: 20px;
+  font-family: 'cwcFonts', sans-serif;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.line2Ex {
+  color: #ffd700;
+  font-size: 20px;
+  font-family: 'cwcFonts', sans-serif;
+  margin-top: 1px;
+}
+
+.score {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+}
+
+.line1 {
+  position: absolute;
+
+  left: 46.8%;   /* Left-Right */
+  top: 88.5%;    /* Up-Down */
+
+  transform: translateX(-50%);
+
+  color: #ffffff;
+  font-size: 20px;
+  font-family: 'cwcFonts', sans-serif;
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.line2 {
+  position: absolute;
+
+  left: 46.8%;   /* Left-Right */
+  top: 93.5%;    /* Up-Down */
+  transform: translateX(-50%);
+
+  color: #ffd700;
+  font-size: 20px;
+  font-family: 'cwcFonts', sans-serif;
+
+  white-space: nowrap;
+}
+
+/* ================= RIGHT WRAPPER BOWLING ================= */
+.bowlingWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.bowlerImg { z-index: 5; }
+.teamBgRight { z-index: 6; }
+.stripRight { z-index: 7; }
+
+.teamRightEx {
+  position: absolute;
+  right: 220px;
+  bottom: 25px;
+  z-index: 20;
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 30px;
+  color: #c30490;
+}
+
+.teamRightExx {
+  position: absolute;
+  right: 195px;
+  bottom: 18px;
+
+  width: 260px;
+  text-align: center;
+
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 28px;
+  color: #c30490;
+
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.05;
+}
+
+.teamRight {
+  position: absolute;
+  right: 195px;
+  bottom: 15px; /* Alignment area */
+
+  width: 260px;
+  height: 60px; /* Fixed height for precise vertical alignment */
+
+  /* Flexbox Vertical & Horizontal Center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 24px; /* Slightly adjusted for multi-line fit */
+  color: #c30490;
+
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.1;
+  z-index: 23;
+}
+
+.logoRight {
+  position: absolute;
+  right: 70px;
+  bottom: 15px;
+  height: 70px;
+  width: 70px;
+  object-fit: cover;
+  z-index: 20;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.normalText {
+  position: absolute;
+
+  left: 46.8%;
+  top: 91%;
+
+  transform: translateX(-50%);
+
+  width: 42%;          /* PNG ke andar hi text rahega */
+  text-align: center;
+
+  font-family: 'cwcFonts', sans-serif;
+  font-size: 24px;
+  color: #fff;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ================= CUSTOM ANIMATION LOGIC ================= */
+
+/* In Animation: V-Shape (Dono side se nikal kar center bottom balance par meet hona) */
+@keyframes vShapeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) scale(1.1);
+    clip-path: polygon(0 0, 100% 0, 50% 100%, 50% 100%);
+  }
+  60% {
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 70% 100%, 30% 100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/* Out Animation: A-Shape / Λ-Shape (Upar ki taraf apex banate hue wrap up ho jana) */
+@keyframes aShapeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  40% {
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-150px) scale(0.9);
+    clip-path: polygon(50% 0, 50% 0, 100% 100%, 0 100%);
+  }
+}

@@ -1,0 +1,241 @@
+.bodyWrapper {
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  width:100%;
+  height: 100%;
+}
+
+.scorecard {
+  width: 940px;
+}
+
+/* ================= TOP BAR ================= */
+.topbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.matchBox {
+  height: 54px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #11a8e7;
+  color: #fff;
+  font-size: 20px;
+  font-family: "cwcFonts";
+  font-weight: 900;
+  clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+}
+
+/* ================= HEADER ================= */
+.header {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr;
+  height: 92px;
+  background: #4b0088;
+  overflow: hidden;
+  position: relative;
+}
+
+.team {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 900;
+  color: #2e0065;
+  position: relative;
+  font-family: "cwcFonts";
+}
+
+.teamLeft {
+  clip-path: polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%);
+  padding-right: 20px;
+}
+
+.teamRight {
+  clip-path: polygon(6% 0, 100% 0, 100% 100%, 6% 100%, 0 50%);
+  padding-left: 20px;
+}
+
+.centerLogo {
+  background: #4b0088;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 42px;
+  position: relative;
+  z-index: 10;
+  clip-path: polygon(0 0, 100% 0, 85% 50%, 100% 100%, 0 100%, 15% 50%);
+  margin-left: -2px;
+}
+
+.venue {
+  height: 42px;
+  background: #4b0088;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "cwcFonts";
+}
+
+/* ================= CONTENT LAYOUT ================= */
+.layout {
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+}
+
+.side {
+  background: url("/themes/OkCrick/middleb.png") repeat-y center top;
+  background-size: 400px auto;
+}
+
+.table {
+  background: #fff;
+}
+
+/* Bowling Header Grid */
+.heading {
+  display: grid;
+  grid-template-columns:250px 90px 100px 90px 100px 120px;
+  height: 42px;
+  align-items: center;
+  text-align: center;
+  font-size: 17px;
+  font-family: "cwcFonts";
+  font-weight: 900;
+  color: #ff008c;
+  border-bottom: 2px solid #ececec;
+}
+
+.heading div:first-child {
+  text-align: left;
+  padding-left: 28px;
+  color: transparent;
+}
+
+/* Bowling Rows Grid */
+.row {
+  display: grid;
+  grid-template-columns:250px 90px 100px 90px 100px 120px;
+  height: 44px;
+  align-items: center;
+  font-size: 21px;
+  font-family: "cwcFonts";
+  font-weight: 800;
+  background: linear-gradient(#fff, #f3f6fa);
+  border-bottom: 1px solid #ececec;
+}
+
+.player {
+  padding-left: 30px;
+  color: #2b0068;
+  text-transform: uppercase;
+  font-family: "cwcFonts";
+}
+
+.stat {
+  text-align: center;
+  color: #2b0068;
+  font-family: "cwcFonts";
+}
+
+/* ================= FALL OF WICKETS GRID ================= */
+.fowContainer {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: "cwcFonts";
+}
+
+.fowRow {
+  display: grid;
+  grid-template-columns:180px repeat(10,1fr);
+  height: 38px;
+  align-items: center;
+  text-align: center;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.headerRow {
+  background: #ff0a8a;
+  color: #fff;
+}
+
+.scoreRow {
+  background: #ffffff;
+  color: #2b0068;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.fowLabel {
+  text-align: left;
+  padding-left: 30px;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-family: "cwcFonts";
+}
+
+.fowVal {
+  font-size: 19px;
+  font-family: "cwcFonts";
+}
+
+/* ================= SUMMARY BAR ================= */
+.summary {
+  display: grid;
+  grid-template-columns:1fr 140px 140px 170px;
+  height: 66px;
+  background: #0cb2ec;
+  color: #fff;
+  font-weight: 900;
+  font-size: 20px;
+  align-items: center;
+  text-align: center;
+  font-family: "cwcFonts";
+}
+
+.total {
+  height: 66px;
+  background: #ffd400;
+  color: #2b0068;
+  font-size: 58px;
+  font-weight: 900;
+  display: flex;
+  font-family: "cwcFonts";
+  justify-content: center;
+  align-items: center;
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 15% 100%, 0 50%);
+}
+
+.tournamentName{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+font-family: "cwcFonts";
+  justify-self: start;   /* Grid item ko left le aayega */
+  padding-left: 20px;    /* Left se spacing */
+}

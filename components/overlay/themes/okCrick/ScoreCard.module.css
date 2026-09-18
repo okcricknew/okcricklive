@@ -1,0 +1,264 @@
+@font-face {
+  font-family: 'cwcFonts';
+  src: url('/fonts/okcrick/cwcFonts.ttf') format('truetype');
+}
+
+.bodyWrapper{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  align-items: center;
+  width:100%;
+  height: 100%;
+  
+}
+
+.bodyWrapper *{
+  box-sizing:border-box;
+}
+
+.scorecardContainer{
+width:1040px;
+}
+
+/* TOP MATCH BAR */
+
+.matchStatusBar{
+display:flex;
+justify-content:center;
+margin-bottom:0;
+}
+
+.matchStatusText{
+background:#00aeea;
+color:#fff;
+padding:10px 45px;
+font-family: "cwcFonts";
+font-size:22px;
+font-weight:900;
+clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);
+}
+
+/* HEADER */
+
+.teamsHeader{
+display:flex;
+height:82px;
+background:#5a008c;
+}
+
+.teamBox{
+flex:1;
+background:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+font-weight:900;
+color:#35006b;
+  font-family: "cwcFonts";
+}
+
+.teamLeft{
+clip-path:polygon(0 0,90% 0,100% 50%,90% 100%,0 100%);
+}
+
+.teamRight{
+clip-path:polygon(10% 0,100% 0,100% 100%,10% 100%,0 50%);
+}
+
+.vsLogo{
+width:90px;
+background:#5a008c;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:48px;
+color:#fff;
+}
+
+/* VENUE */
+
+.venueBar{
+background:#5a008c;
+color:#fff;
+text-align:center;
+font-size:18px;
+font-weight:700;
+padding:5px;
+  font-family: "cwcFonts";
+}
+
+/* TABLE AREA */
+
+.lowerScorecardLayout{
+display:grid;
+grid-template-columns:40px 1fr 40px;
+}
+
+/* SIDE DESIGN */
+
+.sidePatternContainer{
+background:url("/themes/OkCrick/middleb.png") repeat-y center top;
+background-size:400px auto;
+}
+
+/* MAIN TABLE */
+
+.mainContent{
+background:#fff;
+}
+
+.playerRow{
+height:36px;
+display:grid;
+grid-template-columns:260px 300px 250px 60px 60px;
+align-items:center;
+border-bottom:1px solid #ececec;
+font-size:19px;
+font-weight:800;
+background:linear-gradient(to bottom,#ffffff 60%,#f4f7fa 100%);
+}
+
+.batter{
+padding-left:28px;
+color:#2f0067;
+font-family: "cwcFonts";
+}
+
+.dismissal{
+color:#444;
+  font-family: "cwcFonts";
+}
+
+.dismissal2{
+color:#444;
+  font-family: "cwcFonts";
+}
+
+.runs{
+height:100%;
+display:flex;
+align-items:center;
+justify-content:flex-end;
+padding-right:10px;
+font-size:24px;
+font-weight:900;
+  font-family: "cwcFonts";
+color:#2f0067;
+box-shadow:inset 10px 0 10px -3px rgba(0,0,0,.12);
+background:linear-gradient(to bottom,#ffffff 60%,#f4f7fa 100%);
+}
+
+.balls{
+width:60px;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:flex-end;
+padding-right:20px;
+font-size:18px;
+color:#444;
+  font-family: "cwcFonts";
+background:linear-gradient(to bottom,#ffffff 60%,#f4f7fa 100%);
+}
+
+/* LAST BATSMAN */
+
+.highlightRow {
+  height: 36px;
+  display: grid; /* Yeh grid line gayab thi, isiliye layout toota */
+  grid-template-columns: 260px 300px 250px 60px 60px; /* Column sizes fix kiye */
+  align-items: center;
+  border-bottom: 1px solid #ececec;
+  font-size: 19px;
+  font-weight: 800;
+  background: #ff008d;
+}
+
+.highlightRow .batter,
+.highlightRow .dismissal,
+.highlightRow .dismissal2,
+.highlightRow .runs {
+  color: #fff;
+  background: linear-gradient(to bottom, #ff008d 60%, #ff009d 100%);
+  white-space: nowrap; /* Isse text aapas mein takrayega ya wrap nahi hoga */
+}
+
+.highlightRow .batter {
+  padding-left: 28px;
+}
+
+.highlightRow .runs {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 24px;
+  font-weight: 900;
+  box-shadow: inset 10px 0 10px -3px rgba(0,0,0,.12);
+}
+
+.highlightRow .balls {
+  width: 60px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 20px;
+  font-size: 18px;
+  color: #fff;
+  background: #ff008d;
+  box-shadow: none;
+}
+
+
+/* BOTTOM BAR */
+
+.summaryBar{
+display:grid;
+grid-template-columns:1fr 180px 180px 190px;
+height:64px;
+align-items:center;
+background:#00aeea;
+color:#fff;
+font-size:18px;
+font-weight:900;
+text-align:center;
+  font-family: "cwcFonts";
+}
+
+.totalScore{
+background:#ffd400;
+color:#2f0067;
+font-size:56px;
+font-weight:900;
+  font-family: "cwcFonts";
+height:64px;
+line-height:64px;
+clip-path:polygon(
+15% 0,
+100% 0,
+100% 100%,
+15% 100%,
+0 50%
+);
+}
+
+
+.tournamentName{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "cwcFonts";
+
+  justify-self: start;   /* Grid item ko left le aayega */
+  padding-left: 20px;    /* Left se spacing */
+}

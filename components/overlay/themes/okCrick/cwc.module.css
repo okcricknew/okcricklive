@@ -1,0 +1,592 @@
+@font-face {
+  font-family: 'ScoreFont';
+  src: url('/fonts/okcrick/jJunter.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'cwcFonts';
+  src: url('/fonts/okcrick/cwcFonts.ttf') format('truetype');
+}
+
+
+/* ROOT */
+.overlayRoot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.lowerThird {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  pointer-events: auto;
+}
+
+/* COMMON IMAGE */
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+/* ================= BATTTING ================= */
+
+.battingWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.pngLayerFix {
+  position: absolute;
+  inset: 0;
+}
+
+.teamBg { position: absolute; inset: 0; z-index: 1; }
+.batsman { position: absolute; inset: 0; z-index: 2; }
+.stripLeft { position: absolute; inset: 0; z-index: 3; }
+
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+/* TEAM BLOCK */
+
+.teamName {
+  font-size: 1.6vw;
+  font-weight: 800;
+  color: #31007A;
+}
+
+
+/* ================= MATCH CENTER ================= */
+
+.centerWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* TEXT BASE */
+
+.txt { color: white; }
+.txtOvers { color: white; }
+.txtov { color: black; }
+
+/* 🔥 RESPONSIVE POSITIONING */
+.totalOversStyle {
+  position: absolute;
+  font-family: 'cwcFonts';
+  font-weight: 400;
+  top: 91%;
+  left: 57%;
+  transform: translate(-50%, -50%);
+  font-size: 18px !important;
+  z-index: 18;
+}
+
+.teamVsStyle {
+  position: absolute;
+  font-family: 'cwcFonts';
+  font-weight: 500;
+  top: 91%;
+  left: 38%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.bowlingTeamStyle{
+  font-size: 15px;
+  color: #8c8c8c;
+  font-weight: 500;
+}
+
+.vsStyle{
+  font-size: 15px;
+  color: #a0a0a0;
+  margin: 0 0.2vw;
+}
+
+.battingTeamStyle{
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.partnershipStyle {
+  position: absolute;
+  top: 96%;
+  left: 46.5%;
+  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+  font-size: 18px;
+  z-index: 17;
+  font-family: 'cwcFonts';
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.oversStyle {
+  position: absolute;
+  font-family: 'cwcFonts';
+  font-weight: 300;
+  top: 91%;
+  left: 54%;
+  transform: translate(-50%, -50%);
+  font-size: 15px !important;
+  z-index: 16;
+}
+
+.scoreStyle {
+  position: absolute;
+  font-family: 'cwcFonts';
+  font-weight: 400;
+  top: 91%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  font-size: 25px !important;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  z-index: 15;
+}
+
+
+
+/* IMAGE FIX (global already hona chahiye) */
+
+
+/* REMOVE FLEX ❌ */
+.contentRight {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+/* 🔥 EXACT POSITIONING (NO SHIFT EVER) */
+
+.bowlerBlock {
+  position: absolute;
+  bottom: 18%;
+  right: 8%;
+  text-align: right;
+  color: white;
+}
+
+.bowlerName {
+  font-size: 1.2vw;
+  font-weight: 800;
+}
+
+.bowlerStats {
+  position: absolute;
+  inset: 0;
+  font-size: 1vw;
+}
+
+
+
+.stripRight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 7;
+}
+
+.teamBgRight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+}
+
+.bowlerImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+}
+
+
+/* ================================================ */
+
+.overlay {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* TEAM */
+.teamText {
+  position: absolute;
+  top: 93%;
+  left: 6%;
+  transform: translate(-50%, -50%);
+  z-index: 46;
+  font-family: 'cwcFonts';
+  font-size: 20px;
+  color: #31007A;
+}
+
+/* PLAYERS */
+.playersContainer {
+  position: absolute;
+  top: 89%;
+  left: 14%;
+  width: 100%;
+  display: flex;              /* 🔥 missing tha */
+  flex-direction: column;
+  color: #31007A;
+  gap: 12px;                  /* 🔥 px use karo */
+  z-index: 45;
+  font-family: 'cwcFonts';
+  font-size: 19px;
+  text-transform: uppercase;
+}
+
+.playerRow {
+  position: relative;
+  height: 24px;
+  margin-bottom: 4px;
+
+  display: flex;
+  align-items: center;
+}
+
+/* STRIKER */
+.striker {
+  left: 0%;
+  color: green;
+
+  
+  width: 12px;
+  min-width: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-family: 'cwcFonts';
+  
+}
+
+/* BATSMAN NAME */
+.playerName {
+  left: 12px;
+}
+
+/* BATSMAN BALL RUNS */
+.playerRuns {
+  position: absolute;
+  right: 84%;
+  top: 18.8%;
+  width: 100%; 
+  text-align: right; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Text ko dabe huye (right) kone mein rakhega */
+  z-index: 219;
+  line-height: 1;
+  font-family: 'cwcFonts';
+  font-size: 19px;
+}
+
+.playerBalls {
+  position: absolute;
+  right: 81%;
+  top: 21%;
+  width: 100%; 
+  text-align: right; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Text ko dabe huye (right) kone mein rakhega */
+  z-index: 219;
+  line-height: 1;
+  font-family: 'cwcFonts';
+  font-size: 16px;
+}
+
+
+/* =================================== */
+
+.bowlingWrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.bowlerNameEx {
+position: absolute;
+right: 32.5%;
+top: 89.5%;
+width: 100%;
+text-align: right;
+display: flex;
+align-items: center;
+justify-content: flex-end; /* Text ko dabe huye (right) kone mein rakhega */
+z-index: 219;
+line-height: 1;
+font-family: 'cwcFonts';
+text-transform: uppercase;
+font-size: 19px;
+color: #31007A;
+}
+
+.bowlerName {
+  position: absolute;
+
+  /* FIXED ANCHOR POINT (same as PNG design point) */
+  left: 60%;
+  top: 89%;
+
+  /* IMPORTANT */
+  transform: translate(0, 0);
+
+  font-family: 'cwcFonts';
+  text-transform: uppercase;
+  font-size: 19px;
+  color: #31007A;
+
+  white-space: nowrap;
+  z-index: 219;
+}
+
+.wicketRuns {
+  position: absolute;
+  right: 18.5%;
+  top: 89.7%;
+  width: 100%; 
+  text-align: right; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Text ko dabe huye (right) kone mein rakhega */
+  z-index: 219;
+  line-height: 1;
+  font-family: 'cwcFonts';
+  font-size: 19px;
+  color: #31007A;
+}
+
+.bowlerOvers {
+  position: absolute;
+  right: 14.3%;
+  top: 89.7%;
+  width: 100%; 
+  text-align: right; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Text ko dabe huye (right) kone mein rakhega */
+  z-index: 219;
+  line-height: 1;
+  font-family: 'cwcFonts';
+  font-size: 16px;
+  color: #31007A;
+}
+
+/* OVER BALLS */
+.BallHistory {
+  position: absolute;
+  top: 94%;
+  left: 60%;
+  gap: 6px;
+  display: flex;
+  z-index: 210;
+  font-family: 'cwcFonts';
+}
+
+
+.teamNameRight {
+  position: absolute;
+  top: 93%;
+  left: 94%;
+  transform: translate(-50%, -50%);
+
+  color: #31007A;
+  font-size: 20px;
+  font-weight: 800;
+  z-index: 210;
+
+  white-space: nowrap;
+  word-break: keep-all;
+
+  display: block;
+  width: max-content;
+  font-family: 'cwcFonts';
+}
+
+.wicket { background: #D81B60 !important; color: white !important; border: none !important; }
+.four { background: #00ffff; color: #111; }
+.six { background: #00ff00; color: #111; }
+
+.wide,
+.noBall,
+.lb,
+.bye {
+  font-size: 10px !important;
+  line-height: 0.8;
+}
+
+.ball {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+  border: 2px solid #31007A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #31007A;
+    padding: 2px;
+    line-height: 0.9;
+    white-space: pre-line;
+    text-align: center;
+}
+
+/* =========================
+   SCOREBOARD EVENT SYSTEM
+========================= */
+/* =========================
+   SCOREBOARD EVENT SYSTEM
+========================= */
+
+.tickerContainer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 220;
+}
+
+.eventWrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 999999;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.maskedContent {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 999999;
+}
+
+/* 1. BACKGROUND MASK (Lowest Layer: 300) */
+.eventBgMask {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 999999;
+  transition: filter 0.3s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 2. EVENT TEXT (Middle Layer: 310 - Parde ke neeche, BG ke upar) */
+.titleWrap {
+  position: absolute;
+  top: 93%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999999; 
+  width: auto;
+  max-width: 90%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.eventText {
+  position: relative;
+  font-size: 30px;
+  font-weight: 900;
+  font-family: 'cwcFonts', 'Impact', sans-serif;
+  color: #fff;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 3. PARDE (Top Layer: 350 - Parde Text ko bilkul hide kar denge) */
+.eventLeft {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 1000000;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  animation: leftCurtain 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.eventRight {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 1000000;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  animation: rightCurtain 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* 🟢 SMOOTH CURTAIN ANIMATION TIMINGS */
+@keyframes leftCurtain {
+  0% { 
+    transform: translateX(0) translateZ(0); 
+  }
+  10% { 
+    transform: translateX(-100%) translateZ(0); /* Smoothly khula, text reveal hua */
+  }
+  88% { 
+    transform: translateX(-100%) translateZ(0); /* Hold hua */
+  }
+  100% { 
+    transform: translateX(0) translateZ(0); /* Wapas center me aaya aur text ko cover kar diya */
+  }
+}
+
+@keyframes rightCurtain {
+  0% { 
+    transform: translateX(0) translateZ(0); 
+  }
+  10% { 
+    transform: translateX(100%) translateZ(0); /* Smoothly khula, text reveal hua */
+  }
+  88% { 
+    transform: translateX(100%) translateZ(0); /* Hold hua */
+  }
+  100% { 
+    transform: translateX(0) translateZ(0); /* Wapas center me aaya aur text ko cover kar diya */
+  }
+  }
