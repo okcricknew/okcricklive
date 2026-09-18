@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap');
+/* Container: Bottom Center (TV safe area) */
+.container {
+  position: fixed;
+  bottom: 40px; /* ⬇️ thoda niche but safe */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Main Wrapper */
+.broadcastContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* ⬇️ tighter gap */
+  width: 900px; /* 🔥 reduced from 900 */
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
+  animation: broadcastEnter 0.6s ease;
+}
+
+/* Top Bar */
+.teamsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  clip-path: polygon(0% 0%, 96% 0%, 100% 100%, 4% 100%);
+  padding: 14px 40px; /* ⬇️ reduced padding */
+  border-bottom: 2px solid #C10E44;
+}
+
+/* Team Name */
+.teamName {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 26px; /* 🔥 reduced from 38 */
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* VS Circle */
+.vsCircle {
+  background: #C10E44;
+  color: #fff;
+  width: 40px;  /* ⬇️ smaller */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  transform: rotate(-10deg);
+  box-shadow: 0 0 8px rgba(193, 14, 68, 0.5);
+}
+
+/* Bottom Info Bar */
+.infoBar {
+  align-self: center;
+  background: #C10E44;
+  padding: 8px 35px; /* ⬇️ compact */
+  clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 0% 100%);
+  margin-left: 25px;
+  width: 500px;
+  text-align: center;
+}
+
+.statusWrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 20px; /* text height ke hisaab se */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Status Text */
+.statusText {
+  position: absolute; /* 🔥 important */
+  white-space: nowrap;
+
+  font-family: 'Fjalla One', sans-serif;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+
+  animation: slideInCenter 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Animation (smooth TV entry) */
+@keyframes broadcastEnter {
+  0% {
+    transform: translateY(40px); /* ⬇️ better for TV */
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInCenter {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+
+  20% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}

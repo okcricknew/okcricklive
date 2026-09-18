@@ -1,0 +1,164 @@
+.container {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+}
+
+/* ENTRY / EXIT */
+.show {
+  animation: containerIn 0.8s cubic-bezier(.17,.67,.83,.67);
+}
+
+.hide {
+  animation: containerOut 0.6s ease forwards;
+}
+
+@keyframes containerIn {
+  0% { transform: translateX(-50%) scaleX(0.2); opacity: 0; }
+  100% { transform: translateX(-50%) scaleX(1); opacity: 1; }
+}
+
+@keyframes containerOut {
+  0% { transform: translateX(-50%) scaleX(1); opacity: 1; }
+  100% { transform: translateX(-50%) scaleX(0); opacity: 0; }
+}
+
+/* MAIN BAR */
+.statsBar {
+  display: flex;
+  height: 60px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+}
+
+/* NAME */
+.nameSection {
+  background: linear-gradient(135deg, #000, #1a1a1a);
+  color: #fff;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  font-size: 26px;
+  font-weight: 900;
+  font-style: italic;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0% 100%);
+  transform: translateX(-200px);
+  animation: slideLeft 0.6s forwards;
+}
+
+/* OUT TAG */
+.outTag {
+  background: linear-gradient(135deg, #ff0000, #990000);
+  padding: 4px 10px;
+  margin-right: 12px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* DATA */
+.dataSection {
+  background: linear-gradient(135deg, #0033cc, #00aaff);
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  margin-left: -25px;
+  gap: 25px;
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+  transform: scale(0.8);
+  animation: popCenter 0.6s 0.3s forwards;
+}
+
+@keyframes popCenter {
+  to { transform: scale(1); }
+}
+
+/* OUT MODE */
+.outMode .dataSection {
+  background: linear-gradient(135deg, #222, #000);
+}
+
+.outMode .nameSection {
+  background: linear-gradient(135deg, #cc0000, #660000);
+}
+
+/* DISMISSAL */
+.dismissal {
+  background: linear-gradient(135deg, #111, #000);
+  color: #ff4d4f;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  font-size: 15px;
+  font-weight: 800;
+  margin-left: -20px;
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+  transform: translateX(200px);
+  animation: slideRight 0.6s forwards;
+}
+
+@keyframes slideLeft {
+  to { transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  to { transform: translateX(0); }
+}
+
+/* STATS */
+.box { color: #cce6ff; font-size: 13px; }
+.val { font-size: 28px; color: #fff; font-weight: 900; }
+
+.srBox {
+  border-left: 2px solid rgba(255,255,255,0.3);
+  padding-left: 20px;
+  color: gold;
+}
+
+/* SCORE BAR */
+.scoreBar {
+  display: flex;
+  height: 70px;
+  margin-top: 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  transform: translateY(100px);
+  animation: scoreUp 0.6s 0.4s forwards;
+}
+
+@keyframes scoreUp {
+  to { transform: translateY(0); }
+}
+
+.teamName {
+  background: white;
+  color: black;
+  padding: 0 30px;
+  font-size: 34px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+}
+
+.liveScore {
+  background: linear-gradient(135deg, #ff0066, #ff3385);
+  color: white;
+  padding: 0 50px;
+  font-size: 52px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+}
+
+.oversInfo {
+  background: black;
+  color: #eee;
+  padding: 0 25px;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+}

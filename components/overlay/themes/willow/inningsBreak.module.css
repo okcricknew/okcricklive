@@ -1,0 +1,115 @@
+.overlayRoot {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* MAIN BAR */
+.eliteBar {
+    width: 1100px;
+    height: 90px;
+    display: flex;
+    background: rgba(5, 12, 28, 0.95);
+    border-bottom: 5px solid #ffcc00;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    clip-path: polygon(1% 0%, 99% 0%, 100% 100%, 0% 100%);
+    overflow: hidden;
+    animation: wipeLR 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* LEFT */
+.teamIdentity {
+    width: 280px;
+    background: linear-gradient(180deg, #1e3c72 0%, #0a152e 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 2px solid #ffcc00;
+}
+
+.label {
+    font-size: 11px;
+    color: #ffcc00;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.teamName {
+    font-size: 32px;
+    color: white;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+/* CENTER */
+.chaseEquation {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.text {
+    font-size: 20px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 900;
+}
+
+.numberBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bigNumber {
+    font-size: 52px;
+    color: #ffcc00;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.subText {
+    font-size: 12px;
+    color: white;
+    letter-spacing: 1px;
+}
+
+/* RIGHT */
+.targetBox {
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+}
+
+.targetLabel {
+    font-size: 12px;
+    color: #ffcc00;
+}
+
+.targetValue {
+    font-size: 42px;
+    color: white;
+    font-weight: 900;
+}
+
+/* ANIMATION */
+@keyframes wipeLR {
+    from {
+        clip-path: inset(0 100% 0 0);
+        opacity: 0;
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+    }
+}

@@ -1,0 +1,440 @@
+/* --- Global Overlay Container --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fjalla+One&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+.overlayRoot {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 9999;
+    background: transparent !important;
+    transform: scale(1.2);
+    transform-origin: bottom center;
+}
+
+.scoreboardBar {
+    display: flex;
+    align-items: stretch;
+    height: 52px;
+    background: transparent;
+    padding: 0;
+    border-radius: 4px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    color: #111;
+    min-width: max-content;
+    overflow: hidden;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* --- BATTING SECTION (Left Side) --- */
+.battingPanel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 0 0px;
+    background: #0277BD;
+    color: white;
+    height: 100%;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.playersContainer {
+    display: flex;
+    flex-direction: column; /* Sabse important line */
+    justify-content: center;
+    padding: 0 15px;
+    gap: 4px; /* Dono players ke beech ka gap control karne ke liye */
+}
+
+
+.playerRow {
+    display: flex;
+    gap: 8px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.playerName {
+    font-weight: 700;
+}
+
+.playerScore {
+    font-weight: 400;
+    color: #ccc;
+}
+
+/* --- SCORE CENTER (Pink Box) --- */
+.scoreCenter {
+    background: linear-gradient(180deg, #C2185B 0%, #880E4F 100%);
+    color: white;
+    padding: 6px 15px 2px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    min-width: 90px;
+}
+
+.scoreNumber {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 35px;
+    font-weight: 700;
+    line-height: 0.9;
+    margin-top: 2px;
+}
+
+.overs {
+    font-size: 18px;
+    font-weight: 700;
+    opacity: 0.9;
+    margin-top: -2px;
+}
+
+/* Stats Container - The Light Grey Section */
+.statsContainer {
+    display: flex;
+    flex-direction: row;
+    /* Image jaisa exact color and gradient */
+    background: linear-gradient(to bottom, #ffffff 0%, #E0E0E0 100%); 
+    height: 52px; 
+    width: 180px;
+    padding: 0 0px;
+    gap: 20px;
+    align-items: center;
+    border-left: 1px solid rgba(0,0,0,0.2);
+    border-right: 1px solid rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    position: relative !important; 
+    overflow: hidden !important; 
+    perspective: 1200px;
+    z-index: 5;
+}
+
+.statBox {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.statLabel {
+    font-size: 10px;
+    font-weight: 800; /* Bold label like broadcast */
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    text-align: center;
+    width: 100%;
+}
+
+.statValue {
+    display: inline-block;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 900; /* Extra bold value */
+    color: #000;
+    margin-top: 2px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Vertical divider between RR and Boundaries */
+.statsDivider {
+    width: 1px;
+    height: 32px;
+    background-color: rgba(0,0,0,0.15);
+}
+
+.slideWrapper {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.slideAnim {
+    animation: slideCenter 0.4s ease;
+}
+
+@keyframes slideCenter {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marqueeAnim 10s linear infinite;
+    padding-left: 100%;
+}
+
+@keyframes marqueeAnim {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-200%); }
+}
+
+/* --- EXACT SONY LIV STYLE REQUIRED BOX --- */
+.requiredStatBox {
+    /* Screenshot jaisa exact light background gradient */
+    background: linear-gradient(to bottom, #ffffff 0%, #E0E0E0 100%); 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    /* Screenshot mein koi dark border nahi hai, bilkul clean hai */
+}
+
+.requiredLabel {
+    font-size: 10px;
+    font-weight: 800; /* Screenshot jaisa bold label */
+    color: #444;      /* Professional Dark Grey color */
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.requiredValue {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;  /* Screenshot jaisa clear size */
+    font-weight: 600; /* Extra bold text */
+    color: #000;      /* Pure black text */
+    text-transform: uppercase;
+    font-family: 'Roboto Condensed', sans-serif;
+    line-height: 1;
+}
+
+
+/* --- BOWLING SECTION (Right Side Green) --- */
+.bowlingPanel {
+    display: flex;
+    flex-direction: column; /* Stack name/stats and balls vertically */
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 15px;
+    background: #234D36;
+    color: white;
+    min-width: 180px; /* Ensures enough space for name + balls */
+}
+
+/* Bowler Name + Stats Line */
+.bowlerInfo {
+    display: flex;
+    flex-direction: row; /* Horizontal for Name and Stats */
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+}
+
+.bowlerName {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bowlerStats {
+    font-size: 14px;
+    font-weight: 900;
+    color: #ffffff;
+}
+
+/* Over Balls Line (Below Name) */
+.overBalls {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px; /* Space between name line and balls */
+}
+
+.ball {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent like broadcast */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 2px;
+    line-height: 1;
+    white-space: pre-line;
+    text-align: center;
+}
+
+/* --- TEAM NAME (Far Right) --- */
+.teamName {
+    background: #111;
+    height: 100%;
+    /* Fixed Width jo image se match karti hai */
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    
+    display: flex;
+    flex-direction: column; /* Bada naam stack karne ke liye */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    
+    color: white;
+    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif;
+    
+    /* Font Size scaling logic */
+    font-size: 16px; 
+    font-weight: 700;
+    line-height: 0.9; /* Stacked text ke liye tight spacing */
+    text-align: center;
+    
+    /* Subtle depth like broadcast overlays */
+    border-left: 1px solid rgba(255,255,255,0.1);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    
+    /* Text cutting prevent karne ke liye */
+    overflow: hidden;
+    word-wrap: break-word;
+    line-height: 1.1;
+    padding: 4px;
+}
+
+.bowlingWrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+
+/* --- BALL TYPES --- */
+.wicket { background: #D81B60 !important; color: white !important; border: none !important; }
+.four { background: #fff; color: #111; }
+.six { background: #fff; color: #111; }
+
+/* --- ULTRA PRO MAX 3D ANIMATION SYSTEM --- */
+
+/* Event Overlay: Jab event aayega tab ye pura cover kar lega stats ko */
+.eventOverlay {
+    position: absolute;
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+/* 1. Ghost Background Text (Zoom Out Effect) */
+.ghostText {
+    position: absolute;
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.35); /* Visible but transparent */
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    pointer-events: none;
+    z-index: 1;
+    animation: ghostZoomIn 4.5s cubic-bezier(0.1, 0.7, 1.0, 0.1) forwards;
+}
+
+/* 2. Main 3D Pulse Text (Front Text) */
+.mainEventText {
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    z-index: 2;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    animation: flipPulse 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* --- DYNAMIC GRADIENTS --- */
+/* In classes ko hum JS se toggle karenge */
+.four { background: linear-gradient(135deg, #1b5e20, #4caf50) !important; }
+.six { background: linear-gradient(135deg, #e65100, #ffb300) !important; color: white !important; }
+.wicket { background: linear-gradient(135deg, #880e4f, #f06292) !important; }
+.freehit { background: linear-gradient(135deg, #b71c1c, #ff5252) !important; }
+
+/* --- NEW KEYFRAMES --- */
+@keyframes ghostZoomIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    15% { opacity: 0.35; }
+    100% { transform: scale(3.0); opacity: 0; } /* Bahar ki taraf explode hoga */
+}
+
+@keyframes flipPulse {
+    0% { transform: rotateX(-90deg) scale(0.4); opacity: 0; }
+    50% { transform: rotateX(25deg) scale(1.15); opacity: 1; }
+    100% { transform: rotateX(0deg) scale(1); opacity: 1; }
+}
+
+/* Glossy Shine for Ultra Look */
+.eventOverlay::after {
+    content: '';
+    position: absolute;
+    width: 60%; height: 200%;
+    background: rgba(255,255,255,0.3);
+    top: -50%; left: -150%;
+    transform: rotate(25deg);
+    animation: ultraSweep 2s infinite;
+}
+
+@keyframes ultraSweep {
+    0% { left: -150%; }
+    100% { left: 200%; }
+}
+
+.overlayCanvas {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background: transparent;
+}
+
+/* LOWER THIRD */
+.lowerThird {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+
+  padding: 10px 20px;
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+
+  backdrop-filter: blur(6px);
+    }
