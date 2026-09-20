@@ -86,46 +86,119 @@ useEffect(() => {
     window.removeEventListener("openAuthModal", handleOpenAuthModal)
   }
 }, [])
+
+  const createServerSession = async (firebaseUser) => {
+  if (!firebaseUser) {
+    throw new Error("Firebase user is missing.");
+  }
+
+  const idToken = await firebaseUser.getIdToken(true);
+
+  const response = await fetch("/api/auth/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      idToken,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+
+    throw new Error(
+      data?.error || "Unable to create server authentication session."
+    );
+  }
+
+  return true;
+};
   
 
   const handleAuth = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-            if (authMode === 'register') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // 🔥 Firebase Auth profile mein name save karein instant loading ke liye
-        await updateProfile(userCredential.user, { displayName: name });
+  e.preventDefault();
+  setLoading(true);
 
-        const newUser = {
-          uid: userCredential.user.uid, name, mobile, location, email, createdAt: new Date()
-        };
-        await setDoc(doc(db, "users", userCredential.user.uid), newUser);
-        setUserData(newUser); 
-        alert("Account Created!");
-              
-            } else {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const loggedInUser = userCredential.user;
+  try {
+    if (authMode === "register") {
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
-        // Agar purana user hai jiska displayName nahi hai, toh Firestore se lekar save kar do permanent
-        if (!loggedInUser.displayName) {
-          const userDoc = await getDoc(doc(db, "users", loggedInUser.uid));
-          if (userDoc.exists() && userDoc.data().name) {
-            await updateProfile(loggedInUser, { displayName: userDoc.data().name });
-          }
+      // Existing profile logic — untouched.
+      await updateProfile(userCredential.user, {
+        displayName: name,
+      });
+
+      const newUser = {
+        uid: userCredential.user.uid,
+        name,
+        mobile,
+        location,
+        email,
+        createdAt: new Date(),
+      };
+
+      await setDoc(
+        doc(db, "users", userCredential.user.uid),
+        newUser
+      );
+
+      setUserData(newUser);
+
+      // NEW:
+      // Create server-readable session cookie.
+      await createServerSession(userCredential.user);
+
+      alert("Account Created!");
+    } else {
+      const userCredential =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      const loggedInUser = userCredential.user;
+
+      // Existing logic — untouched.
+      if (!loggedInUser.displayName) {
+        const userDoc = await getDoc(
+          doc(db, "users", loggedInUser.uid)
+        );
+
+        if (
+          userDoc.exists() &&
+          userDoc.data().name
+        ) {
+          await updateProfile(
+            loggedInUser,
+            {
+              displayName: userDoc.data().name,
+            }
+          );
         }
       }
-      setShowAuth(false);
-      
-      setIsOpen(false);
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
+
+      // NEW:
+      // Create server-readable session cookie.
+      await createServerSession(loggedInUser);
     }
-  };
+
+    setShowAuth(false);
+    setIsOpen(false);
+  } catch (error) {
+    console.error("Authentication error:", error);
+
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCreateTournament = async (e) => {
     e.preventDefault();
@@ -198,10 +271,22 @@ if (tLogo) {
 };
 
   const handleLogout = async () => {
+  try {
+    // Existing Firebase client logout.
     await signOut(auth);
+
+    // NEW:
+    // Remove server-side authentication cookie.
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
     setIsOpen(false);
-    router.push('/');
-  };
+    router.push("/");
+  }
+};
 
   // --- UI REMAINS EXACTLY SAME AS YOUR ORIGINAL ---
   return (
