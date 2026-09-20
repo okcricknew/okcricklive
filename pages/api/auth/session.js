@@ -1,9 +1,6 @@
 import { getAdminAuth } from "../../../lib/firebase-admin";
 
 const SESSION_COOKIE_NAME = "__session";
-
-// Firebase session cookies can live for 5 days.
-// Firebase allows a maximum of 14 days.
 const SESSION_EXPIRES_IN = 5 * 24 * 60 * 60 * 1000;
 
 export default async function handler(req, res) {
@@ -11,6 +8,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", ["POST"]);
 
     return res.status(405).json({
+      success: false,
       error: "Method not allowed",
     });
   }
@@ -20,15 +18,18 @@ export default async function handler(req, res) {
 
     if (!idToken || typeof idToken !== "string") {
       return res.status(400).json({
-        error: "Firebase ID token is required.",
+        success: false,
+        error: "Firebase ID token is missing.",
       });
     }
 
-    // Verify that the token actually belongs to a valid Firebase user.
-    await getAdminAuth().verifyIdToken(idToken);
+    const adminAuth = getAdminAuth();
 
-    // Convert Firebase ID token into an HTTP-only server session cookie.
-    const sessionCookie = await getAdminAuth().createSessionCookie(
+    // Step 1: verify Firebase ID token
+    await adminAuth.verifyIdToken(idToken);
+
+    // Step 2: create server session
+    const sessionCookie = await adminAuth.createSessionCookie(
       idToken,
       {
         expiresIn: SESSION_EXPIRES_IN,
@@ -37,23 +38,36 @@ export default async function handler(req, res) {
 
     const isProduction = process.env.NODE_ENV === "production";
 
+    const cookieParts = [
+      `${SESSION_COOKIE_NAME}=${encodeURIComponent(sessionCookie)}`,
+      `Max-Age=${Math.floor(SESSION_EXPIRES_IN / 1000)}`,
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+    ];
+
+    if (isProduction) {
+      cookieParts.push("Secure");
+    }
+
     res.setHeader(
       "Set-Cookie",
-      `${SESSION_COOKIE_NAME}=${encodeURIComponent(sessionCookie)}; Max-Age=${
-        SESSION_EXPIRES_IN / 1000
-      }; Path=/; HttpOnly; SameSite=Lax${
-        isProduction ? "; Secure" : ""
-      }`
+      cookieParts.join("; ")
     );
 
     return res.status(200).json({
       success: true,
+      message: "Authentication session created successfully.",
     });
   } catch (error) {
-    console.error("Create session error:", error);
+    // Temporary diagnostic information.
+    // IMPORTANT: never return credentials/private keys here.
+    console.error("SSR SESSION ERROR:", error);
 
     return res.status(401).json({
-      error: "Unable to create authenticated session.",
+      success: false,
+      error: error?.message || "Unable to create authentication session.",
+      code: error?.code || null,
     });
   }
 }
