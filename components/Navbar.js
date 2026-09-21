@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'; // 👈 Added for routing
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Menu, X, ChevronRight, Zap, User, Lock, Eye, EyeOff, Phone, MapPin, Trophy, LogOut, Mail, Calendar, UserPlus, LayoutDashboard, PlusCircle, Home, Swords } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,7 +8,8 @@ import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWith
 import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore'; 
 
 export default function Navbar() {
-  const router = useRouter(); // 👈 Initialize router
+  const router = useRouter(); 
+  const [isMounted, setIsMounted] = useState(false); // 👈 SSR Hydration match ke liye
   const [isOpen, setIsOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showTrophyModal, setShowTrophyModal] = useState(false); 
@@ -18,14 +19,14 @@ export default function Navbar() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Form States (Logic untouched)
+  // Form States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [location, setLocation] = useState('');
 
-  // Tournament Form States (Logic untouched)
+  // Tournament Form States
   const [tName, setTName] = useState('');
   const [tOrganiser, setTOrganiser] = useState('');
   const [tMobile, setTMobile] = useState('');
@@ -35,170 +36,133 @@ export default function Navbar() {
   const [tLogo, setTLogo] = useState(null);
 
   useEffect(() => {
-  let unsubscribeSnapshot = null;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser); // User object ko turant set karein
-
-    if (currentUser) {
-      
-      const docRef = doc(db, "users", currentUser.uid);
-
-      // 🔥 REALTIME + CACHE
-      unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        }
-      });
-    } else {
-      setUserData(null);
-    }
-  });
-
-  return () => {
-    unsubscribeAuth();
-    if (unsubscribeSnapshot) unsubscribeSnapshot();
-  };
-}, []);
-  
-  // --- NEW ARENA BUTTON SIGNAL LISTENER ---
-useEffect(() => {
-  const handleOpenTournamentModal = () => {
-    setShowTrophyModal(true); // Isse "New Tournament" modal khul jayega
-  };
-
-  window.addEventListener('openCreateTournamentModal', handleOpenTournamentModal);
-  
-  return () => {
-    window.removeEventListener('openCreateTournamentModal', handleOpenTournamentModal);
-  };
-}, []);
+    setIsMounted(true); // Component mount hone par true karein
+  }, []);
 
   useEffect(() => {
-  const handleOpenAuthModal = () => {
-    setShowAuth(true)
-    setAuthMode("login")
-  }
+    let unsubscribeSnapshot = null;
 
-  window.addEventListener("openAuthModal", handleOpenAuthModal)
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser); 
 
-  return () => {
-    window.removeEventListener("openAuthModal", handleOpenAuthModal)
-  }
-}, [])
+      if (currentUser) {
+        const docRef = doc(db, "users", currentUser.uid);
+        unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data());
+          }
+        });
+      } else {
+        setUserData(null);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
+  }, []);
+  
+  // --- NEW ARENA BUTTON SIGNAL LISTENER ---
+  useEffect(() => {
+    const handleOpenTournamentModal = () => {
+      setShowTrophyModal(true); 
+    };
+
+    window.addEventListener('openCreateTournamentModal', handleOpenTournamentModal);
+    
+    return () => {
+      window.removeEventListener('openCreateTournamentModal', handleOpenTournamentModal);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleOpenAuthModal = () => {
+      setShowAuth(true);
+      setAuthMode("login");
+    };
+
+    window.addEventListener("openAuthModal", handleOpenAuthModal);
+
+    return () => {
+      window.removeEventListener("openAuthModal", handleOpenAuthModal);
+    };
+  }, []);
 
   const createServerSession = async (firebaseUser) => {
-  if (!firebaseUser) {
-    throw new Error("Firebase user is missing.");
-  }
-
-  const idToken = await firebaseUser.getIdToken(true);
-
-  const response = await fetch("/api/auth/session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      idToken,
-    }),
-  });
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-
-    throw new Error(
-      data?.error || "Unable to create server authentication session."
-    );
-  }
-
-  return true;
-};
-  
-
-  const handleAuth = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-    if (authMode === "register") {
-      const userCredential =
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      // Existing profile logic — untouched.
-      await updateProfile(userCredential.user, {
-        displayName: name,
-      });
-
-      const newUser = {
-        uid: userCredential.user.uid,
-        name,
-        mobile,
-        location,
-        email,
-        createdAt: new Date(),
-      };
-
-      await setDoc(
-        doc(db, "users", userCredential.user.uid),
-        newUser
-      );
-
-      setUserData(newUser);
-
-      // NEW:
-      // Create server-readable session cookie.
-      await createServerSession(userCredential.user);
-
-      alert("Account Created!");
-    } else {
-      const userCredential =
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      const loggedInUser = userCredential.user;
-
-      // Existing logic — untouched.
-      if (!loggedInUser.displayName) {
-        const userDoc = await getDoc(
-          doc(db, "users", loggedInUser.uid)
-        );
-
-        if (
-          userDoc.exists() &&
-          userDoc.data().name
-        ) {
-          await updateProfile(
-            loggedInUser,
-            {
-              displayName: userDoc.data().name,
-            }
-          );
-        }
-      }
-
-      // NEW:
-      // Create server-readable session cookie.
-      await createServerSession(loggedInUser);
+    if (!firebaseUser) {
+      throw new Error("Firebase user is missing.");
     }
 
-    setShowAuth(false);
-    setIsOpen(false);
-  } catch (error) {
-    console.error("Authentication error:", error);
+    const idToken = await firebaseUser.getIdToken(true);
 
-    alert(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    const response = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data?.error || "Unable to create server authentication session.");
+    }
+
+    return true;
+  };
+  
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (authMode === "register") {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        await updateProfile(userCredential.user, {
+          displayName: name,
+        });
+
+        const newUser = {
+          uid: userCredential.user.uid,
+          name,
+          mobile,
+          location,
+          email,
+          createdAt: new Date(),
+        };
+
+        await setDoc(doc(db, "users", userCredential.user.uid), newUser);
+        setUserData(newUser);
+        await createServerSession(userCredential.user);
+
+        alert("Account Created!");
+      } else {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const loggedInUser = userCredential.user;
+
+        if (!loggedInUser.displayName) {
+          const userDoc = await getDoc(doc(db, "users", loggedInUser.uid));
+          if (userDoc.exists() && userDoc.data().name) {
+            await updateProfile(loggedInUser, {
+              displayName: userDoc.data().name,
+            });
+          }
+        }
+
+        await createServerSession(loggedInUser);
+      }
+
+      setShowAuth(false);
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Authentication error:", error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreateTournament = async (e) => {
     e.preventDefault();
@@ -206,27 +170,25 @@ useEffect(() => {
     
     setLoading(true);
     try {
-
       let logoUrl = "";
 
-if (tLogo) {
-  const formData = new FormData();
+      if (tLogo) {
+        const formData = new FormData();
+        formData.append("file", tLogo);
+        formData.append("upload_preset", "okcrick");
 
-  formData.append("file", tLogo);
-  formData.append("upload_preset", "okcrick");
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
+        const data = await response.json();
+        logoUrl = data.secure_url;
+      }
 
-  const data = await response.json();
-
-  logoUrl = data.secure_url;
-}
       const tournamentData = {
         tournamentName: tName,
         organiser: tOrganiser,
@@ -241,12 +203,10 @@ if (tLogo) {
 
       await addDoc(collection(db, "tournaments"), tournamentData);
       
-      // Reset Form & UI
       setShowTrophyModal(false);
       setTName(''); setTOrganiser(''); setTMobile(''); 
       setTLocation(''); setStartDate(''); setEndDate('');
 
-      // 🏆 REDIRECT: Seedha my-tournaments page par routing
       router.push('/my-tournaments');
       
     } catch (error) {
@@ -257,38 +217,37 @@ if (tLogo) {
   };
 
   const handleForgotPassword = async () => {
-  if (!email) {
-    alert("Please enter your email address.");
-    return;
-  }
+    if (!email) {
+      alert("Please enter your email address.");
+      return;
+    }
 
-  try {
-    await sendPasswordResetEmail(auth, email);
-    alert("Password reset link has been sent to your email.");
-  } catch (error) {
-    alert(error.message);
-  }
-};
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset link has been sent to your email.");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   const handleLogout = async () => {
-  try {
-    // Existing Firebase client logout.
-    await signOut(auth);
+    try {
+      await signOut(auth);
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setIsOpen(false);
+      router.push("/");
+    }
+  };
 
-    // NEW:
-    // Remove server-side authentication cookie.
-    await fetch("/api/auth/logout", {
-      method: "POST",
-    });
-  } catch (error) {
-    console.error("Logout error:", error);
-  } finally {
-    setIsOpen(false);
-    router.push("/");
-  }
-};
+  // Safe user variables for SSR check (Prevents hydration mismatch without changing UI)
+  const activeUser = isMounted ? user : null;
+  const activeUserData = isMounted ? userData : null;
 
-  // --- UI REMAINS EXACTLY SAME AS YOUR ORIGINAL ---
   return (
     <>
       {/* NAVBAR */}
@@ -296,23 +255,22 @@ if (tLogo) {
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-  <img 
-    src="/favicon.ico" 
-    alt="Logo" 
-    className="w-full h-full object-contain"
-  />
-</div>
+              <img 
+                src="/favicon.ico" 
+                alt="Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
       
             <div className="flex flex-col">
               <span className="text-xl font-black text-white uppercase tracking-normal leading-none">
                 OKCRICK<span className="text-[#FACC15]">.IN</span>
               </span>
-                            {user && (user.displayName || userData?.name) && (
+              {activeUser && (activeUser.displayName || activeUserData?.name) && (
                 <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5 italic">
-                  Hi, {(user.displayName || userData.name).split(' ')[0]}
+                  Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
                 </span>
               )}
-
             </div>
           </Link>
 
@@ -339,17 +297,16 @@ if (tLogo) {
                   <X size={20} className="text-[#FACC15]" />
                 </button>
 
-                {user ? (
-                                    <div className="flex items-center gap-4">
+                {activeUser ? (
+                  <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-[#FACC15] rounded-2xl flex items-center justify-center text-[#1D2939] font-black text-xl shadow-lg border-2 border-white/10">
-                      {(user.displayName || userData?.name)?.substring(0, 1).toUpperCase() || <User size={24}/>}
+                      {(activeUser.displayName || activeUserData?.name)?.substring(0, 1).toUpperCase() || <User size={24}/>}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="font-black text-lg truncate italic uppercase tracking-tighter">{user.displayName || userData?.name || 'User'}</p>
-                      <p className="text-white/40 text-[10px] font-bold uppercase truncate tracking-wider">{user.email}</p>
+                      <p className="font-black text-lg truncate italic uppercase tracking-tighter">{activeUser.displayName || activeUserData?.name || 'User'}</p>
+                      <p className="text-white/40 text-[10px] font-bold uppercase truncate tracking-wider">{activeUser.email}</p>
                     </div>
                   </div>
-                  
                 ) : (
                   <div>
                     <p className="font-black text-xl italic uppercase text-[#FACC15]">Menu</p>
@@ -364,12 +321,11 @@ if (tLogo) {
                   <Home size={18} /> HOME
                 </Link>
 
-                {user ? (
+                {activeUser ? (
                   <>
                     <Link href="/my-tournaments" onClick={() => setIsOpen(false)} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 text-[#1D2939] font-bold text-sm uppercase italic border border-transparent hover:border-slate-200 transition-all">
                       <Trophy size={18} /> TOURNAMENTS
                     </Link>
-                      
 
                     <button onClick={handleLogout} className="w-full flex items-center gap-4 p-4 rounded-2xl text-red-500 bg-red-50/50 font-bold uppercase text-[10px] tracking-widest mt-8">
                       <LogOut size={16} /> Logout Admin
@@ -419,18 +375,17 @@ if (tLogo) {
                   <input required type="text" placeholder="Location" value={tLocation} onChange={(e) => setTLocation(e.target.value)} className="w-full bg-slate-50 py-4 pl-12 pr-4 rounded-xl outline-none border border-slate-100 font-bold text-sm" />
                 </InputWrapper>
 
-        <div className="space-y-2">
-  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-    Tournament Logo
-  </label>
-
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e) => setTLogo(e.target.files[0])}
-    className="w-full bg-slate-50 py-3 px-4 rounded-xl border border-slate-100 text-sm"
-  />
-</div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    Tournament Logo
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setTLogo(e.target.files[0])}
+                    className="w-full bg-slate-50 py-3 px-4 rounded-xl border border-slate-100 text-sm"
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[8px] text-slate-400 font-black ml-2 uppercase tracking-widest">Start Date</label>
@@ -483,17 +438,18 @@ if (tLogo) {
                   </button>
                 </div>
 
-                  {authMode === "login" && (
-  <div className="flex justify-end mt-2">
-    <button
-      type="button"
-      onClick={handleForgotPassword}
-      className="text-[11px] font-bold text-[#1D2939] hover:text-[#FACC15]"
-    >
-      Forgot Password?
-    </button>
-  </div>
-)}
+                {authMode === "login" && (
+                  <div className="flex justify-end mt-2">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-[11px] font-bold text-[#1D2939] hover:text-[#FACC15]"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
+                
                 <button type="submit" disabled={loading} className="w-full bg-[#1D2939] text-white font-black py-5 rounded-2xl shadow-[0_10px_20px_-5px_rgba(29,41,57,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(29,41,57,0.4)] hover:-translate-y-1 active:scale-95 transition-all duration-300 uppercase tracking-[0.2em] text-[10px] mt-4 flex items-center justify-center gap-2 group">
                   {loading ? 'Processing...' : (authMode === 'login' ? 'Login Now' : 'Create Account')}
                 </button>
@@ -515,4 +471,4 @@ function InputWrapper({ icon, children }) {
       {children}
     </div>
   );
-                }
+}
