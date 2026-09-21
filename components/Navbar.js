@@ -9,7 +9,8 @@ import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/fi
 
 export default function Navbar() {
   const router = useRouter(); 
-  const [isMounted, setIsMounted] = useState(false); // 👈 SSR Hydration match ke liye
+  const [isMounted, setIsMounted] = useState(false); 
+  const [authLoading, setAuthLoading] = useState(true); // 👈 Blinking rokne ke liye auth loading state
   const [isOpen, setIsOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showTrophyModal, setShowTrophyModal] = useState(false); 
@@ -36,7 +37,7 @@ export default function Navbar() {
   const [tLogo, setTLogo] = useState(null);
 
   useEffect(() => {
-    setIsMounted(true); // Component mount hone par true karein
+    setIsMounted(true); 
   }, []);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function Navbar() {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser); 
+      setAuthLoading(false); // 👈 Auth check complete hote hi loading false karein
 
       if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
@@ -244,7 +246,6 @@ export default function Navbar() {
     }
   };
 
-  // Safe user variables for SSR check (Prevents hydration mismatch without changing UI)
   const activeUser = isMounted ? user : null;
   const activeUserData = isMounted ? userData : null;
 
@@ -266,7 +267,7 @@ export default function Navbar() {
               <span className="text-xl font-black text-white uppercase tracking-normal leading-none">
                 OKCRICK<span className="text-[#FACC15]">.IN</span>
               </span>
-              {activeUser && (activeUser.displayName || activeUserData?.name) && (
+              {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
                 <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5 italic">
                   Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
                 </span>
@@ -297,7 +298,11 @@ export default function Navbar() {
                   <X size={20} className="text-[#FACC15]" />
                 </button>
 
-                {activeUser ? (
+                {authLoading ? (
+                  <div className="py-2">
+                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest animate-pulse">Loading profile...</p>
+                  </div>
+                ) : activeUser ? (
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-[#FACC15] rounded-2xl flex items-center justify-center text-[#1D2939] font-black text-xl shadow-lg border-2 border-white/10">
                       {(activeUser.displayName || activeUserData?.name)?.substring(0, 1).toUpperCase() || <User size={24}/>}
@@ -321,7 +326,7 @@ export default function Navbar() {
                   <Home size={18} /> HOME
                 </Link>
 
-                {activeUser ? (
+                {authLoading ? null : activeUser ? (
                   <>
                     <Link href="/my-tournaments" onClick={() => setIsOpen(false)} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 text-[#1D2939] font-bold text-sm uppercase italic border border-transparent hover:border-slate-200 transition-all">
                       <Trophy size={18} /> TOURNAMENTS
