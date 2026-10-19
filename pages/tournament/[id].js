@@ -28,35 +28,30 @@ function TeamRow({ team, tournamentId, onManage, onDelete, onEdit }) {
       <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3">
         {/* Left Section: Info */}
         <div className="flex items-center gap-3 min-w-0">
-{/* <div className="bg-[#1D2939] text-white w-10 h-10 flex flex-col items-center justify-center rounded-xl shrink-0">
-            <span className="text-sm font-black leading-none">{count}</span>
-            <span className="text-[6px] font-bold uppercase tracking-tighter">SQD</span>
-          </div> */}
-
-  <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] border border-gray-200 shrink-0 flex items-center justify-center">
-  {team.logoUrl ? (
-    <img
-      src={team.logoUrl}
-      alt={team.name}
-      className="w-full h-full object-contain p-1"
-    />
-  ) : (
-    <div className="text-white flex flex-col items-center justify-center w-full h-full">
-      <span className="text-sm font-black leading-none">{count}</span>
-      <span className="text-[6px] font-bold uppercase tracking-tighter">
-        SQD
-      </span>
-    </div>
-  )}
-</div>
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] border border-gray-200 shrink-0 flex items-center justify-center">
+            {team.logoUrl ? (
+              <img
+                src={team.logoUrl}
+                alt={team.name}
+                className="w-full h-full object-contain p-1"
+              />
+            ) : (
+              <div className="text-white flex flex-col items-center justify-center w-full h-full">
+                <span className="text-sm font-black leading-none">{count}</span>
+                <span className="text-[6px] font-bold uppercase tracking-tighter">
+                  SQD
+                </span>
+              </div>
+            )}
+          </div>
     
           <div className="min-w-0">
             <h3 className="font-black text-[13px] uppercase tracking-tighter text-[#1D2939] truncate leading-tight">
               {team.name}
             </h3>
             <p className="text-[8px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">
-  {count} SQD
-</p>
+              {count} SQD
+            </p>
           </div>
         </div>
         
@@ -122,45 +117,40 @@ export default function TournamentDetails({ initialTournament = null, initialTea
 
   // --- LOGIC HANDLERS ---
   const handleAddTeam = async (e) => {
-
-    const tempId = "temp_" + Date.now();
-
-setTeams(prev => [
-  {
-    id: tempId,
-    name: teamName.trim().toUpperCase(),
-    logoUrl: teamLogo ? URL.createObjectURL(teamLogo) : "",
-    createdAt: new Date(),
-    temp: true
-  },
-  ...prev
-]);
-
-    
     e.preventDefault();
     if (!teamName.trim()) return;
+
+    const tempId = "temp_" + Date.now();
+    setTeams(prev => [
+      {
+        id: tempId,
+        name: teamName.trim().toUpperCase(),
+        logoUrl: teamLogo ? URL.createObjectURL(teamLogo) : "",
+        createdAt: new Date(),
+        temp: true
+      },
+      ...prev
+    ]);
+
     try {
-
       let logoUrl = "";
+      if (teamLogo) {
+        const formData = new FormData();
+        formData.append("file", teamLogo);
+        formData.append("upload_preset", "okcrick");
 
-if (teamLogo) {
-  const formData = new FormData();
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-  formData.append("file", teamLogo);
-  formData.append("upload_preset", "okcrick");
+        const data = await response.json();
+        logoUrl = data.secure_url;
+      }
 
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  const data = await response.json();
-
-  logoUrl = data.secure_url;
-}
       await addDoc(collection(db, "tournaments", id, "teams"), { 
         name: teamName.trim().toUpperCase(), 
         logoUrl: logoUrl,
@@ -189,41 +179,39 @@ if (teamLogo) {
   };
 
   const handleAddPlayer = async (e) => {
-    const tempId = "temp_" + Date.now();
-
-setTeamPlayers(prev => [
-  {
-    id: tempId,
-    name: playerName.trim().toUpperCase(),
-    photoUrl: playerPhoto ? URL.createObjectURL(playerPhoto) : "",
-    temp: true
-  },
-  ...prev
-]);
-    
     e.preventDefault();
     if (!playerName.trim() || !activeTeam?.id || !id) return;
+
+    const tempId = "temp_" + Date.now();
+    setTeamPlayers(prev => [
+      {
+        id: tempId,
+        name: playerName.trim().toUpperCase(),
+        photoUrl: playerPhoto ? URL.createObjectURL(playerPhoto) : "",
+        temp: true
+      },
+      ...prev
+    ]);
+    
     try {
-
       let photoUrl = "";
+      if (playerPhoto) {
+        const formData = new FormData();
+        formData.append("file", playerPhoto);
+        formData.append("upload_preset", "okcrick");
 
-if (playerPhoto) {
-  const formData = new FormData();
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-  formData.append("file", playerPhoto);
-  formData.append("upload_preset", "okcrick");
+        const data = await response.json();
+        photoUrl = data.secure_url;
+      }
 
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  const data = await response.json();
-  photoUrl = data.secure_url;
-}
       await addDoc(collection(db, "tournaments", id, "teams", activeTeam.id, "players"), {
         name: playerName.trim().toUpperCase(),
         photoUrl: photoUrl,
@@ -267,14 +255,15 @@ if (playerPhoto) {
               
         </div>
       </nav>
-              <div className="flex justify-center mt-4">
-  <button 
-    onClick={() => router.push(`/tournament/manage-match/${id}`)}
-    className="bg-[#2E7D32] text-white px-5 py-2.5 rounded-xl font-black text-[12px] uppercase flex items-center gap-2 shadow-md active:scale-95 transition-all"
-  >
-    <Plus size={14} /> CREATE MATCH
-  </button>
-</div>
+
+      <div className="flex justify-center mt-4">
+        <button 
+          onClick={() => router.push(`/tournament/manage-match/${id}`)}
+          className="bg-[#2E7D32] text-white px-5 py-2.5 rounded-xl font-black text-[12px] uppercase flex items-center gap-2 shadow-md active:scale-95 transition-all"
+        >
+          <Plus size={14} /> CREATE MATCH
+        </button>
+      </div>
 
       <main className="w-full px-4 pt-6 pb-32 max-w-7xl mx-auto">
         
@@ -286,12 +275,12 @@ if (playerPhoto) {
                onChange={(e) => setTeamName(e.target.value)} 
                className="flex-1 bg-transparent pl-3 text-xs outline-none font-black italic uppercase text-[#1D2939]" 
              />
-                 <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => setTeamLogo(e.target.files[0])}
-  className="text-[10px] w-[110px]"
-/>
+             <input
+               type="file"
+               accept="image/*"
+               onChange={(e) => setTeamLogo(e.target.files[0])}
+               className="text-[10px] w-[110px]"
+             />
              <button onClick={handleAddTeam} className="bg-[#1D2939] text-white px-5 py-2.5 font-black italic text-[10px] uppercase rounded-xl active:scale-95 transition-all">
                Add Team
              </button>
@@ -340,43 +329,38 @@ if (playerPhoto) {
                   <form onSubmit={handleAddPlayer} className="flex gap-2">
                     <input autoFocus type="text" required placeholder="PLAYER NAME..." value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="flex-1 bg-white border border-gray-200 px-4 py-3 rounded-xl text-xs font-black uppercase italic outline-none focus:border-[#1D2939]" />
 
-          <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => setPlayerPhoto(e.target.files[0])}
-  className="text-[10px] w-[110px]"
-/>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setPlayerPhoto(e.target.files[0])}
+                      className="text-[10px] w-[110px]"
+                    />
     
                     <button type="submit" className="bg-[#1D2939] text-white px-4 rounded-xl shadow-md active:scale-95 shrink-0">Add Player</button>
                   </form>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar pb-24">
                   {teamPlayers.map((p, index) => (
+                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-gray-100 rounded-xl shadow-sm">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] flex items-center justify-center shrink-0">
+                          {p.photoUrl ? (
+                            <img
+                              src={p.photoUrl}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-white text-[11px] font-black">
+                              {(index + 1).toString().padStart(2, "0")}
+                            </span>
+                          )}
+                        </div>
 
-                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-gray-100 rounded-xl shadow-sm"
->
-  <div className="flex items-center gap-3 min-w-0">
-
-    <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] flex items-center justify-center shrink-0">
-      {p.photoUrl ? (
-        <img
-          src={p.photoUrl}
-          alt={p.name}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span className="text-white text-[11px] font-black">
-          {(index + 1).toString().padStart(2, "0")}
-        </span>
-      )}
-    </div>
-
-    <span className="text-xs font-black uppercase text-[#1D2939] truncate">
-      {p.name}
-    </span>
-
-  </div>
-
+                        <span className="text-xs font-black uppercase text-[#1D2939] truncate">
+                          {p.name}
+                        </span>
+                      </div>
                                    
                       <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-500 transition-all">
                         <Trash2 size={16} />
@@ -389,26 +373,28 @@ if (playerPhoto) {
           )}
         </AnimatePresence>
       </main>
-<div>
-          </div>
-            <div>
-            </div>
+
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-[#1D2939] shadow-xl rounded-full z-40 flex items-center gap-2 border border-white/10">
         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
         <span className="text-[8px] font-black uppercase tracking-widest text-white/90">System Stable</span>
       </div>
     </div>
   );
-          }
-
+}
 
 export async function getServerSideProps({ params }) {
   try {
     const data = await getTournamentInitialProps(params.id);
     if (!data) return { notFound: true };
-    return { props: { initialTournament: data.tournament, initialTeams: data.teams } };
+    return { 
+      props: { 
+        initialTournament: JSON.parse(JSON.stringify(data.tournament)), 
+        initialTeams: JSON.parse(JSON.stringify(data.teams)) 
+      } 
+    };
   } catch (error) {
-    console.error("Tournament SSR failed:", error);
+    console.error("Tournament details SSR failed:", error);
     return { props: { initialTournament: null, initialTeams: [] } };
   }
-}
+        }
+                 
