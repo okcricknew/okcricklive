@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db, auth } from '../lib/firebase';
-import { getAdminAuth, getAdminDb } from '../lib/firebaseAdmin';
+import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
 import { collection, query, where, onSnapshot, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Trophy, MapPin, Loader2, PlusCircle, ChevronRight, ChevronLeft, Users, Swords, LayoutList, Calendar, Trash2 } from 'lucide-react';
