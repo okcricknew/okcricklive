@@ -56,7 +56,12 @@ function MyApp({ Component, pageProps }) {
 {/*  <meta name="google-site-verification" content="tQXKMJCtG19512-Xrt5ZmUZrElhCMDxgSF26YnErRQI" /> */}
       </Head>
     
-      {!isLiveOverlay && <Navbar />}
+      {!isLiveOverlay && (
+  <Navbar 
+    initialUser={pageProps?.initialUser} 
+    initialUserData={pageProps?.initialUserData} 
+  />
+)}
       
       {isLiveOverlay ? (
         <Component {...pageProps} />
