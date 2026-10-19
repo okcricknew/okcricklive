@@ -7,16 +7,19 @@ import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore'; 
 
-export default function Navbar({ initialUser, initialUserData }) {
+export default function Navbar({ initialUser = null, initialUserData = null }) {
   const router = useRouter(); 
-  const [isMounted, setIsMounted] = useState(false); 
-  const [authLoading, setAuthLoading] = useState(!initialUser); // 👈 Blinking rokne ke liye auth loading state
+  // SSR props se initial state set karne par loading false rahegi taaki flicker na ho
+  const [authLoading, setAuthLoading] = useState(!initialUser); 
   const [isOpen, setIsOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showTrophyModal, setShowTrophyModal] = useState(false); 
   const [authMode, setAuthMode] = useState('login');
-  const [user, setUser] = useState(initialUser || null);
-  const [userData, setUserData] = useState(initialUserData || null);
+  
+  // Directly initialize with server-side props
+  const [user, setUser] = useState(initialUser);
+  const [userData, setUserData] = useState(initialUserData); 
+
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -37,15 +40,11 @@ export default function Navbar({ initialUser, initialUserData }) {
   const [tLogo, setTLogo] = useState(null);
 
   useEffect(() => {
-    setIsMounted(true); 
-  }, []);
-
-  useEffect(() => {
     let unsubscribeSnapshot = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser); 
-      setAuthLoading(false); // 👈 Auth check complete hote hi loading false karein
+      setAuthLoading(false); 
 
       if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
@@ -158,6 +157,7 @@ export default function Navbar({ initialUser, initialUserData }) {
 
       setShowAuth(false);
       setIsOpen(false);
+      router.reload(); // Server cookie sync ke liye page reload
     } catch (error) {
       console.error("Authentication error:", error);
       alert(error.message);
@@ -243,11 +243,13 @@ export default function Navbar({ initialUser, initialUserData }) {
     } finally {
       setIsOpen(false);
       router.push("/");
+      router.reload();
     }
   };
 
-  const activeUser = isMounted ? user : null;
-  const activeUserData = isMounted ? userData : null;
+  // Direct active states utilizing SSR data
+  const activeUser = user;
+  const activeUserData = userData;
 
   return (
     <>
@@ -433,7 +435,7 @@ export default function Navbar({ initialUser, initialUserData }) {
                 )}
                 <InputWrapper icon={<Mail size={18}/>}>
                   <input required type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-50 py-4 pl-12 pr-4 rounded-xl outline-none border border-slate-100 font-bold text-sm" />
-                </InputWrapper>
+                  </InputWrapper>
                 <div className="relative">
                   <InputWrapper icon={<Lock size={18}/>}>
                     <input required type={showPass ? "text" : "password"} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 py-4 pl-12 pr-12 rounded-xl outline-none border border-slate-100 font-bold text-sm" />
@@ -477,3 +479,4 @@ function InputWrapper({ icon, children }) {
     </div>
   );
 }
+  
