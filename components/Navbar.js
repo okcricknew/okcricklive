@@ -7,16 +7,16 @@ import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore'; 
 
-export default function Navbar() {
+export default function Navbar({ initialUser, initialUserData }) {
   const router = useRouter(); 
   const [isMounted, setIsMounted] = useState(false); 
-  const [authLoading, setAuthLoading] = useState(true); // 👈 Blinking rokne ke liye auth loading state
+  const [authLoading, setAuthLoading] = useState(!initialUser); // 👈 Blinking rokne ke liye auth loading state
   const [isOpen, setIsOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showTrophyModal, setShowTrophyModal] = useState(false); 
   const [authMode, setAuthMode] = useState('login');
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null); 
+  const [user, setUser] = useState(initialUser || null);
+  const [userData, setUserData] = useState(initialUserData || null);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
