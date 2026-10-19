@@ -458,7 +458,7 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
                 )}
                 
                 <button type="submit" disabled={loading} className="w-full bg-[#1D2939] text-white font-black py-5 rounded-2xl shadow-[0_10px_20px_-5px_rgba(29,41,57,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(29,41,57,0.4)] hover:-translate-y-1 active:scale-95 transition-all duration-300 uppercase tracking-[0.2em] text-[10px] mt-4 flex items-center justify-center gap-2 group">
-                  {loading ? 'Processing...' : (authMode === 'login' ? 'Login Now' : 'Create Account')}
+                  {loading ? 'Processing....' : (authMode === 'login' ? 'Login Now' : 'Create Account')}
                 </button>
               </form>
             </motion.div>
