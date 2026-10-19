@@ -12,7 +12,8 @@ import { getHomeInitialProps } from "../lib/ssr/home";
 export default function Home({ initialMatch = null, initialUser = null, initialUserData = null }) { 
   const fastTransition = { duration: 0.1, ease: "easeOut" };
 
-  const [user, setUser] = useState(null);
+  // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
+  const [user, setUser] = useState(initialUser);
   const [match, setMatch] = useState(initialMatch);
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] relative overflow-hidden group">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-white mb-5 tracking-wider uppercase">
               <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-              Pro Dashboard Engine
+              Pro Dashboard Engine {initialUserData ? `(${initialUserData.name || ''})` : ''}
             </span>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-none text-slate-900 uppercase">
               Cricket Live Scoring &<br/>
@@ -208,14 +209,11 @@ function Feature({ icon, title, desc }) {
       <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-normal">{desc}</p> 
     </div> 
   ); 
-    }
-            
-
+}
 
 export async function getServerSideProps(context) {
   try {
     const { req } = context;
-    // 👇 Yahan 'session' ki jagah '__session' hona chahiye kyunki API me wahi set ho raha hai
     const sessionCookie = req.cookies.__session || '';
 
     let initialUser = null;
@@ -259,4 +257,5 @@ export async function getServerSideProps(context) {
       } 
     };
   }
-}
+            }
+            
