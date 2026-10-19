@@ -1,3 +1,4 @@
+import { getAdminAuth, getAdminDb } from "../lib/firebaseAdmin";
 import Link from "next/link"; 
 import { Zap, Shield, Globe, BarChart3, Users, Star, MessageSquare, ArrowUpRight } from "lucide-react"; 
 import { motion } from "framer-motion";
@@ -8,7 +9,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getHomeInitialProps } from "../lib/ssr/home";
 
-export default function Home({ initialMatch = null }) { 
+export default function Home({ initialMatch = null, initialUser = null, initialUserData = null }) { 
   const fastTransition = { duration: 0.1, ease: "easeOut" };
 
   const [user, setUser] = useState(null);
@@ -211,13 +212,50 @@ function Feature({ icon, title, desc }) {
             
 
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   try {
-    const props = await getHomeInitialProps();
-    return { props };
+    const { req } = context;
+    const sessionCookie = req.cookies.session || '';
+
+    let initialUser = null;
+    let initialUserData = null;
+
+    if (sessionCookie) {
+      try {
+        const adminAuth = getAdminAuth();
+        const adminDb = getAdminDb();
+
+        const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
+        const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
+        initialUserData = userDoc.exists ? userDoc.data() : null;
+
+        initialUser = {
+          uid: decodedToken.uid,
+          email: decodedToken.email,
+          displayName: initialUserData?.name || decodedToken.name || '',
+        };
+      } catch (err) {
+        console.error("Session verification failed:", err);
+      }
+    }
+
+    const homeProps = await getHomeInitialProps().catch(() => ({ initialMatch: null }));
+
+    return {
+      props: {
+        ...homeProps,
+        initialUser,
+        initialUserData,
+      },
+    };
   } catch (error) {
     console.error("Home SSR failed:", error);
-    // Never break the existing client UI if Admin SDK is not configured yet.
-    return { props: { initialMatch: null } };
+    return { 
+      props: { 
+        initialMatch: null, 
+        initialUser: null, 
+        initialUserData: null 
+      } 
+    };
   }
 }
