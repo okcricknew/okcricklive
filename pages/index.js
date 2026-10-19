@@ -1,4 +1,4 @@
-import { getAdminAuth, getAdminDb } from "../lib/firebaseAdmin";
+import { getAdminAuth, getAdminDb } from "../lib/firebase-admin";
 import Link from "next/link"; 
 import { Zap, Shield, Globe, BarChart3, Users, Star, MessageSquare, ArrowUpRight } from "lucide-react"; 
 import { motion } from "framer-motion";
