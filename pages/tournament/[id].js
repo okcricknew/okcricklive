@@ -382,19 +382,25 @@ export default function TournamentDetails({ initialTournament = null, initialTea
   );
 }
 
+// --- SERVER SIDE RENDERING (SSR) ---
 export async function getServerSideProps({ params }) {
   try {
     const data = await getTournamentInitialProps(params.id);
-    if (!data) return { notFound: true };
+    
+    // Agar tournament database mein nahi milta, toh 404 trigger karein
+    if (!data || !data.tournament) {
+      return { notFound: true };
+    }
+
     return { 
       props: { 
-        initialTournament: JSON.parse(JSON.stringify(data.tournament)), 
-        initialTeams: JSON.parse(JSON.stringify(data.teams)) 
+        initialTournament: data.tournament, 
+        initialTeams: data.teams || [] 
       } 
     };
   } catch (error) {
     console.error("Tournament details SSR failed:", error);
-    return { props: { initialTournament: null, initialTeams: [] } };
+    return { notFound: true };
   }
         }
-                 
+                   
