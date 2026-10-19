@@ -215,7 +215,8 @@ function Feature({ icon, title, desc }) {
 export async function getServerSideProps(context) {
   try {
     const { req } = context;
-    const sessionCookie = req.cookies.session || '';
+    // 👇 Yahan 'session' ki jagah '__session' hona chahiye kyunki API me wahi set ho raha hai
+    const sessionCookie = req.cookies.__session || '';
 
     let initialUser = null;
     let initialUserData = null;
