@@ -1,29 +1,17 @@
 import { useState, useEffect } from 'react';
 import { db, auth } from '../lib/firebase';
+import { getAdminAuth, getAdminDb } from '../lib/firebaseAdmin';
 import { collection, query, where, onSnapshot, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Trophy, MapPin, Loader2, PlusCircle, ChevronRight, ChevronLeft, Users, Swords, LayoutList, Calendar, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import Link from 'next/link';
 
-// --- SUB-COMPONENT: COMPACT TOURNAMENT CARD (OPTIMIZED WITH INSTANT CACHE LOOKUP) ---
+// --- SUB-COMPONENT: COMPACT TOURNAMENT CARD (OPTIMIZED) ---
 function TournamentCard({ tournament }) {
-  // Local storage se counts ka initial lookup taaki refresh par bhi '...' na dikhe
-  const [teamCount, setTeamCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return Number(localStorage.getItem(`tc_${tournament.id}`)) || 0;
-    }
-    return 0;
-  });
-  
-  const [matchCount, setMatchCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return Number(localStorage.getItem(`mc_${tournament.id}`)) || 0;
-    }
-    return 0;
-  });
-  
-  const [loading, setLoading] = useState(false); // Shuru se hi false rakhein taaki data instant render ho
+  const [teamCount, setTeamCount] = useState(0);
+  const [matchCount, setMatchCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDelete = async () => {
@@ -45,10 +33,6 @@ function TournamentCard({ tournament }) {
       }
 
       await deleteDoc(doc(db, "tournaments", tournament.id));
-      
-      // Cache clear on delete
-      localStorage.removeItem(`tc_${tournament.id}`);
-      localStorage.removeItem(`mc_${tournament.id}`);
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Delete error:", error);
@@ -58,19 +42,16 @@ function TournamentCard({ tournament }) {
   useEffect(() => {
     if (!tournament.id || tournament.id.startsWith("temp")) return;
 
-    // Realtime changes sync karne ke liye snapshot lagaye rakhein par cache update ke sath
     const teamsCol = collection(db, "tournaments", tournament.id, "teams");
     const unsubTeams = onSnapshot(teamsCol, (snapshot) => {
       const size = snapshot.size;
       setTeamCount(size);
-      localStorage.setItem(`tc_${tournament.id}`, size);
     });
 
     const matchesCol = collection(db, "tournaments", tournament.id, "matches");
     const unsubMatches = onSnapshot(matchesCol, (snapshot) => {
       const size = snapshot.snapshot ? snapshot.docs.length : snapshot.size;
       setMatchCount(size);
-      localStorage.setItem(`mc_${tournament.id}`, size);
     });
 
     return () => {
@@ -169,28 +150,17 @@ function TournamentCard({ tournament }) {
   );
 }
 
-// --- MAIN DASHBOARD (WITH STATE REHYDRATION JUGAD) ---
-export default function MyTournaments() {
-  // 1. STATE REHYDRATION LOGIC: Initialize state directly from LocalStorage
-  const [tournaments, setTournaments] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('cached_tournaments');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-
-  // Agar cache mein data mil gaya toh spinner/loading ka jhanjhat hi khatam (0ms loading!)
-  const [loadingTournaments, setLoadingTournaments] = useState(tournaments.length === 0);
-  const [user, setUser] = useState(null);
+// --- MAIN DASHBOARD (FULLY SSR) ---
+export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
+  const [tournaments, setTournaments] = useState(initialTournaments);
+  const [user, setUser] = useState(initialUser);
+  const [loadingTournaments, setLoadingTournaments] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [authChecked, setAuthChecked] = useState(true);
   const tournamentsPerPage = 10;
+  
   const [activeTourId, setActiveTourId] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('active_tournament_id') || null;
-    }
-    return null;
+    return initialTournaments[0]?.id || null;
   });
 
   useEffect(() => {
@@ -215,14 +185,7 @@ export default function MyTournaments() {
           setTournaments(sortedDocs);
           setLoadingTournaments(false);
 
-          // Sync data with local storage for next instant rehydration
-          localStorage.setItem('cached_tournaments', JSON.stringify(sortedDocs));
-
-          setActiveTourId(prev => {
-            const nextId = prev || sortedDocs[0]?.id || null;
-            if (nextId) localStorage.setItem('active_tournament_id', nextId);
-            return nextId;
-          });
+          setActiveTourId(prev => prev || sortedDocs[0]?.id || null);
         }, (err) => { 
           console.error(err);
         });
@@ -237,7 +200,6 @@ export default function MyTournaments() {
 
   const handleTourClick = (id) => {
     setActiveTourId(id);
-    localStorage.setItem('active_tournament_id', id);
   };
 
   const indexOfLastTournament = currentPage * tournamentsPerPage;
@@ -247,7 +209,7 @@ export default function MyTournaments() {
 
   return (
     <motion.div 
-      suppressHydrationWarning={true} // Next.js UI mismatch warning ko rokne ke liye
+      suppressHydrationWarning={true}
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       transition={{ duration: 0.1, ease: "linear" }}
@@ -328,5 +290,71 @@ export default function MyTournaments() {
       </div>
     </motion.div>
   );
-                  }
-        
+}
+
+// --- SERVER SIDE RENDERING (SSR) ---
+export async function getServerSideProps(context) {
+  try {
+    const { req } = context;
+    const sessionCookie = req.cookies.__session || '';
+
+    let initialUser = null;
+    let initialUserData = null;
+    let initialTournaments = [];
+
+    if (sessionCookie) {
+      try {
+        const adminAuth = getAdminAuth();
+        const adminDb = getAdminDb();
+
+        const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
+        const uid = decodedToken.uid;
+
+        const userDoc = await adminDb.collection('users').doc(uid).get();
+        initialUserData = userDoc.exists ? userDoc.data() : null;
+
+        initialUser = {
+          uid: decodedToken.uid,
+          email: decodedToken.email,
+          displayName: initialUserData?.name || decodedToken.name || '',
+        };
+
+        const snapshot = await adminDb
+          .collection('tournaments')
+          .where('adminId', '==', uid)
+          .get();
+
+        initialTournaments = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        initialTournaments.sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA;
+        });
+      } catch (err) {
+        console.error("Session verification failed:", err);
+      }
+    }
+
+    return {
+      props: {
+        initialTournaments: JSON.parse(JSON.stringify(initialTournaments)),
+        initialUser: initialUser ? JSON.parse(JSON.stringify(initialUser)) : null,
+        initialUserData: initialUserData ? JSON.parse(JSON.stringify(initialUserData)) : null,
+      },
+    };
+  } catch (error) {
+    console.error("MyTournaments SSR failed:", error);
+    return {
+      props: {
+        initialTournaments: [],
+        initialUser: null,
+        initialUserData: null,
+      },
+    };
+  }
+                }
+                  
