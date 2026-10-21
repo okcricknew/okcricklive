@@ -201,7 +201,7 @@ export default function MyTournaments({ initialTournaments = [], initialUser = n
           </Link>
         </div>
 
-        {tournaments.length === 0 && !loadingTournaments ? (
+        {tournaments.length === 0 ? (
           <div className="py-24 text-center bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
             <Trophy className="text-slate-200 mx-auto mb-6" size={40} />
             <h3 className="text-[#1D2939] font-black text-lg uppercase tracking-tight">No Tournaments Found</h3>
@@ -248,68 +248,149 @@ export default function MyTournaments({ initialTournaments = [], initialUser = n
 }
 
 // --- SERVER SIDE RENDERING (SSR) ---
-export async function getServerSideProps(context) {
-  try {
-    const { req } = context;
-    const sessionCookie = req.cookies.__session || '';
+function serializeValue(value) {
+  if (value == null) return null;
 
-    let initialUser = null;
-    let initialUserData = null;
-    let initialTournaments = [];
+  if (value instanceof Date) return value.toISOString();
 
-    if (sessionCookie) {
-      try {
-        const adminAuth = getAdminAuth();
-        const adminDb = getAdminDb();
+  if (typeof value.toDate === 'function') {
+    return value.toDate().toISOString();
+  }
 
-        const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
-        const uid = decodedToken.uid;
+  if (Array.isArray(value)) {
+    return value.map(serializeValue);
+  }
 
-        const userDoc = await adminDb.collection('users').doc(uid).get();
-        initialUserData = userDoc.exists ? userDoc.data() : null;
+  if (typeof value === 'object') {
+    const result = {};
 
-        initialUser = {
-          uid: decodedToken.uid,
-          email: decodedToken.email,
-          displayName: initialUserData?.name || decodedToken.name || '',
-        };
-
-        const snapshot = await adminDb
-          .collection('tournaments')
-          .where('adminId', '==', uid)
-          .get();
-
-        initialTournaments = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        initialTournaments.sort((a, b) => {
-          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return timeB - timeA;
-        });
-      } catch (err) {
-        console.error("Session verification failed:", err);
+    for (const [key, item] of Object.entries(value)) {
+      if (item !== undefined) {
+        result[key] = serializeValue(item);
       }
     }
 
+    return result;
+  }
+
+  if (typeof value === 'number' && !Number.isFinite(value)) {
+    return null;
+  }
+
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
+function getTimestampMillis(value) {
+  if (!value) return 0;
+
+  if (typeof value.toMillis === 'function') {
+    return value.toMillis();
+  }
+
+  if (typeof value.toDate === 'function') {
+    return value.toDate().getTime();
+  }
+
+  const millis = new Date(value).getTime();
+  return Number.isFinite(millis) ? millis : 0;
+}
+
+export async function getServerSideProps({ req, res }) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+
+  const sessionCookie = req.cookies?.__session;
+
+  if (!sessionCookie) {
     return {
-      props: {
-        initialTournaments: JSON.parse(JSON.stringify(initialTournaments)),
-        initialUser: initialUser ? JSON.parse(JSON.stringify(initialUser)) : null,
-        initialUserData: initialUserData ? JSON.parse(JSON.stringify(initialUserData)) : null,
-      },
-    };
-  } catch (error) {
-    console.error("MyTournaments SSR failed:", error);
-    return {
-      props: {
-        initialTournaments: [],
-        initialUser: null,
-        initialUserData: null,
+      redirect: {
+        destination: '/login',
+        permanent: false,
       },
     };
   }
-                }
-                  
+
+  try {
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
+
+    const decodedToken = await adminAuth.verifySessionCookie(
+      sessionCookie,
+      true
+    );
+
+    const uid = decodedToken.uid;
+
+    const userDoc = await adminDb
+      .collection('users')
+      .doc(uid)
+      .get();
+
+    const userData = userDoc.exists ? userDoc.data() : {};
+
+    const snapshot = await adminDb
+      .collection('tournaments')
+      .where('adminId', '==', uid)
+      .get();
+
+    const initialTournaments = await Promise.all(
+      snapshot.docs.map(async (tournamentDoc) => {
+        const tournamentRef = tournamentDoc.ref;
+
+        const [teamsSnapshot, matchesSnapshot] = await Promise.all([
+          tournamentRef.collection('teams').get(),
+          tournamentRef.collection('matches').get(),
+        ]);
+
+        return {
+          id: tournamentDoc.id,
+          ...serializeValue(tournamentDoc.data()),
+          teamCount: teamsSnapshot.size,
+          matchCount: matchesSnapshot.size,
+        };
+      })
+    );
+
+    initialTournaments.sort(
+      (a, b) =>
+        getTimestampMillis(b.createdAt) -
+        getTimestampMillis(a.createdAt)
+    );
+
+    return {
+      props: {
+        initialTournaments,
+        initialUser: {
+          uid,
+          email: decodedToken.email || null,
+          displayName:
+            userData?.name || decodedToken.name || '',
+        },
+        initialUserData: null,
+      },
+    };
+  } catch (error) {
+    console.error(
+      'My Tournaments SSR error:',
+      error.code || error.message
+    );
+
+    res.setHeader('Set-Cookie', [
+      '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+    ]);
+
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+}
