@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react';
-import { db, auth } from '../lib/firebase';
+
+import { useState } from 'react';
+import { db } from '../lib/firebase';
 import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
-import { collection, query, where, onSnapshot, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+} from 'firebase/firestore';
 import { Trophy, MapPin, Loader2, PlusCircle, ChevronRight, ChevronLeft, Users, Swords, LayoutList, Calendar, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import Link from 'next/link';
 
 // --- SUB-COMPONENT: COMPACT TOURNAMENT CARD (OPTIMIZED) ---
 function TournamentCard({ tournament }) {
-  const [teamCount, setTeamCount] = useState(0);
-  const [matchCount, setMatchCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  
+const teamCount = tournament.teamCount ?? 0;
+const matchCount = tournament.matchCount ?? 0;
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDelete = async () => {
@@ -39,20 +45,6 @@ function TournamentCard({ tournament }) {
     }
   };
 
-  useEffect(() => {
-    if (!tournament.id || tournament.id.startsWith("temp")) return;
-
-    const teamsCol = collection(db, "tournaments", tournament.id, "teams");
-    const unsubTeams = onSnapshot(teamsCol, (snapshot) => {
-      const size = snapshot.size;
-      setTeamCount(size);
-    });
-
-    const matchesCol = collection(db, "tournaments", tournament.id, "matches");
-    const unsubMatches = onSnapshot(matchesCol, (snapshot) => {
-      const size = snapshot.snapshot ? snapshot.docs.length : snapshot.size;
-      setMatchCount(size);
-    });
 
     return () => {
       unsubTeams();
