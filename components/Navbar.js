@@ -43,7 +43,11 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
     let unsubscribeSnapshot = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); 
+      if (currentUser) {
+  setUser(currentUser);
+} else if (!initialUser) {
+  setUser(null);
+      }
       setAuthLoading(false); 
 
       if (currentUser) {
