@@ -40,6 +40,7 @@ const matchCount = tournament.matchCount ?? 0;
 
       await deleteDoc(doc(db, "tournaments", tournament.id));
       setShowDeleteModal(false);
+window.location.reload();
     } catch (error) {
       console.error("Delete error:", error);
     }
