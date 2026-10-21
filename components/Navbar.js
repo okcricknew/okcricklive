@@ -39,34 +39,61 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
   const [endDate, setEndDate] = useState('');
   const [tLogo, setTLogo] = useState(null);
 
-  useEffect(() => {
-    let unsubscribeSnapshot = null;
+  
+useEffect(() => {
+  let unsubscribeSnapshot = null;
+  let isFirstAuthCallback = true;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-  setUser(currentUser);
-} else {
-  setUser(null);
-}
-setAuthLoading(false);
+  const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      setUser(currentUser);
+    } else if (!isFirstAuthCallback || !initialUser) {
+      setUser(null);
+    }
 
-      if (currentUser) {
-        const docRef = doc(db, "users", currentUser.uid);
-        unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserData(docSnap.data());
-          }
-        });
-      } else {
-        setUserData(null);
-      }
-    });
+    setAuthLoading(false);
 
-    return () => {
-      unsubscribeAuth();
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-    };
-  }, []);
+    if (unsubscribeSnapshot) {
+      unsubscribeSnapshot();
+      unsubscribeSnapshot = null;
+    }
+
+    if (currentUser) {
+      const docRef = doc(db, 'users', currentUser.uid);
+
+      unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+      });
+    } else if (!isFirstAuthCallback || !initialUserData) {
+      setUserData(null);
+    }
+
+    isFirstAuthCallback = false;
+  });
+
+  return () => {
+    unsubscribeAuth();
+
+    if (unsubscribeSnapshot) {
+      unsubscribeSnapshot();
+    }
+  };
+}, []);
+
+  
+useEffect(() => {
+  if (initialUser) {
+    setUser(initialUser);
+    setAuthLoading(false);
+  }
+
+  if (initialUserData) {
+    setUserData(initialUserData);
+  }
+}, [initialUser, initialUserData]);
+  
   
   // --- NEW ARENA BUTTON SIGNAL LISTENER ---
   useEffect(() => {
