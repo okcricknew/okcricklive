@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { db, auth } from '../../../lib/firebase'; 
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  doc, 
-  getDoc, 
-  serverTimestamp 
-} from 'firebase/firestore'; 
+import { db, auth } from '../../../lib/firebase';
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from 'firebase/firestore';
+
+import { getManageMatchInitialProps } from '../../../lib/ssr/tournament';
+import { getNavbarInitialProps } from '../../../lib/ssr/auth';
 import { ArrowLeft, Zap, Loader2 } from 'lucide-react';
 
 export default function CreateMatch({ initialTournament, initialTeams, id }) {
@@ -278,47 +278,43 @@ export default function CreateMatch({ initialTournament, initialTeams, id }) {
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
+  context.res.setHeader(
+    'Cache-Control',
+    'private, no-store, max-age=0'
+  );
+
   try {
-    // 1. Fetch Tournament Data
-    const tourneyRef = doc(db, "tournaments", id);
-    const tourneySnap = await getDoc(tourneyRef);
-    let initialTournament = null;
+    const [data, navbarProps] = await Promise.all([
+      getManageMatchInitialProps(id),
+      getNavbarInitialProps(context.req),
+    ]);
 
-    if (tourneySnap.exists()) {
-      const data = tourneySnap.data();
-      initialTournament = {
-        tournamentName: data.tournamentName || '',
-        logoUrl: data.logoUrl || '',
-        location: data.location || ''
-      };
+    if (!data) {
+      return { notFound: true };
     }
-
-    // 2. Fetch Teams Data
-    const teamsRef = collection(db, "tournaments", id, "teams");
-    const teamsSnap = await getDocs(teamsRef);
-    const initialTeams = teamsSnap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      // Firebase Timestamps ko direct prop me pass nahi kar sakte, serialize karna padta hai
-      createdAt: doc.data().createdAt ? doc.data().createdAt.toDate().toISOString() : null
-    }));
 
     return {
       props: {
         id,
-        initialTournament,
-        initialTeams,
+        initialTournament: data.tournament ?? null,
+        initialTeams: data.teams ?? [],
+        ...navbarProps,
       },
     };
   } catch (error) {
-    console.error("SSR Fetching Error:", error);
+    console.error(
+      'Create Match SSR failed:',
+      error?.code || error?.message
+    );
+
     return {
       props: {
         id,
         initialTournament: null,
         initialTeams: [],
+        initialUser: null,
+        initialUserData: null,
       },
     };
   }
-                      }
-        
+}
