@@ -9,6 +9,7 @@ import PlayerSelectionModal from '../../../components/PlayerSelectionModal';
 import MatchSummaryModal from '../../../components/MatchSummaryModal';
 import EditMatchModal from '../../../components/scoring/EditMatchModal';
 import { getMatchListInitialProps } from '../../../lib/ssr/tournament';
+import { getNavbarInitialProps } from '../../../lib/ssr/auth';
 
 export default function MatchList({ initialTournament = null, initialMatches = [] }) {
   const router = useRouter();
@@ -396,9 +397,14 @@ export default function MatchList({ initialTournament = null, initialMatches = [
 
 // --- SERVER SIDE RENDERING (SSR) ---
 
-export async function getServerSideProps({ params }) {
+export async function getServerSideProps({ params, req, res }) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+
   try {
-    const data = await getMatchListInitialProps(params.id);
+    const [data, navbarProps] = await Promise.all([
+      getMatchListInitialProps(params.id),
+      getNavbarInitialProps(req),
+    ]);
 
     if (!data) {
       return { notFound: true };
@@ -408,13 +414,15 @@ export async function getServerSideProps({ params }) {
       props: {
         initialTournament: data.tournament ?? null,
         initialMatches: data.matches ?? [],
+        ...navbarProps,
       },
     };
   } catch (error) {
-    console.error('Match list SSR failed:', error);
+    console.error(
+      'Match list SSR failed:',
+      error?.code || error?.message
+    );
 
     return { notFound: true };
   }
 }
-
-    
