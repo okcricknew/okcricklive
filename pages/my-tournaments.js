@@ -86,13 +86,13 @@ const matchCount = tournament.matchCount ?? 0;
             <div className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
               <Users size={14} strokeWidth={2.5} />
               <span className="text-[11px] font-extrabold uppercase tracking-wider">
-                {loading ? "..." : `${teamCount} Teams`}
+                {teamCount} Teams
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-500 hover:text-red-500 transition-colors">
               <Swords size={14} strokeWidth={2.5} />
               <span className="text-[11px] font-extrabold uppercase tracking-wider">
-                {loading ? "..." : `${matchCount} Matches`}
+                {matchCount} Matches
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-500">
@@ -145,51 +145,14 @@ const matchCount = tournament.matchCount ?? 0;
 // --- MAIN DASHBOARD (FULLY SSR) ---
 export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
   const [tournaments, setTournaments] = useState(initialTournaments);
-  const [user, setUser] = useState(initialUser);
-  const [loadingTournaments, setLoadingTournaments] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [authChecked, setAuthChecked] = useState(true);
   const tournamentsPerPage = 10;
   
   const [activeTourId, setActiveTourId] = useState(() => {
     return initialTournaments[0]?.id || null;
   });
 
-  useEffect(() => {
-    let unsubTourney = () => {};
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthChecked(true);
-      
-      if (currentUser) {
-        const q = query(collection(db, "tournaments"), where("adminId", "==", currentUser.uid));
-        
-        unsubTourney = onSnapshot(q, (snapshot) => {
-          const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          
-          const sortedDocs = docs.sort((a, b) => {
-            const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return timeB - timeA;
-          });
-
-          setTournaments(sortedDocs);
-          setLoadingTournaments(false);
-
-          setActiveTourId(prev => prev || sortedDocs[0]?.id || null);
-        }, (err) => { 
-          console.error(err);
-        });
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-      unsubTourney();
-    };
-  }, []);
-
+    return 
   const handleTourClick = (id) => {
     setActiveTourId(id);
   };
