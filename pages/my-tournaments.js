@@ -46,13 +46,6 @@ window.location.reload();
     }
   };
 
-
-    return () => {
-      unsubTeams();
-      unsubMatches();
-    };
-  }, [tournament.id]);
-
   return (
     <motion.div 
       layout="position"
@@ -149,11 +142,10 @@ export default function MyTournaments({ initialTournaments = [], initialUser = n
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
   
-  const [activeTourId, setActiveTourId] = useState(() => {
+    const [activeTourId, setActiveTourId] = useState(() => {
     return initialTournaments[0]?.id || null;
   });
 
-    return 
   const handleTourClick = (id) => {
     setActiveTourId(id);
   };
