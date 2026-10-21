@@ -45,10 +45,10 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
   setUser(currentUser);
-} else if (!initialUser) {
+} else {
   setUser(null);
-      }
-      setAuthLoading(false); 
+}
+setAuthLoading(false);
 
       if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
