@@ -395,19 +395,26 @@ export default function MatchList({ initialTournament = null, initialMatches = [
 }
 
 // --- SERVER SIDE RENDERING (SSR) ---
+
 export async function getServerSideProps({ params }) {
   try {
     const data = await getMatchListInitialProps(params.id);
-    if (!data) return { notFound: true };
-    return { 
-      props: { 
-        initialTournament: JSON.parse(JSON.stringify(data.tournament)), 
-        initialMatches: JSON.parse(JSON.stringify(data.matches)) 
-      } 
+
+    if (!data) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        initialTournament: data.tournament ?? null,
+        initialMatches: data.matches ?? [],
+      },
     };
   } catch (error) {
-    console.error("Match list SSR failed:", error);
+    console.error('Match list SSR failed:', error);
+
     return { notFound: true };
   }
-    }
+}
+
     
