@@ -32,17 +32,34 @@ function serializeValue(value) {
   return value;
 }
 
-export default function StatsPage({ tId, tournament, matches }) {
+
+export default function StatsPage({ tId, tournament, matches = [] }) {
+  const hasData = matches.length > 0;
+
   return (
     <div className="pt-10">
-      <TournamentStats
-        tId={tId}
-        data={tournament}
-        matches={matches}
-      />
+      {!hasData ? (
+        <div className="flex min-h-[60vh] items-center justify-center px-4">
+          <div className="text-center">
+            <h2 className="text-xl font-black uppercase tracking-wide text-gray-600">
+              No Data Available
+            </h2>
+            <p className="mt-2 text-sm text-gray-400">
+              Tournament statistics will appear here once match data is available.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <TournamentStats
+          tId={tId}
+          data={tournament}
+          matches={matches}
+        />
+      )}
     </div>
   );
 }
+
 
 export async function getServerSideProps({ req, params, res }) {
   res.setHeader("Cache-Control", "private, no-store, max-age=0");
