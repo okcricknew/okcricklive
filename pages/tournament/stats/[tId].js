@@ -1,73 +1,38 @@
+import { getAdminAuth, getAdminDb } from "../../../lib/firebase-admin";
 import TournamentStats from "../../../components/scoring/TournamentStats";
-import { getAdminDb } from "../../../lib/firebase-admin";
 
-export async function getServerSideProps(context) {
-  const { tId } = context.params;
+function serializeValue(value) {
+  if (value === null || value === undefined) return null;
 
-  try {
-    const adminDb = getAdminDb();
-
-    const tournamentRef = adminDb
-      .collection("tournaments")
-      .doc(tId);
-
-    const [tournamentSnap, matchesSnap] = await Promise.all([
-      tournamentRef.get(),
-      tournamentRef.collection("matches").get(),
-    ]);
-
-    if (!tournamentSnap.exists) {
-      return {
-        notFound: true,
-      };
-    }
-
-    const tournament = {
-      id: tournamentSnap.id,
-      ...tournamentSnap.data(),
-    };
-
-    const matches = matchesSnap.docs.map((matchDoc) => ({
-      id: matchDoc.id,
-      ...matchDoc.data(),
-    }));
-
-    return {
-      props: {
-        tId,
-        tournament: JSON.parse(JSON.stringify(tournament)),
-        matches: JSON.parse(JSON.stringify(matches)),
-      },
-    };
-  } catch (error) {
-    console.error("Tournament Stats SSR Error:", error);
-
-    return {
-      props: {
-        tId,
-        tournament: null,
-        matches: [],
-        loadError: true,
-      },
-    };
+  if (value instanceof Date) {
+    return value.toISOString();
   }
-}
 
-export default function StatsPage({
-  tId,
-  tournament,
-  matches,
-  loadError,
-}) {
-  if (loadError) {
-    return (
-      <div className="pt-10 p-4 text-center">
-        Unable to load tournament statistics.
-        Please try again later.
-      </div>
+  if (typeof value?.toDate === "function") {
+    return value.toDate().toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(serializeValue);
+  }
+
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        serializeValue(item),
+      ])
     );
   }
 
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  return value;
+}
+
+export default function StatsPage({ tId, tournament, matches }) {
   return (
     <div className="pt-10">
       <TournamentStats
@@ -77,4 +42,88 @@ export default function StatsPage({
       />
     </div>
   );
+}
+
+export async function getServerSideProps({ req, params, res }) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+
+  let initialUser = null;
+  let initialUserData = null;
+
+  try {
+    const adminDb = getAdminDb();
+    const adminAuth = getAdminAuth();
+    const sessionCookie = req.cookies?.__session || "";
+
+    if (sessionCookie) {
+      try {
+        const decodedToken = await adminAuth.verifySessionCookie(
+          sessionCookie,
+          true
+        );
+
+        const userDoc = await adminDb
+          .collection("users")
+          .doc(decodedToken.uid)
+          .get();
+
+        initialUserData = userDoc.exists
+          ? serializeValue(userDoc.data())
+          : null;
+
+        initialUser = {
+          uid: decodedToken.uid,
+          email: decodedToken.email || null,
+          displayName:
+            initialUserData?.name || decodedToken.name || "",
+        };
+      } catch (error) {
+        console.error("Stats page session verification failed:", error.code || error.message);
+      }
+    }
+
+    const tId = params.tId;
+
+    const tournamentDoc = await adminDb
+      .collection("tournaments")
+      .doc(tId)
+      .get();
+
+    if (!tournamentDoc.exists) {
+      return { notFound: true };
+    }
+
+    const matchesSnapshot = await adminDb
+      .collection("tournaments")
+      .doc(tId)
+      .collection("matches")
+      .get();
+
+    const matches = matchesSnapshot.docs.map((matchDoc) => ({
+      id: matchDoc.id,
+      ...serializeValue(matchDoc.data()),
+    }));
+
+    return {
+      props: {
+        tId,
+        tournament: serializeValue(tournamentDoc.data()),
+        matches,
+        initialUser,
+        initialUserData,
+      },
+    };
+  } catch (error) {
+    console.error("Tournament stats SSR failed:", error.code || error.message);
+
+    return {
+      props: {
+        tId: params.tId,
+        tournament: {},
+        matches: [],
+        initialUser,
+        initialUserData,
+      },
+    };
+  }
 }
