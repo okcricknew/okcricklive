@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function BestSixer({ matches = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,10 +16,11 @@ export default function BestSixer({ matches = [] }) {
         data.firstInningsStatsBackup?.batting || {};
 
       const combinedSources = [currentBatting, firstInningsBatting];
+      const playersInThisMatch = new Set();
 
       combinedSources.forEach((source) => {
         Object.keys(source).forEach((playerName) => {
-          const p = source[playerName];
+          const playerData = source[playerName];
 
           if (!stats[playerName]) {
             stats[playerName] = {
@@ -30,12 +31,16 @@ export default function BestSixer({ matches = [] }) {
             };
           }
 
-          stats[playerName].runs += Number(p.runs || 0);
+          stats[playerName].runs += Number(playerData.runs || 0);
+          playersInThisMatch.add(playerName);
         });
       });
 
       ballHistory.forEach((ball) => {
-        if (Number(ball.runs) === 6 && ball.striker) {
+        if (
+          Number(ball.runs) === 6 &&
+          ball.striker
+        ) {
           const playerName = ball.striker;
 
           if (!stats[playerName]) {
@@ -48,16 +53,12 @@ export default function BestSixer({ matches = [] }) {
           }
 
           stats[playerName].sixes += 1;
+          playersInThisMatch.add(playerName);
         }
       });
 
-      const playersInThisMatch = new Set([
-        ...Object.keys(currentBatting),
-        ...Object.keys(firstInningsBatting),
-      ]);
-
-      playersInThisMatch.forEach((name) => {
-        if (stats[name]) stats[name].matches += 1;
+      playersInThisMatch.forEach((playerName) => {
+        stats[playerName].matches += 1;
       });
     });
 
@@ -66,15 +67,22 @@ export default function BestSixer({ matches = [] }) {
       .sort((a, b) => b.sixes - a.sixes);
   }, [matches]);
 
-  const indexOfLast = currentPage * playersPerPage;
-const indexOfFirst = indexOfLast - playersPerPage;
-const currentPlayers = players.slice(indexOfFirst, indexOfLast);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [matches]);
 
-const totalPages = Math.max(1, Math.ceil(players.length / playersPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(players.length / playersPerPage)
+  );
+
+  const safePage = Math.min(currentPage, totalPages);
+  const indexOfLast = safePage * playersPerPage;
+  const indexOfFirst = indexOfLast - playersPerPage;
+  const currentPlayers = players.slice(indexOfFirst, indexOfLast);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-[#F472B6]/30 overflow-hidden">
-      {/* Header - Group B Style */}
       <div className="bg-gradient-to-r from-[#D946EF] to-[#F472B6] p-3 shadow-inner">
         <h2 className="text-white text-center font-black uppercase italic tracking-widest text-sm flex items-center justify-center gap-2">
           🏆 Tournament Sixer King
@@ -82,88 +90,117 @@ const totalPages = Math.max(1, Math.ceil(players.length / playersPerPage));
       </div>
 
       <div className="max-h-[500px] overflow-y-auto">
-        <table className="w-full text-[11px] border-collapse">
-          <thead className="sticky top-0 z-20">
-            <tr className="bg-[#FDF2F8] text-[#9D174D] border-b-2 border-[#F9A8D4]">
-              <th className="p-3 font-black uppercase text-center border-r border-white w-12">Pos</th>
-              <th className="p-3 text-left font-black uppercase border-r border-white">Player Name</th>
-              <th className="p-3 font-black uppercase text-center border-r border-white">M</th>
-              <th className="p-3 font-black uppercase text-center border-r border-white text-[#DB2777]">6s</th>
-              <th className="p-3 font-black uppercase text-center">Runs</th>
-            </tr>
-          </thead>
+        {players.length === 0 ? (
+          <div className="p-12 text-center text-slate-400 font-bold uppercase text-[10px]">
+            No Stats Recorded Yet
+          </div>
+        ) : (
+          <>
+            <table className="w-full text-[11px] border-collapse">
+              <thead className="sticky top-0 z-20">
+                <tr className="bg-[#FDF2F8] text-[#9D174D] border-b-2 border-[#F9A8D4]">
+                  <th className="p-3 font-black uppercase text-center border-r border-white w-12">
+                    Pos
+                  </th>
+                  <th className="p-3 text-left font-black uppercase border-r border-white">
+                    Player Name
+                  </th>
+                  <th className="p-3 font-black uppercase text-center border-r border-white">
+                    M
+                  </th>
+                  <th className="p-3 font-black uppercase text-center border-r border-white text-[#DB2777]">
+                    6s
+                  </th>
+                  <th className="p-3 font-black uppercase text-center">
+                    Runs
+                  </th>
+                </tr>
+              </thead>
 
-          <tbody>
-            {currentPlayers.map((p, i) => (
-              <tr 
-                key={i} 
-                className={`border-b border-[#F9A8D4]/20 text-center transition-all
-                  ${i === 0 ? 'bg-pink-100/50' : (i % 2 === 0 ? 'bg-[#FDF2F8]' : 'bg-white')}`}
+              <tbody>
+                {currentPlayers.map((player, index) => (
+                  <tr
+                    key={player.name}
+                    className={`border-b border-[#F9A8D4]/20 text-center transition-all
+                      ${
+                        index === 0
+                          ? "bg-pink-100/50"
+                          : index % 2 === 0
+                            ? "bg-[#FDF2F8]"
+                            : "bg-white"
+                      }`}
+                  >
+                    <td
+                      className={`p-3 font-black border-r border-white/60 ${
+                        index === 0
+                          ? "text-amber-600"
+                          : "text-[#BE185D]"
+                      }`}
+                    >
+                      {indexOfFirst + index + 1}
+                    </td>
+
+                    <td className="p-3 text-left font-black text-[#431407] uppercase border-r border-white/60 tracking-tight">
+                      {player.name}
+                    </td>
+
+                    <td className="p-3 text-[#701A75] font-bold border-r border-white/60">
+                      {player.matches}
+                    </td>
+
+                    <td className="p-3 font-black text-[#DB2777] text-sm border-r border-white/60 bg-[#FDF2F8]/40">
+                      {player.sixes}
+                    </td>
+
+                    <td className="p-3 text-[#9D174D] font-bold italic">
+                      {player.runs}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="flex flex-wrap justify-center items-center gap-2 p-4 bg-[#FDF2F8]">
+              <button
+                disabled={safePage === 1}
+                onClick={() =>
+                  setCurrentPage((page) => Math.max(page - 1, 1))
+                }
+                className="px-3 py-1 bg-pink-200 rounded text-xs font-bold disabled:opacity-50"
               >
-                {/* Position */}
-                <td className={`p-3 font-black border-r border-white/60 ${i === 0 ? 'text-amber-600' : 'text-[#BE185D]'}`}>
-                  {indexOfFirst + i + 1}
-                </td>
+                Prev
+              </button>
 
-                {/* Player Name */}
-                <td className="p-3 text-left font-black text-[#431407] uppercase border-r border-white/60 tracking-tight">
-                  {p.name}
-                </td>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`px-3 py-1 rounded text-xs font-bold ${
+                    safePage === index + 1
+                      ? "bg-pink-500 text-white"
+                      : "bg-pink-100 text-pink-700"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
 
-                {/* Total Matches */}
-                <td className="p-3 text-[#701A75] font-bold border-r border-white/60">
-                  {p.matches}
-                </td>
-
-                {/* Total Sixes */}
-                <td className="p-3 font-black text-[#DB2777] text-sm border-r border-white/60 bg-[#FDF2F8]/40">
-                  {p.sixes}
-                </td>
-
-                {/* Total Runs */}
-                <td className="p-3 text-[#9D174D] font-bold italic">
-                  {p.runs}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-<div className="flex justify-center gap-2 p-4 bg-[#FDF2F8]">
-  <button
-    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-    className="px-3 py-1 bg-pink-200 rounded text-xs font-bold"
-  >
-    Prev
-  </button>
-
-  {Array.from({ length: totalPages }, (_, i) => (
-    <button
-      key={i}
-      onClick={() => setCurrentPage(i + 1)}
-      className={`px-3 py-1 rounded text-xs font-bold ${
-        currentPage === i + 1
-          ? "bg-pink-500 text-white"
-          : "bg-pink-100 text-pink-700"
-      }`}
-    >
-      {i + 1}
-    </button>
-  ))}
-
-  <button
-    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-    className="px-3 py-1 bg-pink-200 rounded text-xs font-bold"
-  >
-    Next
-  </button>
-</div>
-
-        {players.length === 0 && (
-  <div className="p-12 text-center text-slate-400 font-bold uppercase text-[10px]">
-    No Stats Recorded Yet
-  </div>
-)}
+              <button
+                disabled={safePage === totalPages}
+                onClick={() =>
+                  setCurrentPage((page) =>
+                    Math.min(page + 1, totalPages)
+                  )
+                }
+                className="px-3 py-1 bg-pink-200 rounded text-xs font-bold disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
-}
+          }
+                    
