@@ -1,154 +1,115 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { useMemo, useState } from "react";
 
-export default function PointsTable({ tId }) {
-
-  const [teams, setTeams] = useState([]);
+export default function PointsTable({ matches = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
-const teamsPerPage = 8;
+  const teamsPerPage = 8;
 
-  useEffect(() => {
+    const teams = useMemo(() => {
+    const table = {};
 
-    const loadTable = async () => {
+    const createTeam = (name) => ({
+      teamName: name,
+      played: 0,
+      win: 0,
+      loss: 0,
+      tie: 0,
+      points: 0,
+      runsFor: 0,
+      runsAgainst: 0,
+      oversFaced: 0,
+      oversBowled: 0,
+      nrr: 0,
+    });
 
-      const matchesSnap = await getDocs(
-        collection(db, "tournaments", tId, "matches")
-      );
+    matches.forEach((m) => {
+      if (m.status !== "completed") return;
 
-      let table = {};
+      const teamA = m.teamA;
+      const teamB = m.teamB;
 
-      matchesSnap.forEach((doc) => {
+      if (!teamA || !teamB) return;
 
-        const m = doc.data();
+      if (!table[teamA]) table[teamA] = createTeam(teamA);
+      if (!table[teamB]) table[teamB] = createTeam(teamB);
 
-        if (m.status !== "completed") return;
+      table[teamA].played += 1;
+      table[teamB].played += 1;
 
-        const teamA = m.teamA;
-        const teamB = m.teamB;
+      if (m.firstBattingTeam === teamA) {
+        table[teamA].runsFor += m.firstInningsScore || 0;
+        table[teamA].runsAgainst += m.secondInningsScore || 0;
 
-        if (!table[teamA]) {
-          table[teamA] = createTeam(teamA);
-        }
+        table[teamB].runsFor += m.secondInningsScore || 0;
+        table[teamB].runsAgainst += m.firstInningsScore || 0;
+      } else {
+        table[teamB].runsFor += m.firstInningsScore || 0;
+        table[teamB].runsAgainst += m.secondInningsScore || 0;
 
-        if (!table[teamB]) {
-          table[teamB] = createTeam(teamB);
-        }
+        table[teamA].runsFor += m.secondInningsScore || 0;
+        table[teamA].runsAgainst += m.firstInningsScore || 0;
+      }
 
-        table[teamA].played += 1;
-        table[teamB].played += 1;
+      const history = m.ballHistory || [];
 
-        if (m.firstBattingTeam === teamA) {
+      const balls1 = history.filter(
+        (b) => b.innings === 1 && b.type !== "WD" && b.type !== "NB"
+      ).length;
 
-  table[teamA].runsFor += m.firstInningsScore || 0;
-  table[teamA].runsAgainst += m.secondInningsScore || 0;
+      const balls2 = history.filter(
+        (b) => b.innings === 2 && b.type !== "WD" && b.type !== "NB"
+      ).length;
 
-  table[teamB].runsFor += m.secondInningsScore || 0;
-  table[teamB].runsAgainst += m.firstInningsScore || 0;
+      const firstOvers = parseFloat((balls1 / 6).toFixed(4));
+      const secondOvers = parseFloat((balls2 / 6).toFixed(4));
 
-} else {
+      if (m.firstBattingTeam === teamA) {
+        table[teamA].oversFaced += firstOvers;
+        table[teamA].oversBowled += secondOvers;
 
-  table[teamB].runsFor += m.firstInningsScore || 0;
-  table[teamB].runsAgainst += m.secondInningsScore || 0;
+        table[teamB].oversFaced += secondOvers;
+        table[teamB].oversBowled += firstOvers;
+      } else {
+        table[teamB].oversFaced += firstOvers;
+        table[teamB].oversBowled += secondOvers;
 
-  table[teamA].runsFor += m.secondInningsScore || 0;
-  table[teamA].runsAgainst += m.firstInningsScore || 0;
+        table[teamA].oversFaced += secondOvers;
+        table[teamA].oversBowled += firstOvers;
+      }
 
-        }
+      if (m.result === "tie") {
+        table[teamA].tie += 1;
+        table[teamB].tie += 1;
+        table[teamA].points += 1;
+        table[teamB].points += 1;
+      } else if (m.winner === teamA) {
+        table[teamA].win += 1;
+        table[teamB].loss += 1;
+        table[teamA].points += 2;
+      } else if (m.winner === teamB) {
+        table[teamB].win += 1;
+        table[teamA].loss += 1;
+        table[teamB].points += 2;
+      }
+    });
 
-        // BallHistory se balls count karo
-const balls1 = (m.ballHistory || []).filter(
-  b => b.innings === 1 && b.type !== "WD" && b.type !== "NB"
-).length;
+    Object.values(table).forEach((team) => {
+      const runRateFor =
+        team.oversFaced > 0 ? team.runsFor / team.oversFaced : 0;
 
-const balls2 = (m.ballHistory || []).filter(
-  b => b.innings === 2 && b.type !== "WD" && b.type !== "NB"
-).length;
+      const runRateAgainst =
+        team.oversBowled > 0 ? team.runsAgainst / team.oversBowled : 0;
 
-// Overs calculate karo
-let firstOvers = parseFloat((balls1 / 6).toFixed(4));
-let secondOvers = parseFloat((balls2 / 6).toFixed(4));
+      team.nrr = (runRateFor - runRateAgainst).toFixed(3);
+    });
 
+    return Object.values(table).sort((a, b) => {
+      if (b.points !== a.points) {
+        return b.points - a.points;
+      }
 
-        if (m.firstBattingTeam === teamA) {
-
-  table[teamA].oversFaced += firstOvers;
-  table[teamA].oversBowled += secondOvers;
-
-  table[teamB].oversFaced += secondOvers;
-  table[teamB].oversBowled += firstOvers;
-
-} else {
-
-  table[teamB].oversFaced += firstOvers;
-  table[teamB].oversBowled += secondOvers;
-
-  table[teamA].oversFaced += secondOvers;
-  table[teamA].oversBowled += firstOvers;
-
-        }
-
-        if (m.result === "tie") {
-
-          table[teamA].tie += 1;
-          table[teamB].tie += 1;
-
-          table[teamA].points += 1;
-          table[teamB].points += 1;
-
-        } else if (m.winner === teamA) {
-
-          table[teamA].win += 1;
-          table[teamB].loss += 1;
-
-          table[teamA].points += 2;
-
-        } else if (m.winner === teamB) {
-
-          table[teamB].win += 1;
-          table[teamA].loss += 1;
-
-          table[teamB].points += 2;
-
-        }
-
-      });
-
-      Object.values(table).forEach((team) => {
-
-        const runRateFor =
-          team.oversFaced > 0
-            ? team.runsFor / team.oversFaced
-            : 0;
-
-        const runRateAgainst =
-          team.oversBowled > 0
-            ? team.runsAgainst / team.oversBowled
-            : 0;
-
-        team.nrr = (runRateFor - runRateAgainst).toFixed(3);
-
-      });
-
-      let list = Object.values(table);
-
-      list.sort((a, b) => {
-
-        if (b.points !== a.points) {
-          return b.points - a.points;
-        }
-
-        return parseFloat(b.nrr) - parseFloat(a.nrr);
-
-      });
-
-      setTeams(list);
-
-    };
-
-    loadTable();
-
-  }, [tId]);
+      return parseFloat(b.nrr) - parseFloat(a.nrr);
+    });
+  }, [matches]);
 
   const createTeam = (name) => ({
     teamName: name,
