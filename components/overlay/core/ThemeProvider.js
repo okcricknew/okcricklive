@@ -1,31 +1,35 @@
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 import MatchOverlay from "../themes/willow/MatchOverlay";
 import OkCrickOverlay from "../themes/okCrick/MatchOverlay";
-import { useOverlay } from "./OverlayProvider"; // 👈 Database se data lene ke liye
+import { useOverlay } from "./OverlayProvider";
 import styles from "../themes/willow/willow.module.css";
 
-export default function ThemeProvider() {
+export default function ThemeProvider({ initialTheme }) {
   const router = useRouter();
-  const { theme } = router.query;
-  const match = useOverlay(); // 👈 Active match ka data yahan aayega
+  const match = useOverlay();
 
-  // Jab tak data load ho raha hai ya match active nahi hai
+  // Server se mili theme ko priority dein.
+  const theme =
+    initialTheme ||
+    (typeof router.query.theme === "string"
+      ? router.query.theme
+      : "");
+
   if (!match) {
-  return (
-    <div className={styles.overlayCanvas}>
-      <div className={styles.lowerThird}>
-        Waiting for active match data...
+    return (
+      <div className={styles.overlayCanvas}>
+        <div className={styles.lowerThird}>
+          Waiting for active match data...
+        </div>
       </div>
-    </div>
-  );
+    );
   }
 
   return (
-    <div className="overlayCanvas">
-      {/* Willow theme tabhi dikhega jab URL mein willow ho */}
-      {theme === 'willow' && <MatchOverlay match={match} />}
-      {theme === 'okCrick' && <OkCrickOverlay match={match} />}
-      {/* Agar okCrick theme ho toh yahan add karein */}
+    <div className={styles.overlayCanvas}>
+      {theme === "willow" && <MatchOverlay match={match} />}
+      {theme === "okCrick" && <OkCrickOverlay match={match} />}
     </div>
   );
-}
+      }
+       
