@@ -58,22 +58,15 @@ export default function BestBatsman({ matches = [] }) {
     setPage(1);
   }, [matches]);
 
+  
   const perPage = 5;
 
+  // Safe pagination
   const totalPages = Math.max(1, Math.ceil(players.length / perPage));
   const start = (page - 1) * perPage;
   const end = start + perPage;
   const currentPlayers = players.slice(start, end);
-
-  const perPage = 5;
-
-  // ✅ SAFE pagination (empty bug fix)
-  const totalPages = Math.max(1, Math.ceil(players.length / perPage));
-
-  const start = (page - 1) * perPage;
-  const end = start + perPage;
-
-  const currentPlayers = players.slice(start, end);
+  
 
   return (
 
