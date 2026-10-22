@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { db } from "../../lib/firebase";
 
 export default function BestSixer({ matches = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
