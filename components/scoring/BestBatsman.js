@@ -1,11 +1,69 @@
-import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { useEffect, useMemo, useState } from "react";
 
-export default function BestBatsman({ tId }) {
-
-  const [players, setPlayers] = useState([]);
+export default function BestBatsman({ matches = [] }) {
   const [page, setPage] = useState(1);
+
+  const players = useMemo(() => {
+    const stats = {};
+
+    matches.forEach((match) => {
+      const history = match.ballHistory || [];
+      const playersInMatch = new Set();
+
+      history.forEach((ball) => {
+        const player = ball.striker;
+        if (!player) return;
+
+        if (!stats[player]) {
+          stats[player] = {
+            name: player,
+            runs: 0,
+            balls: 0,
+            fours: 0,
+            sixes: 0,
+            matches: 0,
+          };
+        }
+
+        const isBallFaced = ball.type !== "WD";
+
+        const runsFromBat =
+          ball.type === "NORMAL" ||
+          (ball.type === "NB" && ball.subCategory === "From Bat");
+
+        if (isBallFaced) {
+          stats[player].balls += 1;
+        }
+
+        if (runsFromBat) {
+          const runValue = Number(ball.runs || 0);
+          stats[player].runs += runValue;
+
+          if (runValue === 4) stats[player].fours += 1;
+          if (runValue === 6) stats[player].sixes += 1;
+        }
+
+        playersInMatch.add(player);
+      });
+
+      playersInMatch.forEach((player) => {
+        stats[player].matches += 1;
+      });
+    });
+
+    return Object.values(stats).sort((a, b) => b.runs - a.runs);
+  }, [matches]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [matches]);
+
+  const perPage = 5;
+
+  const totalPages = Math.max(1, Math.ceil(players.length / perPage));
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const currentPlayers = players.slice(start, end);
 
   const perPage = 5;
 
@@ -16,76 +74,6 @@ export default function BestBatsman({ tId }) {
   const end = start + perPage;
 
   const currentPlayers = players.slice(start, end);
-
-  useEffect(() => {
-    if (!tId) return;
-
-    const q = collection(db, "tournaments", tId, "matches");
-
-    const unsubscribe = onSnapshot(
-      q,
-      { includeMetadataChanges: true }, // 🔥 cache + realtime
-      (matchesSnap) => {
-
-        let stats = {};
-
-        matchesSnap.forEach((doc) => {
-          const data = doc.data();
-          const history = data.ballHistory || [];
-          let playersInMatch = new Set();
-
-          history.forEach((ball) => {
-            const player = ball.striker;
-            if (!player) return;
-
-            if (!stats[player]) {
-              stats[player] = {
-                name: player,
-                runs: 0,
-                balls: 0,
-                fours: 0,
-                sixes: 0,
-                matches: 0
-              };
-            }
-
-            const isBallFaced = ball.type !== "WD";
-            const runsFromBat =
-              ball.type === "NORMAL" ||
-              (ball.type === "NB" && ball.subCategory === "From Bat");
-
-            if (isBallFaced) stats[player].balls += 1;
-
-            if (runsFromBat) {
-              const runValue = Number(ball.runs || 0);
-              stats[player].runs += runValue;
-
-              if (runValue === 4) stats[player].fours += 1;
-              if (runValue === 6) stats[player].sixes += 1;
-            }
-
-            playersInMatch.add(player);
-          });
-
-          playersInMatch.forEach((player) => {
-            stats[player].matches += 1;
-          });
-        });
-
-        // 🔥 instant sorted result (no delay)
-        const list = Object.values(stats).sort((a, b) => b.runs - a.runs);
-
-        setPlayers(list); // ⚡ instant UI update (cache se bhi aayega)
-      }
-    );
-
-    return () => unsubscribe();
-  }, [tId]);
-
-  // ✅ page reset jab data change ho
-  useEffect(() => {
-    setPage(1);
-  }, [players]);
 
   return (
 
