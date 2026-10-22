@@ -4,13 +4,13 @@ import BestBowler from "./BestBowler";
 import BestSixer from "./BestSixer";
 import TotalBoundaries from "./TotalBoundaries";
 
-export default function TournamentStats({ tId }) {
+export default function TournamentStats({ tId, data, matches = [] }) {
 
   return (
 
     <div className="w-full p-3 space-y-6">
 
-      <PointsTable tId={tId} />
+      <PointsTable matches={matches} />
       <BestBatsman tId={tId} />
       <BestBowler tId={tId} />
       <BestSixer tId={tId} />
