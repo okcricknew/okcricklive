@@ -1,67 +1,122 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { getAdminDb } from "../../lib/firebase-admin";
 import { OverlayProvider } from "../../components/overlay/core/OverlayProvider";
 import ThemeProvider from "../../components/overlay/core/ThemeProvider";
 
-export default function ThemePage() {
+function serializeValue(value) {
+  if (value === null || value === undefined) return value;
+
+  if (typeof value?.toDate === "function") {
+    return value.toDate().toISOString();
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(serializeValue);
+  }
+
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        serializeValue(item),
+      ])
+    );
+  }
+
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  return value;
+}
+
+export default function ThemePage({
+  initialTId,
+  initialTheme,
+  initialMatchId,
+  initialMatch,
+}) {
   const router = useRouter();
-  const { tId, theme } = router.query;
-  const [mounted, setMounted] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    if (theme) {
-      document.body.style.backgroundColor = "transparent";
-      document.body.style.background = "none";
-    }
-  }, [theme]);
-
-  if (!router.isReady || !mounted) return null;
-  
+  const tId = initialTId || router.query.tId;
+  const theme = initialTheme || router.query.theme;
+  const matchId = initialMatchId || router.query.matchId;
 
   if (!tId) {
     return (
       <div style={styles.container}>
-        <h3 style={{ color: "#ff4d4f" }}></h3>
         <p>Tournament ID is missing from the URL.</p>
       </div>
     );
   }
 
-  // 🎬 LIVE MODE
   if (theme) {
     return (
-      <div style={{ background: "transparent", minHeight: "100vh" }}>
+      <div
+        style={{
+          background: "transparent",
+          minHeight: "100vh",
+        }}
+      >
         <style jsx global>{`
-          header, footer, .navbar { display: none !important; }
-          body, html, main {
+          html,
+          body,
+          main,
+          #__next {
             background: transparent !important;
+          }
+
+          header,
+          footer,
+          .navbar {
+            display: none !important;
           }
         `}</style>
 
-        <OverlayProvider tId={tId}>
-          <ThemeProvider/>
+        <OverlayProvider
+          tId={tId}
+          matchId={matchId}
+          initialMatch={initialMatch}
+        >
+          <ThemeProvider initialTheme={theme} />
         </OverlayProvider>
       </div>
     );
   }
 
-  // 🎨 THEME LIST
   const themes = [
-    { id: "willow", name: "Willow", desc: "Classic clean UI for professional look" },
-    { id: "okCrick", name: "CWC 23", desc: "Modern scoreboard with vibrant colors" },
+    {
+      id: "willow",
+      name: "Willow",
+      desc: "Classic clean UI for professional look",
+    },
+    {
+      id: "okCrick",
+      name: "CWC 23",
+      desc: "Modern scoreboard with vibrant colors",
+    },
   ];
 
-  const copyLink = (themeId) => {
+  const copyLink = async (themeId) => {
     const link = `${window.location.origin}/overlay/themes?tId=${tId}&theme=${themeId}`;
-    navigator.clipboard.writeText(link);
-    alert(`Link Copied for ${themeId} ✅`);
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      alert(`Link Copied for ${themeId} ✅`);
+    } catch (error) {
+      window.prompt("Copy overlay link:", link);
+    }
   };
 
   return (
     <div style={styles.container}>
-      
-      {/* HEADER */}
       <div style={styles.header}>
         <h2 style={styles.title}>🎬 Overlay Themes</h2>
         <p style={styles.subtitle}>
@@ -69,10 +124,8 @@ export default function ThemePage() {
         </p>
       </div>
 
-      {/* TABLE */}
       <div style={styles.tableWrapper}>
         <table style={styles.table}>
-          
           <thead style={styles.tableHeader}>
             <tr>
               <th style={styles.th}>#</th>
@@ -83,18 +136,18 @@ export default function ThemePage() {
           </thead>
 
           <tbody>
-            {themes.map((theme, index) => (
-              <tr key={theme.id} style={styles.tr}>
+            {themes.map((item, index) => (
+              <tr key={item.id} style={styles.tr}>
                 <td style={styles.td}>
                   <span style={styles.badge}>{index + 1}</span>
                 </td>
                 <td style={{ ...styles.td, fontWeight: "bold" }}>
-                  {theme.name}
+                  {item.name}
                 </td>
-                <td style={styles.td}>{theme.desc}</td>
+                <td style={styles.td}>{item.desc}</td>
                 <td style={styles.td}>
                   <button
-                    onClick={() => copyLink(theme.id)}
+                    onClick={() => copyLink(item.id)}
                     style={styles.copyBtn}
                   >
                     Copy Link
@@ -103,11 +156,70 @@ export default function ThemePage() {
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps({ query, res }) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+
+  const tId = typeof query.tId === "string" ? query.tId : "";
+  const theme = typeof query.theme === "string" ? query.theme : "";
+  const matchId =
+    typeof query.matchId === "string" ? query.matchId : "";
+
+  let initialMatch = null;
+
+  if (tId && theme) {
+    try {
+      const db = getAdminDb();
+      const matchesRef = db
+        .collection("tournaments")
+        .doc(tId)
+        .collection("matches");
+
+      if (matchId && matchId !== "undefined" && matchId !== "null") {
+        const matchDoc = await matchesRef.doc(matchId).get();
+
+        if (matchDoc.exists) {
+          initialMatch = {
+            id: matchDoc.id,
+            ...serializeValue(matchDoc.data()),
+          };
+        }
+      } else {
+        const snapshot = await matchesRef
+          .where("isOverlayActive", "in", [true, "true"])
+          .limit(1)
+          .get();
+
+        if (!snapshot.empty) {
+          const matchDoc = snapshot.docs[0];
+
+          initialMatch = {
+            id: matchDoc.id,
+            ...serializeValue(matchDoc.data()),
+          };
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Overlay SSR match fetch failed:",
+        error.code || error.message
+      );
+    }
+  }
+
+  return {
+    props: {
+      initialTId: tId,
+      initialTheme: theme,
+      initialMatchId: matchId,
+      initialMatch,
+    },
+  };
 }
 
 const styles = {
@@ -118,22 +230,18 @@ const styles = {
     minHeight: "100vh",
     color: "white",
   },
-
   header: {
     textAlign: "center",
     marginBottom: "30px",
   },
-
   title: {
     fontSize: "30px",
     fontWeight: "900",
   },
-
   subtitle: {
     fontSize: "14px",
     color: "#94a3b8",
   },
-
   tableWrapper: {
     maxWidth: "900px",
     margin: "auto",
@@ -143,16 +251,13 @@ const styles = {
     backdropFilter: "blur(10px)",
     border: "1px solid rgba(255,255,255,0.1)",
   },
-
   table: {
     width: "100%",
     borderCollapse: "collapse",
   },
-
   tableHeader: {
     background: "rgba(255,255,255,0.08)",
   },
-
   th: {
     padding: "16px",
     fontSize: "12px",
@@ -160,16 +265,13 @@ const styles = {
     color: "#94a3b8",
     textAlign: "left",
   },
-
   tr: {
     borderTop: "1px solid rgba(255,255,255,0.05)",
     transition: "0.3s",
   },
-
   td: {
     padding: "16px",
   },
-
   badge: {
     background: "#C10E44",
     padding: "4px 10px",
@@ -177,7 +279,6 @@ const styles = {
     fontSize: "12px",
     fontWeight: "bold",
   },
-
   copyBtn: {
     background: "linear-gradient(90deg, #C10E44, #9E0B36)",
     border: "none",
@@ -188,3 +289,4 @@ const styles = {
     cursor: "pointer",
   },
 };
+      
