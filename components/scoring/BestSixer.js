@@ -1,106 +1,77 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { useMemo, useState } from "react";
 import { db } from "../../lib/firebase";
 
-export default function BestSixer({ tId }) {
-  const [players, setPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function BestSixer({ matches = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
-const playersPerPage = 8;
+  const playersPerPage = 8;
 
-  useEffect(() => {
-    const loadStats = async () => {
-      if (!tId) return;
-      try {
-        setLoading(true);
-        const matchesSnap = await getDocs(
-          collection(db, "tournaments", tId, "matches")
-        );
+  const players = useMemo(() => {
+    const stats = {};
 
-        let stats = {};
+    matches.forEach((match) => {
+      const data = match.data || match;
+      const ballHistory = data.ballHistory || [];
 
-        matchesSnap.forEach((doc) => {
-          const data = doc.data();
-          const ballHistory = data.ballHistory || [];
-          
-          // --- TOURNAMENT TOTAL LOGIC ---
-          // 1. Innings 2 ka data (Jo current battingStats mein hai)
-          const currentBatting = data.battingStats || {};
-          
-          // 2. Innings 1 ka data (Jo aapke backup field mein hai)
-          const firstInningsBatting = data.firstInningsStatsBackup?.batting || {};
+      const currentBatting = data.battingStats || {};
+      const firstInningsBatting =
+        data.firstInningsStatsBackup?.batting || {};
 
-          // Dono innings ko combine karke check karna
-          const combinedSources = [currentBatting, firstInningsBatting];
+      const combinedSources = [currentBatting, firstInningsBatting];
 
-          combinedSources.forEach((source) => {
-            Object.keys(source).forEach((playerName) => {
-              const p = source[playerName];
+      combinedSources.forEach((source) => {
+        Object.keys(source).forEach((playerName) => {
+          const p = source[playerName];
 
-              if (!stats[playerName]) {
-                stats[playerName] = {
-                  name: playerName,
-                  sixes: 0,
-                  runs: 0,
-                  matches: 0
-                };
-              }
+          if (!stats[playerName]) {
+            stats[playerName] = {
+              name: playerName,
+              sixes: 0,
+              runs: 0,
+              matches: 0,
+            };
+          }
 
-              // Data ko plus (+) karna
-              stats[playerName].runs += Number(p.runs || 0);
-            });
-          });
-          // Extra safety: ballHistory se six count (last ball / winning six fix)
-ballHistory.forEach((ball) => {
-  if (Number(ball.runs) === 6) {
-    const playerName = ball.striker;
-
-    if (!stats[playerName]) {
-      stats[playerName] = {
-        name: playerName,
-        sixes: 0,
-        runs: 0,
-        matches: 0
-      };
-    }
-
-    stats[playerName].sixes += 1;
-  }
-});
-
-          // Match count calculation (Unique players in this match)
-          const playersInThisMatch = new Set([
-            ...Object.keys(currentBatting),
-            ...Object.keys(firstInningsBatting)
-          ]);
-
-          playersInThisMatch.forEach((name) => {
-            if (stats[name]) stats[name].matches += 1;
-          });
+          stats[playerName].runs += Number(p.runs || 0);
         });
+      });
 
-        // Array mein badalna aur sorting
-        let list = Object.values(stats);
-        list = list.filter(p => p.sixes > 0);
-        list.sort((a, b) => b.sixes - a.sixes);
+      ballHistory.forEach((ball) => {
+        if (Number(ball.runs) === 6 && ball.striker) {
+          const playerName = ball.striker;
 
-        // Tournament ke saare players (Top 20 dikha rahe hain scrollable list mein)
-        setPlayers(list);
-        setLoading(false);
-      } catch (error) {
-        console.error("Tournament Stats Error:", error);
-        setLoading(false);
-      }
-    };
+          if (!stats[playerName]) {
+            stats[playerName] = {
+              name: playerName,
+              sixes: 0,
+              runs: 0,
+              matches: 0,
+            };
+          }
 
-    loadStats();
-  }, [tId]);
+          stats[playerName].sixes += 1;
+        }
+      });
+
+      const playersInThisMatch = new Set([
+        ...Object.keys(currentBatting),
+        ...Object.keys(firstInningsBatting),
+      ]);
+
+      playersInThisMatch.forEach((name) => {
+        if (stats[name]) stats[name].matches += 1;
+      });
+    });
+
+    return Object.values(stats)
+      .filter((player) => player.sixes > 0)
+      .sort((a, b) => b.sixes - a.sixes);
+  }, [matches]);
 
   const indexOfLast = currentPage * playersPerPage;
 const indexOfFirst = indexOfLast - playersPerPage;
 const currentPlayers = players.slice(indexOfFirst, indexOfLast);
 
-const totalPages = Math.ceil(players.length / playersPerPage);
+const totalPages = Math.max(1, Math.ceil(players.length / playersPerPage));
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-[#F472B6]/30 overflow-hidden">
@@ -188,17 +159,11 @@ const totalPages = Math.ceil(players.length / playersPerPage);
   </button>
 </div>
 
-        {loading && (
-          <div className="p-12 text-center text-pink-500 font-black uppercase italic text-[10px] animate-pulse">
-            Crunching Tournament Data...
-          </div>
-        )}
-
-        {!loading && players.length === 0 && (
-          <div className="p-12 text-center text-slate-400 font-bold uppercase text-[10px]">
-            No Stats Recorded Yet
-          </div>
-        )}
+        {players.length === 0 && (
+  <div className="p-12 text-center text-slate-400 font-bold uppercase text-[10px]">
+    No Stats Recorded Yet
+  </div>
+)}
       </div>
     </div>
   );
