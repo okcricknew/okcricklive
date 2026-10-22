@@ -11,7 +11,7 @@ export default function TournamentStats({ tId, data, matches = [] }) {
     <div className="w-full p-3 space-y-6">
 
       <PointsTable matches={matches} />
-      <BestBatsman tId={tId} />
+      <BestBatsman matches={matches} />
       <BestBowler tId={tId} />
       <BestSixer tId={tId} />
       <TotalBoundaries tId={tId}/>
