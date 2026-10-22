@@ -102,7 +102,7 @@ export default function MatchOverlay() {
     }
   }, [match?.overlayType])
 
-  if (!match || !loaded) return null
+  if (!match) return null
 
   const isPreMatch =
   Number(match.innings || 0) === 1 &&
