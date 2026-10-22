@@ -1,39 +1,80 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
 import TournamentStats from "../../../components/scoring/TournamentStats";
+import { getAdminDb } from "../../../lib/firebase-admin";
 
-export default function StatsPage() {
-  const router = useRouter();
-  const { tId } = router.query;
+export async function getServerSideProps(context) {
+  const { tId } = context.params;
 
-  const [matchData, setMatchData] = useState({}); // ✅ empty object instead of null
+  try {
+    const adminDb = getAdminDb();
 
-  useEffect(() => {
-    if (!tId) return;
+    const tournamentRef = adminDb
+      .collection("tournaments")
+      .doc(tId);
 
-    const ref = doc(db, "tournaments", tId);
+    const [tournamentSnap, matchesSnap] = await Promise.all([
+      tournamentRef.get(),
+      tournamentRef.collection("matches").get(),
+    ]);
 
-    const unsub = onSnapshot(
-      ref,
-      { includeMetadataChanges: true },
-      (snap) => {
-        if (snap.exists()) {
-          setMatchData(snap.data()); // ⚡ instant update (cache first)
-        }
-      }
+    if (!tournamentSnap.exists) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const tournament = {
+      id: tournamentSnap.id,
+      ...tournamentSnap.data(),
+    };
+
+    const matches = matchesSnap.docs.map((matchDoc) => ({
+      id: matchDoc.id,
+      ...matchDoc.data(),
+    }));
+
+    return {
+      props: {
+        tId,
+        tournament: JSON.parse(JSON.stringify(tournament)),
+        matches: JSON.parse(JSON.stringify(matches)),
+      },
+    };
+  } catch (error) {
+    console.error("Tournament Stats SSR Error:", error);
+
+    return {
+      props: {
+        tId,
+        tournament: null,
+        matches: [],
+        loadError: true,
+      },
+    };
+  }
+}
+
+export default function StatsPage({
+  tId,
+  tournament,
+  matches,
+  loadError,
+}) {
+  if (loadError) {
+    return (
+      <div className="pt-10 p-4 text-center">
+        Unable to load tournament statistics.
+        Please try again later.
+      </div>
     );
-
-    return () => unsub();
-  }, [tId]);
-
-  if (!tId) return null;
+  }
 
   return (
     <div className="pt-10">
-      {/* ✅ Always render — no loading state */}
-      <TournamentStats tId={tId} data={matchData} />
+      <TournamentStats
+        tId={tId}
+        data={tournament}
+        matches={matches}
+      />
     </div>
   );
 }
