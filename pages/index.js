@@ -14,13 +14,15 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
 
   // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
   const [user, setUser] = useState(initialUser);
+  const [authResolved, setAuthResolved] = useState(Boolean(initialUser));
   const [match, setMatch] = useState(initialMatch);
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
+  setUser(currentUser);
+  setAuthResolved(true);
+});
     return () => unsubscribe();
   }, []);
 
@@ -81,7 +83,7 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
               Experience lightning-fast data entry interfaces integrated with OBS web overlays designed for professional streaming layouts.
             </p>
 
-            {!user && (
+            {authResolved && !user && (
               <button
                 onClick={() => {
                   window.dispatchEvent(new Event("openAuthModal"));
