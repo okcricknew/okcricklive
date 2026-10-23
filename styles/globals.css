@@ -11,22 +11,24 @@
 }
 
 /* Fix: White line aur side-scrolling ko rokne ke liye */
+
 html, body {
   max-width: 100%;
+  min-height: 100%;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  background-color: transparent !important;
+  background-color: #F4F4F4;
 }
 
 body {
-  /* Automatically uses the updated #F4F4F4 from :root */
-  background-color: transparent !important;
+  background-color: #F4F4F4;
   color: var(--text-dark);
   margin: 0;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
 
 /* Glass Card ko "Elevated Card" mein convert kiya */
 .glass-card {
