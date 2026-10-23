@@ -308,9 +308,17 @@ useEffect(() => {
             </div>
           </Link>
 
-          <button onClick={() => setIsOpen(!isOpen)} className="p-2.5 bg-white/10 rounded-xl border border-white/10 text-white active:scale-90 transition-all">
-            <Menu size={22} />
-          </button>
+          
+<button
+  type="button"
+  onClick={() => setIsOpen((previous) => !previous)}
+  aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+  aria-expanded={isOpen}
+  className="p-2.5 bg-white/10 rounded-xl border border-white/10 text-white"
+>
+  {isOpen ? <X size={22} /> : <Menu size={22} />}
+</button>
+    
         </div>
       </nav>
 
@@ -318,7 +326,17 @@ useEffect(() => {
       <AnimatePresence>
         {isOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsOpen(false)} className="fixed inset-0 bg-[#1D2939]/80 backdrop-blur-sm z-[1002]" />
+            
+<motion.div
+  key="navbar-backdrop"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.15, ease: "linear" }}
+  onClick={() => setIsOpen(false)}
+  className="fixed inset-0 bg-[#1D2939]/80 z-[1002]"
+/>
+    
             <motion.div 
               initial={{ x: '100%' }} 
               animate={{ x: 0 }} 
