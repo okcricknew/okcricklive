@@ -67,10 +67,10 @@ jobs:
               )
               return canvas
 
-          contain_logo(1024, 0.78).save(out / "icon-only.png")
-          contain_logo(1024, 0.78).save(out / "icon-foreground.png")
+          contain_logo(1024, 1.0).save(out / "icon-only.png")
+          contain_logo(1024, 1.0).save(out / "icon-foreground.png")
 
-          Image.new("RGBA", (1024, 1024), "#07110b").save(
+          Image.new("RGBA", (1024, 1024), (0,0,0,)).save(
               out / "icon-background.png"
           )
 
