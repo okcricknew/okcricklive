@@ -1,4 +1,4 @@
-name: Build and Release OKCRICK APK
+Name: Build and Release OKCRICK APK
 
 on:
   workflow_dispatch:
@@ -67,17 +67,19 @@ jobs:
               )
               return canvas
 
+          # Full size icon (1.0) with transparent background
           contain_logo(1024, 1.0).save(out / "icon-only.png")
           contain_logo(1024, 1.0).save(out / "icon-foreground.png")
 
-          Image.new("RGBA", (1024, 1024), (0,0,0,)).save(
+          Image.new("RGBA", (1024, 1024), (0, 0, 0, 0)).save(
               out / "icon-background.png"
           )
 
-          contain_logo(2732, 0.42, "#07110b").save(
+          # Use logo for splash screen with transparent background
+          contain_logo(2732, 0.65, (0, 0, 0, 0)).save(
               out / "splash.png"
           )
-          contain_logo(2732, 0.42, "#07110b").save(
+          contain_logo(2732, 0.65, (0, 0, 0, 0)).save(
               out / "splash-dark.png"
           )
 
@@ -212,3 +214,4 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
