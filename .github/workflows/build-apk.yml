@@ -44,7 +44,7 @@ jobs:
       - name: Install Image Tools
         run: python -m pip install Pillow
 
-      - name: Generate Logo Assets
+      - name: Prepare Notification Icon
         run: |
           mkdir -p apk-wrapper/assets
           mkdir -p apk-wrapper/www
@@ -53,37 +53,9 @@ jobs:
           from PIL import Image, ImageChops
           from pathlib import Path
 
-          out = Path("apk-wrapper/assets")
           original = Image.open("public/logo.png").convert("RGBA")
 
-          def contain_logo(size, fraction, background=None):
-              canvas = Image.new("RGBA", (size, size),
-                                 background or (0, 0, 0, 0))
-              logo = original.copy()
-              logo.thumbnail((int(size*fraction), int(size*fraction)),
-                             Image.Resampling.LANCZOS)
-              canvas.alpha_composite(
-                  logo, ((size-logo.width)//2, (size-logo.height)//2)
-              )
-              return canvas
-
-          # Full size icon (1.0) with transparent background
-          contain_logo(1024, 1.0).save(out / "icon-only.png")
-          contain_logo(1024, 1.0).save(out / "icon-foreground.png")
-
-          Image.new("RGBA", (1024, 1024), (0, 0, 0, 0)).save(
-              out / "icon-background.png"
-          )
-
-          # Use logo for splash screen with transparent background
-          contain_logo(2732, 0.65, (0, 0, 0, 0)).save(
-              out / "splash.png"
-          )
-          contain_logo(2732, 0.65, (0, 0, 0, 0)).save(
-              out / "splash-dark.png"
-          )
-
-          # Android status-bar notification icon:
+          # Android status-bar notification icon: white artwork with transparent background
           rgba = original.copy()
           alpha = rgba.getchannel("A")
 
@@ -122,8 +94,7 @@ jobs:
             @capacitor/local-notifications@7
 
           npm install --save-dev \
-            @capacitor/cli@7 \
-            @capacitor/assets@3
+            @capacitor/cli@7
 
           cat > capacitor.config.json <<'EOF'
           {
@@ -153,24 +124,49 @@ jobs:
           echo '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body></body></html>' > www/index.html
 
           npx cap add android
-          npx capacitor-assets generate --android
           npx cap sync android
 
-      - name: Apply Custom Notification Icon
+      - name: Apply Exact Logo as App Icon and Splash Screen
         run: |
           python - <<'PY'
+          from PIL import Image
           from pathlib import Path
 
-          root = Path("apk-wrapper/android/app/src/main/res")
-          target = root / "drawable"
-          target.mkdir(parents=True, exist_ok=True)
+          original = Image.open("public/logo.png").convert("RGBA")
+          res_dir = Path("apk-wrapper/android/app/src/main/res")
 
+          # Exact sizes for Android launcher icons (bypasses adaptive icon masks & borders)
+          sizes = {
+              "mipmap-mdpi": 48,
+              "mipmap-hdpi": 72,
+              "mipmap-xhdpi": 96,
+              "mipmap-xxhdpi": 144,
+              "mipmap-xxxhdpi": 192
+          }
+
+          for folder, size in sizes.items():
+              target_folder = res_dir / folder
+              target_folder.mkdir(parents=True, exist_ok=True)
+              
+              resized = original.resize((size, size), Image.Resampling.LANCZOS)
+              resized.save(target_folder / "ic_launcher.png")
+              resized.save(target_folder / "ic_launcher_round.png")
+
+          # Splash screen setup using exact logo without white screen flash
+          drawable_dir = res_dir / "drawable"
+          drawable_dir.mkdir(parents=True, exist_ok=True)
+          
+          splash_resized = original.resize((1024, 1024), Image.Resampling.LANCZOS)
+          splash_resized.save(drawable_dir / "splash.png")
+
+          # Copy notification icon
           import shutil
           shutil.copy(
               "apk-wrapper/ic_stat_okcrick.png",
-              target / "ic_stat_okcrick.png"
+              drawable_dir / "ic_stat_okcrick.png"
           )
 
+          # Ensure AndroidManifest has notification icon meta-data
           manifest = Path(
               "apk-wrapper/android/app/src/main/AndroidManifest.xml"
           )
