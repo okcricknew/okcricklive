@@ -1,4 +1,4 @@
-Name: Build and Release OKCRICK APK
+name: Build and Release OKCRICK APK
 
 on:
   workflow_dispatch:
@@ -84,7 +84,6 @@ jobs:
           )
 
           # Android status-bar notification icon:
-          # white artwork with a transparent background.
           rgba = original.copy()
           alpha = rgba.getchannel("A")
 
