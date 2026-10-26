@@ -18,6 +18,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Verify Logo
+        run: |
+          test -f public/logo.png || {
+            echo "Missing public/logo.png"
+            exit 1
+          }
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,105 +44,69 @@ jobs:
       - name: Install Image Tools
         run: python -m pip install Pillow
 
-      - name: Verify Logo
-        run: |
-          python - <<'PY'
-          from PIL import Image
-
-          path = "public/logo.png"
-          try:
-              image = Image.open(path)
-              image.verify()
-
-              image = Image.open(path)
-              print("Logo format:", image.format)
-              print("Logo size:", image.size)
-              print("Logo transparency:", "A" in image.getbands())
-          except Exception as e:
-              print("Invalid logo:", e)
-              raise SystemExit(1)
-          PY
-
-      - name: Generate Transparent Logo Assets
+      - name: Generate Logo Assets
         run: |
           mkdir -p apk-wrapper/assets
           mkdir -p apk-wrapper/www
 
           python - <<'PY'
-          from PIL import Image
+          from PIL import Image, ImageChops
           from pathlib import Path
 
           out = Path("apk-wrapper/assets")
-          logo = Image.open("public/logo.png").convert("RGBA")
+          original = Image.open("public/logo.png").convert("RGBA")
 
-          # Preserve original transparent pixels.
-          # Do not flatten the logo onto a black background.
-          def make_canvas(size, fraction, bg=(11, 122, 69, 255)):
-              canvas = Image.new("RGBA", (size, size), bg)
-              artwork = logo.copy()
-              artwork.thumbnail(
-                  (int(size * fraction), int(size * fraction)),
-                  Image.Resampling.LANCZOS
-              )
-
+          def contain_logo(size, fraction, background=None):
+              canvas = Image.new("RGBA", (size, size),
+                                 background or (0, 0, 0, 0))
+              logo = original.copy()
+              logo.thumbnail((int(size*fraction), int(size*fraction)),
+                             Image.Resampling.LANCZOS)
               canvas.alpha_composite(
-                  artwork,
-                  ((size - artwork.width) // 2,
-                   (size - artwork.height) // 2)
+                  logo, ((size-logo.width)//2, (size-logo.height)//2)
               )
               return canvas
 
-          # App launcher icon
-          make_canvas(1024, 0.78).save(out / "icon.png")
+          contain_logo(1024, 0.78).save(out / "icon-only.png")
+          contain_logo(1024, 0.78).save(out / "icon-foreground.png")
 
-          # Adaptive launcher icon foreground: keep it transparent
-          foreground = Image.new(
-              "RGBA", (1024, 1024), (0, 0, 0, 0)
+          Image.new("RGBA", (1024, 1024), "#07110b").save(
+              out / "icon-background.png"
           )
-          artwork = logo.copy()
-          artwork.thumbnail(
-              (780, 780), Image.Resampling.LANCZOS
+
+          contain_logo(2732, 0.42, "#07110b").save(
+              out / "splash.png"
           )
-          foreground.alpha_composite(
-              artwork,
-              ((1024 - artwork.width) // 2,
-               (1024 - artwork.height) // 2)
+          contain_logo(2732, 0.42, "#07110b").save(
+              out / "splash-dark.png"
           )
-          foreground.save(out / "icon-foreground.png")
 
-          Image.new(
-              "RGBA", (1024, 1024), "#0B7A45"
-          ).save(out / "icon-background.png")
+          # Android status-bar notification icon:
+          # white artwork with a transparent background.
+          rgba = original.copy()
+          alpha = rgba.getchannel("A")
 
-          # Splash artwork: transparent logo on green brand background.
-          # Android itself does not support a fully transparent
-          # launch-screen background.
-          make_canvas(2732, 0.42).save(out / "splash.png")
-          make_canvas(2732, 0.42).save(out / "splash-dark.png")
+          if alpha.getextrema() == (255, 255):
+              rgb = rgba.convert("RGB")
+              corner = rgb.getpixel((0, 0))
+              background = Image.new("RGB", rgb.size, corner)
+              diff = ImageChops.difference(rgb, background).convert("L")
+              alpha = diff.point(
+                  lambda p: 255 if p > 45 else 0
+              )
 
-          # White monochrome Android notification icon
-          artwork = logo.copy()
-          alpha = artwork.getchannel("A")
+          bbox = alpha.getbbox()
+          if bbox:
+              alpha = alpha.crop(bbox)
+          alpha.thumbnail((80, 80), Image.Resampling.LANCZOS)
 
-          if alpha.getbbox():
-              artwork.putalpha(alpha)
-              artwork = artwork.crop(alpha.getbbox())
-
-          artwork.thumbnail((72, 72), Image.Resampling.LANCZOS)
-
-          notification = Image.new(
-              "RGBA", (96, 96), (0, 0, 0, 0)
+          icon = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
+          white = Image.new("RGBA", alpha.size, (255, 255, 255, 255))
+          white.putalpha(alpha)
+          icon.alpha_composite(
+              white, ((96-alpha.width)//2, (96-alpha.height)//2)
           )
-          white = Image.new(
-              "RGBA", artwork.size, (255, 255, 255, 255)
-          )
-          white.putalpha(artwork.getchannel("A"))
-          notification.alpha_composite(
-              white,
-              ((96 - artwork.width) // 2,
-               (96 - artwork.height) // 2)
-          )
-          notification.save("apk-wrapper/ic_stat_okcrick.png")
+          icon.save("apk-wrapper/ic_stat_okcrick.png")
           PY
 
       - name: Create Capacitor Android Project
@@ -164,11 +135,9 @@ jobs:
             },
             "plugins": {
               "SplashScreen": {
-                "launchShowDuration": 10000,
+                "launchShowDuration": 2000,
                 "launchAutoHide": true,
-                "launchFadeOutDuration": 250,
-                "backgroundColor": "#0B7A45",
-                "androidSplashResourceName": "splash",
+                "backgroundColor": "#07110b",
                 "androidScaleType": "CENTER_INSIDE",
                 "showSpinner": false
               },
@@ -186,16 +155,16 @@ jobs:
           npx capacitor-assets generate --android
           npx cap sync android
 
-      - name: Apply Notification Icon
+      - name: Apply Custom Notification Icon
         run: |
           python - <<'PY'
           from pathlib import Path
-          import shutil
 
           root = Path("apk-wrapper/android/app/src/main/res")
           target = root / "drawable"
           target.mkdir(parents=True, exist_ok=True)
 
+          import shutil
           shutil.copy(
               "apk-wrapper/ic_stat_okcrick.png",
               target / "ic_stat_okcrick.png"
@@ -213,6 +182,8 @@ jobs:
           )
 
           if "com.google.firebase.messaging.default_notification_icon" not in content:
+              if "</application>" not in content:
+                  raise SystemExit("AndroidManifest application tag missing")
               content = content.replace(
                   "</application>",
                   metadata + "\n    </application>",
@@ -226,7 +197,6 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
-
           cp app/build/outputs/apk/debug/app-debug.apk \
             "$GITHUB_WORKSPACE/OKCRICK.apk"
 
@@ -242,4 +212,3 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
