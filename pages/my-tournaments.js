@@ -14,11 +14,28 @@ import Link from 'next/link';
 
 // --- SUB-COMPONENT: COMPACT TOURNAMENT CARD (OPTIMIZED) ---
 function TournamentCard({ tournament }) {
-  
-const teamCount = tournament.teamCount ?? 0;
-const matchCount = tournament.matchCount ?? 0;
+  const teamCount = tournament.teamCount ?? 0;
+  const matchCount = tournament.matchCount ?? 0;
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newTournamentName, setNewTournamentName] = useState(tournament.tournamentName);
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    if (!newTournamentName.trim()) return;
+
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      await updateDoc(doc(db, "tournaments", tournament.id), {
+        tournamentName: newTournamentName.trim().toUpperCase()
+      });
+      setShowEditModal(false);
+      window.location.reload();
+    } catch (error) {
+      console.error("Edit error:", error);
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -40,7 +57,7 @@ const matchCount = tournament.matchCount ?? 0;
 
       await deleteDoc(doc(db, "tournaments", tournament.id));
       setShowDeleteModal(false);
-window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error("Delete error:", error);
     }
@@ -66,9 +83,19 @@ window.location.reload();
               )}
             </div>
             <div className="min-w-0">
-              <h2 className="text-[#1D2939] font-black text-[1.05rem] uppercase tracking-tight truncate leading-none mb-1">
-                {tournament.tournamentName}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-[#1D2939] font-black text-[1.05rem] uppercase tracking-tight truncate leading-none mb-1">
+                  {tournament.tournamentName}
+                </h2>
+                {/* EDIT ICON ADDED HERE */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowEditModal(true); }}
+                  className="text-slate-400 hover:text-blue-600 transition-colors p-1"
+                  title="Edit Tournament Name"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                </button>
+              </div>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active Arena</span>
@@ -118,10 +145,21 @@ window.location.reload();
         </div>
       </div>
 
+      {/* --- MODALS (FIXED FLICKERING WITH PROPER ANIMATEPRESENCE WRAPPER) --- */}
       <AnimatePresence>
         {showDeleteModal && (
-          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <motion.div initial={{ scale:0.9 }} animate={{ scale:1 }} exit={{ scale:0.9 }} className="bg-white rounded-2xl p-6 w-[320px] shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }} 
+              className="bg-white rounded-2xl p-6 w-[320px] shadow-xl"
+            >
               <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Tournament?</h3>
               <p className="text-sm text-gray-500 mb-6">All matches, teams and players will be permanently deleted.</p>
               <div className="flex justify-end gap-3">
@@ -131,10 +169,40 @@ window.location.reload();
             </motion.div>
           </motion.div>
         )}
+
+        {showEditModal && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }} 
+              className="bg-white rounded-2xl p-6 w-[340px] shadow-xl"
+            >
+              <h3 className="text-lg font-bold text-gray-800 mb-2">Edit Tournament Name</h3>
+              <input 
+                type="text" 
+                value={newTournamentName}
+                onChange={(e) => setNewTournamentName(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm mb-6 uppercase font-bold text-[#1D2939] focus:outline-none focus:border-blue-600"
+                placeholder="TOURNAMENT NAME..."
+              />
+              <div className="flex justify-end gap-3">
+                <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
+                <button onClick={handleEdit} className="px-4 py-2 text-sm rounded-lg bg-[#1D2939] text-white hover:bg-slate-800">Save</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.div>
   );
-}
+      }
+
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
 export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
