@@ -22,6 +22,18 @@ export function useTournamentDetails(id, initialTeams = []) {
   const [teamName, setTeamName] = useState('');
   const [teamLogo, setTeamLogo] = useState(null);
 
+  // --- EDIT TEAM STATES ---
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editTeamName, setEditTeamName] = useState('');
+  const [editTeamLogo, setEditTeamLogo] = useState(null);
+
+  // --- EDIT PLAYER STATES ---
+  const [isEditPlayerModalOpen, setIsEditPlayerModalOpen] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState(null);
+  const [editPlayerName, setEditPlayerName] = useState('');
+  const [editPlayerPhoto, setEditPlayerPhoto] = useState(null);
+
   useEffect(() => {
     if (!id) return;
 
@@ -83,10 +95,7 @@ export function useTournamentDetails(id, initialTeams = []) {
 
         const response = await fetch(
           "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
 
         const data = await response.json();
@@ -103,14 +112,45 @@ export function useTournamentDetails(id, initialTeams = []) {
     } catch (e) { console.error(e); }
   };
 
-  const handleEditTeam = async (team) => {
-    const newName = prompt("Update Team Name:", team.name);
-    if (!newName || newName.trim() === "" || newName === team.name) return;
+  const openEditModal = (team) => {
+    setEditingTeam(team);
+    setEditTeamName(team.name || '');
+    setEditTeamLogo(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateTeam = async (e) => {
+    e.preventDefault();
+    if (!editTeamName.trim() || !editingTeam) return;
+
     try {
-      await updateDoc(doc(db, "tournaments", id, "teams", team.id), {
-        name: newName.trim().toUpperCase()
+      let logoUrl = editingTeam.logoUrl || "";
+      if (editTeamLogo) {
+        const formData = new FormData();
+        formData.append("file", editTeamLogo);
+        formData.append("upload_preset", "okcrick");
+
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          { method: "POST", body: formData }
+        );
+
+        const data = await response.json();
+        logoUrl = data.secure_url;
+      }
+
+      await updateDoc(doc(db, "tournaments", id, "teams", editingTeam.id), {
+        name: editTeamName.trim().toUpperCase(),
+        logoUrl: logoUrl,
       });
-    } catch (e) { console.error(e); }
+
+      setIsEditModalOpen(false);
+      setEditingTeam(null);
+      setEditTeamName('');
+      setEditTeamLogo(null);
+    } catch (e) {
+      console.error("Failed to update team:", e);
+    }
   };
 
   const handleDeleteTeam = async (teamId) => {
@@ -144,10 +184,7 @@ export function useTournamentDetails(id, initialTeams = []) {
 
         const response = await fetch(
           "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
 
         const data = await response.json();
@@ -163,6 +200,49 @@ export function useTournamentDetails(id, initialTeams = []) {
       setPlayerName('');
       setPlayerPhoto(null);
     } catch (e) { console.error(e); }
+  };
+
+  // --- OPEN EDIT PLAYER MODAL ---
+  const openEditPlayerModal = (player) => {
+    setEditingPlayer(player);
+    setEditPlayerName(player.name || '');
+    setEditPlayerPhoto(null);
+    setIsEditPlayerModalOpen(true);
+  };
+
+  // --- SAVE EDIT PLAYER ---
+  const handleUpdatePlayer = async (e) => {
+    e.preventDefault();
+    if (!editPlayerName.trim() || !editingPlayer || !activeTeam?.id || !id) return;
+
+    try {
+      let photoUrl = editingPlayer.photoUrl || "";
+      if (editPlayerPhoto) {
+        const formData = new FormData();
+        formData.append("file", editPlayerPhoto);
+        formData.append("upload_preset", "okcrick");
+
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          { method: "POST", body: formData }
+        );
+
+        const data = await response.json();
+        photoUrl = data.secure_url;
+      }
+
+      await updateDoc(doc(db, "tournaments", id, "teams", activeTeam.id, "players", editingPlayer.id), {
+        name: editPlayerName.trim().toUpperCase(),
+        photoUrl: photoUrl,
+      });
+
+      setIsEditPlayerModalOpen(false);
+      setEditingPlayer(null);
+      setEditPlayerName('');
+      setEditPlayerPhoto(null);
+    } catch (e) {
+      console.error("Failed to update player:", e);
+    }
   };
 
   const handleDeletePlayer = async (playerId) => {
@@ -186,9 +266,26 @@ export function useTournamentDetails(id, initialTeams = []) {
     setTeamName,
     setTeamLogo,
     handleAddTeam,
-    handleEditTeam,
     handleDeleteTeam,
     handleAddPlayer,
     handleDeletePlayer,
+    // Edit Team exports
+    isEditModalOpen,
+    setIsEditModalOpen,
+    editingTeam,
+    editTeamName,
+    setEditTeamName,
+    setEditTeamLogo,
+    openEditModal,
+    handleUpdateTeam,
+    // Edit Player exports
+    isEditPlayerModalOpen,
+    setIsEditPlayerModalOpen,
+    editingPlayer,
+    editPlayerName,
+    setEditPlayerName,
+    setEditPlayerPhoto,
+    openEditPlayerModal,
+    handleUpdatePlayer,
   };
-        }
+}
