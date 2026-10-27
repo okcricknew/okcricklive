@@ -38,6 +38,7 @@ function TeamRow({
     return () => unsubscribe();
   }, [team.id, tournamentId]);
 
+  
   return (
     <div className="w-full">
       <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3">
@@ -59,7 +60,7 @@ function TeamRow({
               </div>
             )}
           </div>
-    
+
           <div className="min-w-0">
             <h3 className="font-black text-[13px] uppercase tracking-tighter text-[#1D2939] truncate leading-tight">
               {team.name}
@@ -69,17 +70,25 @@ function TeamRow({
             </p>
           </div>
         </div>
-        
-        {/* Right Section: Compact Actions */}
+
+        {/* Right Section: Actions */}
         <div className="flex items-center gap-1 shrink-0">
-          <button onClick={() => onEdit(team)} className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors">
+          <button
+            onClick={() => onEdit(team)}
+            className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
+          >
             <Edit2 size={14} />
           </button>
-          <button onClick={() => onDelete(team.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+
+          <button
+            onClick={() => onDelete(team.id)}
+            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+          >
             <Trash2 size={14} />
           </button>
-          <button 
-            onClick={() => onManage(team)} 
+
+          <button
+            onClick={() => onManage(team)}
             className="ml-1 bg-[#1D2939] text-white p-2 rounded-xl active:scale-90 transition-all shadow-sm"
           >
             Add Player
@@ -88,6 +97,7 @@ function TeamRow({
       </div>
     </div>
   );
+
 }
 
 // --- MAIN COMPONENT ---
