@@ -7,6 +7,8 @@ import { getNavbarInitialProps } from '../../lib/ssr/auth';
 import TeamRow from '../../components/tournament/TeamRow';
 import SquadModal from '../../components/tournament/SquadModal';
 import AddTeamCard from '../../components/tournament/AddTeamCard';
+import EditTeamModal from '../../components/tournament/EditTeamModal';
+import EditPlayerModal from '../../components/tournament/EditPlayerModal';
 import { useTournamentDetails } from '../../hooks/useTournamentDetails';
 
 export default function TournamentDetails({
@@ -32,10 +34,27 @@ export default function TournamentDetails({
     setTeamName,
     setTeamLogo,
     handleAddTeam,
-    handleEditTeam,
     handleDeleteTeam,
     handleAddPlayer,
     handleDeletePlayer,
+    // Edit Team Props
+    isEditModalOpen,
+    setIsEditModalOpen,
+    editingTeam,
+    editTeamName,
+    setEditTeamName,
+    setEditTeamLogo,
+    openEditModal,
+    handleUpdateTeam,
+    // Edit Player Props
+    isEditPlayerModalOpen,
+    setIsEditPlayerModalOpen,
+    editingPlayer,
+    editPlayerName,
+    setEditPlayerName,
+    setEditPlayerPhoto,
+    openEditPlayerModal,
+    handleUpdatePlayer,
   } = useTournamentDetails(id, initialTeams);
 
   return (
@@ -96,7 +115,7 @@ export default function TournamentDetails({
                   setIsModalOpen(true);
                 }}
                 onDelete={handleDeleteTeam}
-                onEdit={handleEditTeam}
+                onEdit={openEditModal}
               />
             ))}
           </div>
@@ -120,6 +139,29 @@ export default function TournamentDetails({
           setPlayerPhoto={setPlayerPhoto}
           handleAddPlayer={handleAddPlayer}
           handleDeletePlayer={handleDeletePlayer}
+          onEditPlayer={openEditPlayerModal}
+        />
+
+        {/* EDIT TEAM MODAL */}
+        <EditTeamModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          editingTeam={editingTeam}
+          editTeamName={editTeamName}
+          setEditTeamName={setEditTeamName}
+          setEditTeamLogo={setEditTeamLogo}
+          handleUpdateTeam={handleUpdateTeam}
+        />
+
+        {/* EDIT PLAYER MODAL */}
+        <EditPlayerModal
+          isOpen={isEditPlayerModalOpen}
+          onClose={() => setIsEditPlayerModalOpen(false)}
+          editingPlayer={editingPlayer}
+          editPlayerName={editPlayerName}
+          setEditPlayerName={setEditPlayerName}
+          setEditPlayerPhoto={setEditPlayerPhoto}
+          handleUpdatePlayer={handleUpdatePlayer}
         />
       </main>
 
@@ -200,5 +242,5 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-            }
-      
+          }
+            
