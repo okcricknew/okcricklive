@@ -120,6 +120,17 @@ function TournamentCard({ tournament }) {
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                 </button>
+
+        <button
+  onClick={(e) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  }}
+  className="text-slate-400 hover:text-red-600 transition-colors p-1"
+  title="Delete Tournament"
+>
+  <Trash2 size={14} strokeWidth={2.5} />
+</button>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -146,12 +157,6 @@ function TournamentCard({ tournament }) {
               <span className="text-[11px] font-extrabold uppercase tracking-wider truncate max-w-[120px]">
                 {tournament.location || 'Local Arena'}
               </span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowDeleteModal(true); }}
-                className="ml-2 flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow"
-              >
-                <Trash2 size={16}/>
-              </button>
             </div>
           </div>
         </div>
