@@ -8,8 +8,15 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getHomeInitialProps } from "../lib/ssr/home";
+import LatestMatches from "../components/home/LatestMatches";
 
-export default function Home({ initialMatch = null, initialUser = null, initialUserData = null }) { 
+export default function Home({
+  initialMatch = null,
+  initialUser = null,
+  initialUserData = null,
+  initialStats = null,
+  initialMatches = [],
+}) {
   const fastTransition = { duration: 0.1, ease: "easeOut" };
 
   // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
@@ -77,7 +84,7 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
               Cricket Live Scoring &<br/>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">Tournament System</span>
             </h1>
-<p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-3 mb-6 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-3 mb-6 leading-relaxed font-medium">
               Experience lightning-fast data entry interfaces integrated with OBS web overlays designed for professional streaming layouts.
             </p>
 
@@ -121,21 +128,30 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
           {/* High-End Clean Stats Grid */}
           <div className="bg-white rounded-2xl p-6 flex justify-around border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] relative overflow-hidden">
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">850+</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+  {(initialStats?.matches ?? 0).toLocaleString('en-IN')}
+</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Matches</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">4.8k</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+  {(initialStats?.players ?? 0).toLocaleString('en-IN')}
+</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Players</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">15+</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+  {(initialStats?.locations ?? 0).toLocaleString('en-IN')}
+</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Cities</p>
             </div>
             <BarChart3 className="absolute w-28 h-28 text-slate-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
+
+  {/* Latest Matches - SSR + Live Updates */}
+<LatestMatches initialMatches={initialMatches} />
 
           {/* Minimalist Feature Cards Framework */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -238,7 +254,15 @@ export async function getServerSideProps(context) {
       }
     }
 
-    const homeProps = await getHomeInitialProps().catch(() => ({ initialMatch: null }));
+    const homeProps = await getHomeInitialProps().catch(() => ({
+  initialMatch: null,
+  initialStats: {
+    matches: 0,
+    players: 0,
+    locations: 0,
+  },
+  initialMatches: [],
+}));
 
     return {
       props: {
@@ -249,13 +273,20 @@ export async function getServerSideProps(context) {
     };
   } catch (error) {
     console.error("Home SSR failed:", error);
-    return { 
-      props: { 
-        initialMatch: null, 
-        initialUser: null, 
-        initialUserData: null 
-      } 
-    };
+    return {
+  props: {
+    initialMatch: null,
+    initialStats: {
+      matches: 0,
+      players: 0,
+      locations: 0,
+    },
+    initialMatches: [],
+    initialUser: null,
+    initialUserData: null,
+  },
+};
   }
             }
-            
+
+  
