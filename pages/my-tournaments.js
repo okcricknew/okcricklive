@@ -514,21 +514,35 @@ export async function getServerSideProps({ req, res }) {
         initialUserData: null,
       },
     };
+  
   } catch (error) {
     console.error(
       'My Tournaments SSR error:',
       error.code || error.message
     );
 
-    res.setHeader('Set-Cookie', [
-      '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
-    ]);
+    const code = error?.code || '';
 
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
+    const invalidSessionCodes = [
+      'auth/invalid-session-cookie',
+      'auth/session-cookie-expired',
+      'auth/session-cookie-revoked',
+      'auth/argument-error',
+    ];
+
+    if (invalidSessionCodes.includes(code)) {
+      res.setHeader('Set-Cookie', [
+        '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+      ]);
+
+      return {
+        redirect: {
+          destination: '/login',
+          permanent: false,
+        },
+      };
+    }
+
+    throw error;
   }
 }
