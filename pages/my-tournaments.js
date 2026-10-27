@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../lib/firebase';
 import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
@@ -107,50 +107,30 @@ function TournamentCard({ tournament }) {
                 <h2 className="text-[#1D2939] font-black text-[1.05rem] uppercase tracking-tight truncate leading-none mb-1">
                   {tournament.tournamentName}
                 </h2>
-                
-{/* EDIT ICON */}
-<button
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    setNewTournamentName(tournament.tournamentName);
-    setEditTournamentLogo(null);
-    setShowEditModal(true);
-  }}
-  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-  title="Edit Tournament"
-  aria-label="Edit Tournament"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-    <path d="m15 5 4 4" />
-  </svg>
-</button>
+                {/* EDIT ICON */}
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    setNewTournamentName(tournament.tournamentName);
+                    setEditTournamentLogo(null);
+                    setShowEditModal(true); 
+                  }}
+                  className="text-slate-400 hover:text-blue-600 transition-colors p-1"
+                  title="Edit Tournament"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                </button>
 
-{/* DELETE ICON */}
-<button
-  type="button"
+        <button
   onClick={(e) => {
     e.stopPropagation();
     setShowDeleteModal(true);
   }}
-  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 shadow-sm transition-all duration-200 hover:border-red-500 hover:bg-red-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+  className="text-slate-400 hover:text-red-600 transition-colors p-1"
   title="Delete Tournament"
-  aria-label="Delete Tournament"
 >
-  <Trash2 size={15} strokeWidth={2.3} />
+  <Trash2 size={14} strokeWidth={2.5} />
 </button>
-    
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -282,19 +262,7 @@ transition={{ duration: 0.18, ease: "easeOut" }}
 
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
-export default function MyTournaments({
-  initialTournaments = [],
-  initialUser = null,
-  initialUserData = null,
-  requireAuth = false,
-}) {
-  useEffect(() => {
-    if (requireAuth) {
-      window.dispatchEvent(new Event('openAuthModal'));
-    }
-  }, [requireAuth]);
-
-  // Neeche ka tumhara existing component code bilkul waise hi rahega.
+export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
   const [tournaments, setTournaments] = useState(initialTournaments);
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
@@ -459,14 +427,12 @@ export async function getServerSideProps({ req, res }) {
   const sessionCookie = req.cookies?.__session;
 
   if (!sessionCookie) {
-  return {
-    props: {
-      initialTournaments: [],
-      initialUser: null,
-      initialUserData: null,
-      requireAuth: true,
-    },
-  };
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
   }
 
   try {
@@ -528,37 +494,21 @@ export async function getServerSideProps({ req, res }) {
         initialUserData: null,
       },
     };
-  
   } catch (error) {
     console.error(
       'My Tournaments SSR error:',
       error.code || error.message
     );
 
-    const code = error?.code || '';
+    res.setHeader('Set-Cookie', [
+      '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+    ]);
 
-    const invalidSessionCodes = [
-      'auth/invalid-session-cookie',
-      'auth/session-cookie-expired',
-      'auth/session-cookie-revoked',
-      'auth/argument-error',
-    ];
-
-    if (invalidSessionCodes.includes(code)) {
-      res.setHeader('Set-Cookie', [
-        '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
-      ]);
-
-      return {
-  props: {
-    initialTournaments: [],
-    initialUser: null,
-    initialUserData: null,
-    requireAuth: true,
-  },
-};
-    }
-
-    throw error;
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
   }
 }
