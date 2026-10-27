@@ -38,7 +38,6 @@ export default function EditTeamModal({
             </div>
 
             <form onSubmit={handleUpdateTeam} className="space-y-4 pt-4">
-              {/* Team Name Input */}
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1">Team Name</label>
                 <input
@@ -51,11 +50,10 @@ export default function EditTeamModal({
                 />
               </div>
 
-              {/* Team Logo Input */}
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1">Update Team Logo (Optional)</label>
                 <div className="flex items-center gap-3">
-                  {editingTeam?.logoUrl && !editTeamLogo && (
+                  {Boolean(editingTeam?.logoUrl) && (
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] border border-emerald-300 shrink-0 flex items-center justify-center p-1">
                       <img src={editingTeam.logoUrl} alt="Current Logo" className="w-full h-full object-contain" />
                     </div>
@@ -63,13 +61,12 @@ export default function EditTeamModal({
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setEditTeamLogo(e.target.files[0])}
+                    onChange={(e) => setEditTeamLogo(e.target.files?.[0] || null)}
                     className="flex-1 text-[10px] text-gray-500 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-100 file:text-[#0C381E] cursor-pointer"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-black py-3 rounded-xl shadow-md active:scale-95 transition-all text-xs uppercase tracking-wider mt-2"
@@ -83,4 +80,3 @@ export default function EditTeamModal({
     </AnimatePresence>
   );
                     }
-                
