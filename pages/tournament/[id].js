@@ -9,6 +9,7 @@ import { ArrowLeft, Plus, Loader2, X, Trash2, Users, Edit2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { getTournamentInitialProps } from '../../lib/ssr/tournament';
+import { getNavbarInitialProps } from '../../lib/ssr/auth';
 
 // --- SUB-COMPONENT: COMPACT TEAM CARD ---
 function TeamRow({ team, tournamentId, onManage, onDelete, onEdit }) {
@@ -383,24 +384,45 @@ export default function TournamentDetails({ initialTournament = null, initialTea
 }
 
 // --- SERVER SIDE RENDERING (SSR) ---
-export async function getServerSideProps({ params }) {
+
+export async function getServerSideProps(context) {
+  const { params, req, res } = context;
+
+  // User-specific HTML ko shared cache mein store hone se rokein
+  res.setHeader(
+    'Cache-Control',
+    'private, no-store, max-age=0'
+  );
+
   try {
-    const data = await getTournamentInitialProps(params.id);
-    
-    // Agar tournament database mein nahi milta, toh 404 trigger karein
+    // Tournament data aur logged-in user data server par fetch honge
+    const [data, navbarProps] = await Promise.all([
+      getTournamentInitialProps(params.id),
+      getNavbarInitialProps(req),
+    ]);
+
     if (!data || !data.tournament) {
       return { notFound: true };
     }
 
-    return { 
-      props: { 
-        initialTournament: data.tournament, 
-        initialTeams: data.teams || [] 
-      } 
+    return {
+      props: {
+        initialTournament: data.tournament,
+        initialTeams: data.teams || [],
+
+        // Navbar ke liye SSR username
+        initialUser: navbarProps.initialUser,
+        initialUserData: navbarProps.initialUserData,
+      },
     };
   } catch (error) {
-    console.error("Tournament details SSR failed:", error);
+    console.error(
+      'Tournament details SSR failed:',
+      error?.code || error?.message
+    );
+
     return { notFound: true };
   }
-        }
+}
+
                    
