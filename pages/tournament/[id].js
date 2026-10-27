@@ -404,7 +404,7 @@ export default function TournamentDetails({
                     </div>
                   ))}
                 </div>
-              </div>
+                    </motion.div>
             </div>
           )}
         </AnimatePresence>
