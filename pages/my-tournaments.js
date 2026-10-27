@@ -20,16 +20,36 @@ function TournamentCard({ tournament }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [newTournamentName, setNewTournamentName] = useState(tournament.tournamentName);
+  const [editTournamentLogo, setEditTournamentLogo] = useState(null);
 
   const handleEdit = async (e) => {
     e.preventDefault();
     if (!newTournamentName.trim()) return;
 
     try {
+      let logoUrl = tournament.logoUrl || "";
+      
+      // Upload new logo to Cloudinary if selected
+      if (editTournamentLogo) {
+        const formData = new FormData();
+        formData.append("file", editTournamentLogo);
+        formData.append("upload_preset", "okcrick");
+
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/m4xdhjiq/image/upload",
+          { method: "POST", body: formData }
+        );
+
+        const data = await response.json();
+        logoUrl = data.secure_url;
+      }
+
       const { doc, updateDoc } = await import('firebase/firestore');
       await updateDoc(doc(db, "tournaments", tournament.id), {
-        tournamentName: newTournamentName.trim().toUpperCase()
+        tournamentName: newTournamentName.trim().toUpperCase(),
+        logoUrl: logoUrl,
       });
+
       setShowEditModal(false);
       window.location.reload();
     } catch (error) {
@@ -87,11 +107,16 @@ function TournamentCard({ tournament }) {
                 <h2 className="text-[#1D2939] font-black text-[1.05rem] uppercase tracking-tight truncate leading-none mb-1">
                   {tournament.tournamentName}
                 </h2>
-                {/* EDIT ICON ADDED HERE */}
+                {/* EDIT ICON */}
                 <button
-                  onClick={(e) => { e.stopPropagation(); setShowEditModal(true); }}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    setNewTournamentName(tournament.tournamentName);
+                    setEditTournamentLogo(null);
+                    setShowEditModal(true); 
+                  }}
                   className="text-slate-400 hover:text-blue-600 transition-colors p-1"
-                  title="Edit Tournament Name"
+                  title="Edit Tournament"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                 </button>
@@ -145,7 +170,7 @@ function TournamentCard({ tournament }) {
         </div>
       </div>
 
-      {/* --- MODALS (FIXED FLICKERING WITH PROPER ANIMATEPRESENCE WRAPPER) --- */}
+      {/* --- MODALS --- */}
       <AnimatePresence>
         {showDeleteModal && (
           <motion.div 
@@ -163,8 +188,8 @@ function TournamentCard({ tournament }) {
               <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Tournament?</h3>
               <p className="text-sm text-gray-500 mb-6">All matches, teams and players will be permanently deleted.</p>
               <div className="flex justify-end gap-3">
-                <button onClick={()=>setShowDeleteModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
-                <button onClick={handleDelete} className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+                <button onClick={()=>setShowDeleteModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
+                <button onClick={handleDelete} className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 font-bold">Delete</button>
               </div>
             </motion.div>
           </motion.div>
@@ -181,19 +206,41 @@ function TournamentCard({ tournament }) {
               initial={{ scale: 0.9, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }} 
               exit={{ scale: 0.9, opacity: 0 }} 
-              className="bg-white rounded-2xl p-6 w-[340px] shadow-xl"
+              className="bg-white rounded-2xl p-6 w-[360px] shadow-xl"
             >
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Edit Tournament Name</h3>
-              <input 
-                type="text" 
-                value={newTournamentName}
-                onChange={(e) => setNewTournamentName(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm mb-6 uppercase font-bold text-[#1D2939] focus:outline-none focus:border-blue-600"
-                placeholder="TOURNAMENT NAME..."
-              />
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Tournament</h3>
+              
+              <div className="mb-4">
+                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Tournament Name</label>
+                <input 
+                  type="text" 
+                  value={newTournamentName}
+                  onChange={(e) => setNewTournamentName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs uppercase font-bold text-[#1D2939] focus:outline-none focus:border-blue-600"
+                  placeholder="TOURNAMENT NAME..."
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Update Tournament Logo (Optional)</label>
+                <div className="flex items-center gap-3">
+                  {Boolean(tournament?.logoUrl) && !editTournamentLogo && (
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center p-1">
+                      <img src={tournament.logoUrl} alt="Current Logo" className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEditTournamentLogo(e.target.files?.[0] || null)}
+                    className="flex-1 text-[10px] text-gray-500 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-slate-100 file:text-[#1D2939] cursor-pointer"
+                  />
+                </div>
+              </div>
+
               <div className="flex justify-end gap-3">
-                <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
-                <button onClick={handleEdit} className="px-4 py-2 text-sm rounded-lg bg-[#1D2939] text-white hover:bg-slate-800">Save</button>
+                <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
+                <button onClick={handleEdit} className="px-4 py-2 text-sm rounded-lg bg-[#1D2939] text-white hover:bg-slate-800 font-bold">Save Changes</button>
               </div>
             </motion.div>
           </motion.div>
@@ -201,7 +248,8 @@ function TournamentCard({ tournament }) {
       </AnimatePresence>
     </motion.div>
   );
-      }
+                     }
+                
 
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
