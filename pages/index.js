@@ -8,12 +8,14 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getHomeInitialProps } from "../lib/ssr/home";
+import LatestMatches from "../components/home/LatestMatches";
 
 export default function Home({
   initialMatch = null,
   initialUser = null,
   initialUserData = null,
   initialStats = null,
+  initialMatches = [],
 }) {
   const fastTransition = { duration: 0.1, ease: "easeOut" };
 
@@ -148,6 +150,9 @@ export default function Home({
             <BarChart3 className="absolute w-28 h-28 text-slate-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
+  {/* Latest Matches - SSR + Live Updates */}
+<LatestMatches initialMatches={initialMatches} />
+
           {/* Minimalist Feature Cards Framework */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Feature icon={<Zap size={18} className="text-amber-500"/>} title="Fast Sync" desc="0.5s updates" />
@@ -249,7 +254,15 @@ export async function getServerSideProps(context) {
       }
     }
 
-    const homeProps = await getHomeInitialProps().catch(() => ({ initialMatch: null }));
+    const homeProps = await getHomeInitialProps().catch(() => ({
+  initialMatch: null,
+  initialStats: {
+    matches: 0,
+    players: 0,
+    locations: 0,
+  },
+  initialMatches: [],
+}));
 
     return {
       props: {
@@ -260,13 +273,19 @@ export async function getServerSideProps(context) {
     };
   } catch (error) {
     console.error("Home SSR failed:", error);
-    return { 
-      props: { 
-        initialMatch: null, 
-        initialUser: null, 
-        initialUserData: null 
-      } 
-    };
+    return {
+  props: {
+    initialMatch: null,
+    initialStats: {
+      matches: 0,
+      players: 0,
+      locations: 0,
+    },
+    initialMatches: [],
+    initialUser: null,
+    initialUserData: null,
+  },
+};
   }
             }
             
