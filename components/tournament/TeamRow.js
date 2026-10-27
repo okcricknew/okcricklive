@@ -25,7 +25,6 @@ export default function TeamRow({
   return (
     <div className="w-full">
       <div className="bg-white border border-emerald-100/80 p-3 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between gap-3">
-        {/* Left Section: Info */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] border border-emerald-200 shrink-0 flex items-center justify-center shadow-inner">
             {team.logoUrl ? (
@@ -54,7 +53,6 @@ export default function TeamRow({
           </div>
         </div>
 
-        {/* Right Section: Actions */}
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => onEdit(team)}
@@ -80,5 +78,4 @@ export default function TeamRow({
       </div>
     </div>
   );
-    }
-              
+}
