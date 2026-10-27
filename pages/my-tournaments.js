@@ -208,7 +208,8 @@ transition={{ duration: 0.18, ease: "easeOut" }}
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.9, opacity: 0 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+transition={{ duration: 0.18, ease: "easeOut" }}
               className="bg-white rounded-2xl p-6 w-[360px] shadow-xl"
             >
               <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Tournament</h3>
