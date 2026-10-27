@@ -34,6 +34,10 @@ export function useTournamentDetails(id, initialTeams = []) {
   const [editPlayerName, setEditPlayerName] = useState('');
   const [editPlayerPhoto, setEditPlayerPhoto] = useState(null);
 
+  // --- DELETE CONFIRMATION STATES ---
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteConfig, setDeleteConfig] = useState({ type: null, id: null, title: '', message: '' });
+
   useEffect(() => {
     if (!id) return;
 
@@ -153,11 +157,16 @@ export function useTournamentDetails(id, initialTeams = []) {
     }
   };
 
-  const handleDeleteTeam = async (teamId) => {
-    if (!confirm("Are you sure? This team and its players will be removed.")) return;
-    try {
-      await deleteDoc(doc(db, "tournaments", id, "teams", teamId));
-    } catch (e) { console.error(e); }
+  // --- TRIGGER TEAM DELETE MODAL ---
+  const handleDeleteTeam = (teamId) => {
+    const teamToDelete = teams.find(t => t.id === teamId);
+    setDeleteConfig({
+      type: 'team',
+      id: teamId,
+      title: 'Delete Team?',
+      message: `Are you sure you want to delete "${teamToDelete?.name || 'this team'}"? This team and its players will be removed.`
+    });
+    setDeleteConfirmOpen(true);
   };
 
   const handleAddPlayer = async (e) => {
@@ -243,11 +252,32 @@ export function useTournamentDetails(id, initialTeams = []) {
     }
   };
 
-  const handleDeletePlayer = async (playerId) => {
-    if(!confirm("Remove player?")) return;
+  // --- TRIGGER PLAYER DELETE MODAL ---
+  const handleDeletePlayer = (playerId) => {
+    const playerToDelete = teamPlayers.find(p => p.id === playerId);
+    setDeleteConfig({
+      type: 'player',
+      id: playerId,
+      title: 'Remove Player?',
+      message: `Are you sure you want to remove "${playerToDelete?.name || 'this player'}" from the squad?`
+    });
+    setDeleteConfirmOpen(true);
+  };
+
+  // --- EXECUTE CONFIRMED DELETE ---
+  const executeDelete = async () => {
     try {
-      await deleteDoc(doc(db, "tournaments", id, "teams", activeTeam.id, "players", playerId));
-    } catch (e) { console.error(e); }
+      if (deleteConfig.type === 'team') {
+        await deleteDoc(doc(db, "tournaments", id, "teams", deleteConfig.id));
+      } else if (deleteConfig.type === 'player' && activeTeam?.id) {
+        await deleteDoc(doc(db, "tournaments", id, "teams", activeTeam.id, "players", deleteConfig.id));
+      }
+    } catch (e) {
+      console.error("Deletion failed:", e);
+    } finally {
+      setDeleteConfirmOpen(false);
+      setDeleteConfig({ type: null, id: null, title: '', message: '' });
+    }
   };
 
   return {
@@ -283,5 +313,10 @@ export function useTournamentDetails(id, initialTeams = []) {
     setEditPlayerPhoto,
     openEditPlayerModal,
     handleUpdatePlayer,
+    // Delete Confirmation exports
+    deleteConfirmOpen,
+    setDeleteConfirmOpen,
+    deleteConfig,
+    executeDelete,
   };
-}
+          }
