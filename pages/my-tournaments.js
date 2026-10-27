@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../lib/firebase';
 import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
@@ -282,7 +282,19 @@ transition={{ duration: 0.18, ease: "easeOut" }}
 
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
-export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
+export default function MyTournaments({
+  initialTournaments = [],
+  initialUser = null,
+  initialUserData = null,
+  requireAuth = false,
+}) {
+  useEffect(() => {
+    if (requireAuth) {
+      window.dispatchEvent(new Event('openAuthModal'));
+    }
+  }, [requireAuth]);
+
+  // Neeche ka tumhara existing component code bilkul waise hi rahega.
   const [tournaments, setTournaments] = useState(initialTournaments);
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
@@ -447,12 +459,14 @@ export async function getServerSideProps({ req, res }) {
   const sessionCookie = req.cookies?.__session;
 
   if (!sessionCookie) {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
+  return {
+    props: {
+      initialTournaments: [],
+      initialUser: null,
+      initialUserData: null,
+      requireAuth: true,
+    },
+  };
   }
 
   try {
@@ -536,11 +550,13 @@ export async function getServerSideProps({ req, res }) {
       ]);
 
       return {
-        redirect: {
-          destination: '/login',
-          permanent: false,
-        },
-      };
+  props: {
+    initialTournaments: [],
+    initialUser: null,
+    initialUserData: null,
+    requireAuth: true,
+  },
+};
     }
 
     throw error;
