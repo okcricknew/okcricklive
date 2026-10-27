@@ -77,7 +77,7 @@ export default function Home({ initialMatch = null, initialUser = null, initialU
               Cricket Live Scoring &<br/>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">Tournament System</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-3 mb-6 leading-relaxed font-medium">
+<p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-3 mb-6 leading-relaxed font-medium">
               Experience lightning-fast data entry interfaces integrated with OBS web overlays designed for professional streaming layouts.
             </p>
 
@@ -257,4 +257,5 @@ export async function getServerSideProps(context) {
       } 
     };
   }
-    }
+            }
+            
