@@ -1,19 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { db } from '../../lib/firebase';
-import { 
-  collection, addDoc, query, onSnapshot, doc, 
-  getDoc, serverTimestamp, orderBy, deleteDoc, updateDoc 
+import {
+  collection,
+  addDoc,
+  query,
+  onSnapshot,
+  doc,
+  serverTimestamp,
+  orderBy,
+  deleteDoc,
+  updateDoc,
 } from 'firebase/firestore';
-import { ArrowLeft, Plus, Loader2, X, Trash2, Users, Edit2 } from 'lucide-react';
+import { ArrowLeft, Plus, X, Trash2, Users, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { getTournamentInitialProps } from '../../lib/ssr/tournament';
 import { getNavbarInitialProps } from '../../lib/ssr/auth';
 
 // --- SUB-COMPONENT: COMPACT TEAM CARD ---
-function TeamRow({ team, tournamentId, onManage, onDelete, onEdit }) {
-  const [count, setCount] = useState(0);
+function TeamRow({
+  team,
+  tournamentId,
+  initialCount = 0,
+  onManage,
+  onDelete,
+  onEdit,
+}) {
+  const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
     if (!tournamentId || !team.id) return;
@@ -25,7 +39,7 @@ function TeamRow({ team, tournamentId, onManage, onDelete, onEdit }) {
   }, [team.id, tournamentId]);
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full">
+    <div className="w-full">
       <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3">
         {/* Left Section: Info */}
         <div className="flex items-center gap-3 min-w-0">
@@ -77,12 +91,15 @@ function TeamRow({ team, tournamentId, onManage, onDelete, onEdit }) {
 }
 
 // --- MAIN COMPONENT ---
-export default function TournamentDetails({ initialTournament = null, initialTeams = [] }) {
+export default function TournamentDetails({
+  initialTournament = null,
+  initialTeams = [],
+  initialTeamCounts = {},
+}) {
   const router = useRouter();
   const { id } = router.query;
   const [tournament, setTournament] = useState(initialTournament);
   const [teams, setTeams] = useState(initialTeams);
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTeam, setActiveTeam] = useState(null);
   const [teamPlayers, setTeamPlayers] = useState([]); 
@@ -92,20 +109,30 @@ export default function TournamentDetails({ initialTournament = null, initialTea
   const [teamLogo, setTeamLogo] = useState(null);
 
   useEffect(() => {
-    if (!id) return;
-    const fetchTournament = async () => {
-      const snap = await getDoc(doc(db, "tournaments", id));
-      if (snap.exists()) setTournament(snap.data());
-    };
-    fetchTournament();
+  if (!id) return;
 
-    const qTeams = query(collection(db, "tournaments", id, "teams"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(qTeams, (snapshot) => {
-      setTeams(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [id]);
+  const qTeams = query(
+    collection(db, "tournaments", id, "teams"),
+    orderBy("createdAt", "desc")
+  );
+
+  const unsubscribe = onSnapshot(
+    qTeams,
+    (snapshot) => {
+      setTeams(
+        snapshot.docs.map((teamDoc) => ({
+          id: teamDoc.id,
+          ...teamDoc.data(),
+        }))
+      );
+    },
+    (error) => {
+      console.error("Teams live update failed:", error);
+    }
+  );
+
+  return () => unsubscribe();
+}, [id]);
 
   useEffect(() => {
     if (!activeTeam || !id || !isModalOpen) return;
@@ -231,12 +258,6 @@ export default function TournamentDetails({ initialTournament = null, initialTea
     } catch (e) { console.error(e); }
   };
 
-  if (loading) return (
-    <div className="fixed inset-0 bg-[#F4F4F4] flex flex-col items-center justify-center z-[200]">
-      <Loader2 className="animate-spin text-[#1D2939]" size={48} />
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1D2939]">
       
@@ -297,14 +318,18 @@ export default function TournamentDetails({ initialTournament = null, initialTea
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {teams.map((team) => (
-              <TeamRow 
-                key={team.id} 
-                team={team} 
-                tournamentId={id} 
-                onManage={(t) => { setActiveTeam(t); setIsModalOpen(true); }}
-                onDelete={handleDeleteTeam}
-                onEdit={handleEditTeam}
-              />
+              <TeamRow
+  key={team.id}
+  team={team}
+  tournamentId={id}
+  initialCount={initialTeamCounts[team.id] ?? 0}
+  onManage={(t) => {
+    setActiveTeam(t);
+    setIsModalOpen(true);
+  }}
+  onDelete={handleDeleteTeam}
+  onEdit={handleEditTeam}
+/>
             ))}
           </div>
 
@@ -369,7 +394,7 @@ export default function TournamentDetails({ initialTournament = null, initialTea
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </div>
           )}
         </AnimatePresence>
@@ -384,18 +409,13 @@ export default function TournamentDetails({ initialTournament = null, initialTea
 }
 
 // --- SERVER SIDE RENDERING (SSR) ---
-
-export async function getServerSideProps(context) {
-  const { params, req, res } = context;
-
-  // User-specific HTML ko shared cache mein store hone se rokein
+export async function getServerSideProps({ params, req, res }) {
   res.setHeader(
-    'Cache-Control',
-    'private, no-store, max-age=0'
+    "Cache-Control",
+    "private, no-store, max-age=0"
   );
 
   try {
-    // Tournament data aur logged-in user data server par fetch honge
     const [data, navbarProps] = await Promise.all([
       getTournamentInitialProps(params.id),
       getNavbarInitialProps(req),
@@ -405,24 +425,59 @@ export async function getServerSideProps(context) {
       return { notFound: true };
     }
 
+    // Team counts ko server par fetch karein.
+    // Agar count fetch fail ho, tournament page phir bhi render ho sake.
+    const initialTeamCounts = {};
+
+    try {
+      const { getAdminDb } = await import("../../lib/firebase-admin");
+      const adminDb = getAdminDb();
+
+      await Promise.all(
+        (data.teams || []).map(async (team) => {
+          const playersSnapshot = await adminDb
+            .collection("tournaments")
+            .doc(params.id)
+            .collection("teams")
+            .doc(team.id)
+            .collection("players")
+            .get();
+
+          initialTeamCounts[team.id] = playersSnapshot.size;
+        })
+      );
+    } catch (countError) {
+      console.error(
+        "SSR team counts failed:",
+        countError?.code || countError?.message
+      );
+    }
+
     return {
       props: {
         initialTournament: data.tournament,
         initialTeams: data.teams || [],
-
-        // Navbar ke liye SSR username
+        initialTeamCounts,
         initialUser: navbarProps.initialUser,
         initialUserData: navbarProps.initialUserData,
       },
     };
   } catch (error) {
     console.error(
-      'Tournament details SSR failed:',
+      "Tournament details SSR failed:",
       error?.code || error?.message
     );
 
-    return { notFound: true };
+    // Server/data configuration error ko 404 na banayein.
+    return {
+      props: {
+        initialTournament: null,
+        initialTeams: [],
+        initialTeamCounts: {},
+        initialUser: null,
+        initialUserData: null,
+        ssrError: true,
+      },
+    };
   }
 }
-
-                   
