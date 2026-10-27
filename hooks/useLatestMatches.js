@@ -83,10 +83,21 @@ export default function useLatestMatches(initialMatches = []) {
                     String(match.status || "").toLowerCase()
                   )
                 )
-                .sort(
-                  (a, b) => getMatchTime(b) - getMatchTime(a)
-                )
-                .slice(0, 10);
+                .sort((a, b) => {
+  const matchA = Number(a.matchNo);
+  const matchB = Number(b.matchNo);
+
+  if (Number.isFinite(matchA) && Number.isFinite(matchB)) {
+    return matchA - matchB;
+  }
+
+  return String(a.matchNo ?? "").localeCompare(
+    String(b.matchNo ?? ""),
+    undefined,
+    { numeric: true }
+  );
+})
+.slice(0, 10);
 
               setMatches(latestMatches);
               setLoading(false);
