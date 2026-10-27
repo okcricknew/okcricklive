@@ -81,16 +81,7 @@ export default function useLatestMatches(initialMatches = []) {
                     String(match.status || "").toLowerCase()
                   )
                 )
-                .sort((a, b) => {
-  const matchNoA = Number(a.matchNo);
-  const matchNoB = Number(b.matchNo);
-
-  if (Number.isFinite(matchNoA) && Number.isFinite(matchNoB)) {
-    return matchNoA - matchNoB;
-  }
-
-  return getMatchTime(a) - getMatchTime(b);
-})
+                .sort((a, b) => getMatchTime(b) - getMatchTime(a))
 .slice(0, 10);
 
               setMatches(latestMatches);
