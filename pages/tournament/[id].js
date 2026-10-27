@@ -355,8 +355,29 @@ export default function TournamentDetails({
         <AnimatePresence>
           {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#1D2939]/50 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white border-t border-gray-200 w-full max-w-lg overflow-hidden flex flex-col h-[75vh] sm:h-[600px] shadow-2xl rounded-t-[1rem] sm:rounded-3xl">
+              
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.22, ease: "easeOut" }}
+  className="absolute inset-0 bg-[#1D2939]/50"
+  onClick={() => setIsModalOpen(false)}
+/>
+    
+              
+<motion.div
+  initial={{ y: 40, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  exit={{ y: 30, opacity: 0 }}
+  transition={{
+    type: "tween",
+    duration: 0.28,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="relative bg-white border-t border-gray-200 w-full max-w-lg overflow-hidden flex flex-col h-[75vh] sm:h-[600px] shadow-2xl rounded-t-[1rem] sm:rounded-3xl will-change-transform"
+>
+    
                 <div className="p-6 border-b border-gray-50 flex justify-between items-center">
                   <h2 className="text-lg font-black italic uppercase text-[#1D2939] truncate pr-4">{activeTeam?.name}</h2>
                   <button onClick={() => setIsModalOpen(false)} className="p-2 bg-gray-50 rounded-full active:scale-90 transition-all"><X size={20} className="text-gray-400" /></button>
