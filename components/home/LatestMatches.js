@@ -1,13 +1,92 @@
 import useLatestMatches from "../../hooks/useLatestMatches";
-import {
-  getTeamScore,
-  getTeamOvers,
-} from "../../lib/matches/formatMatch";
 
-function TeamScore({ match, teamName, logoUrl, align = "left" }) {
-  const score = getTeamScore(match, teamName);
-  const overs = getTeamOvers(match, teamName);
+function formatOversDisplay(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
 
+  const text = String(value).trim();
+  const match = text.match(/^(\d+)(?:\.(\d+))?$/);
+
+  if (!match) return text.replace(/\.0$/, "");
+
+  const overs = Number(match[1]);
+  const balls = match[2] === undefined ? 0 : Number(match[2]);
+
+  return balls === 0 ? String(overs) : `${overs}.${balls}`;
+}
+
+// Match detail page ki ballHistory calculation.
+function calculateOversFromHistory(match, inningsNumber) {
+  const balls = (match.ballHistory || []).filter(
+    (ball) =>
+      Number(ball.innings) === inningsNumber &&
+      !["WD", "NB"].includes(String(ball.type || "").toUpperCase())
+  ).length;
+
+  return formatOversDisplay(
+    `${Math.floor(balls / 6)}.${balls % 6}`
+  );
+}
+
+// Match detail page ki innings-wise score calculation.
+function getTeamDisplayData(match, teamName, firstBattingTeam) {
+  const maxOvers = match.overs || 0;
+  const innings = Number(match.innings || 1);
+
+  if (
+    !match.status ||
+    match.status === "upcoming" ||
+    !match.tossCompleted
+  ) {
+    return {
+      runs: 0,
+      wickets: 0,
+      oversFormatted: "0",
+      maxOvers,
+    };
+  }
+
+  const wasFirstBattingTeam = teamName === firstBattingTeam;
+
+  if (wasFirstBattingTeam) {
+    return {
+      runs:
+        innings === 1
+          ? Number(match.totalRuns || 0)
+          : Number(match.firstInningsScore || 0),
+      wickets:
+        innings === 1
+          ? Number(match.totalWickets || 0)
+          : Number(match.firstInningsWickets || 0),
+      oversFormatted: calculateOversFromHistory(match, 1),
+      maxOvers,
+    };
+  }
+
+  if (innings === 1) {
+    return {
+      runs: 0,
+      wickets: 0,
+      oversFormatted: "0",
+      maxOvers,
+    };
+  }
+
+  return {
+    runs: Number(match.totalRuns || 0),
+    wickets: Number(match.totalWickets || 0),
+    oversFormatted: calculateOversFromHistory(match, 2),
+    maxOvers,
+  };
+}
+
+function TeamScore({
+  teamName,
+  logoUrl,
+  scoreData,
+  align = "left",
+}) {
   return (
     <div
       className={`flex min-w-0 flex-1 items-center gap-2 ${
@@ -32,16 +111,14 @@ function TeamScore({ match, teamName, logoUrl, align = "left" }) {
         </p>
 
         <p className="mt-1 text-lg font-black leading-none tracking-tight text-[#103B28]">
-          {score.runs}
+          {scoreData.runs}
           <span className="text-yellow-600">/</span>
-          {score.wickets}
+          {scoreData.wickets}
         </p>
 
-        {overs !== null && (
-          <p className="mt-1 text-[9px] font-bold text-slate-500">
-            {overs} overs
-          </p>
-        )}
+        <p className="mt-1 text-[9px] font-bold text-slate-500">
+          {scoreData.oversFormatted} overs
+        </p>
       </div>
     </div>
   );
@@ -52,7 +129,6 @@ export default function LatestMatches({ initialMatches = [] }) {
 
   return (
     <section className="space-y-4">
-      {/* Section heading */}
       <div className="flex items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -76,7 +152,6 @@ export default function LatestMatches({ initialMatches = [] }) {
         </span>
       </div>
 
-      {/* Loading state */}
       {loading && matches.length === 0 ? (
         <div className="flex gap-3 overflow-hidden">
           {[1, 2, 3].map((item) => (
@@ -122,6 +197,43 @@ export default function LatestMatches({ initialMatches = [] }) {
             const isLive =
               String(match.status || "").toLowerCase() === "live";
 
+            const teamA = match.teamA || "Team A";
+            const teamB = match.teamB || "Team B";
+
+            let firstBattingTeam;
+            let secondBattingTeam;
+
+            if (!match.tossCompleted) {
+              firstBattingTeam = teamA;
+              secondBattingTeam = teamB;
+            } else {
+              firstBattingTeam =
+                match.firstInningsBattingTeam ||
+                match.battingTeam ||
+                teamA;
+
+              secondBattingTeam =
+                firstBattingTeam === teamA ? teamB : teamA;
+            }
+
+            const leftScore = getTeamDisplayData(
+              match,
+              firstBattingTeam,
+              firstBattingTeam
+            );
+
+            const rightScore = getTeamDisplayData(
+              match,
+              secondBattingTeam,
+              firstBattingTeam
+            );
+
+            const logoFor = (teamName) => {
+              if (teamName === teamA) return match.teamALogoUrl;
+              if (teamName === teamB) return match.teamBLogoUrl;
+              return undefined;
+            };
+
             return (
               <article
                 key={`${match.tournamentId}-${match.id}`}
@@ -131,7 +243,6 @@ export default function LatestMatches({ initialMatches = [] }) {
                     : "border-emerald-100 shadow-emerald-950/5"
                 }`}
               >
-                {/* Tournament header */}
                 <div className="relative overflow-hidden bg-[#123D2A] px-4 py-3">
                   <div className="absolute right-0 top-0 h-16 w-16 translate-x-5 -translate-y-5 rounded-full border-[10px] border-white/5" />
 
@@ -140,7 +251,6 @@ export default function LatestMatches({ initialMatches = [] }) {
                       <p className="truncate text-[11px] font-black uppercase tracking-wide text-white">
                         {match.tournamentName || "Tournament"}
                       </p>
-
                       <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-yellow-300">
                         Match #{match.matchNo ?? "—"} ·{" "}
                         {match.matchType || "Cricket"}
@@ -160,13 +270,12 @@ export default function LatestMatches({ initialMatches = [] }) {
                   </div>
                 </div>
 
-                {/* Scoreboard */}
                 <div className="px-4 py-4">
                   <div className="flex items-center gap-2">
                     <TeamScore
-                      match={match}
-                      teamName={match.teamA}
-                      logoUrl={match.teamALogoUrl}
+                      teamName={firstBattingTeam}
+                      logoUrl={logoFor(firstBattingTeam)}
+                      scoreData={leftScore}
                     />
 
                     <span className="shrink-0 rounded-md bg-yellow-100 px-1.5 py-1 text-[8px] font-black text-[#123D2A]">
@@ -174,14 +283,13 @@ export default function LatestMatches({ initialMatches = [] }) {
                     </span>
 
                     <TeamScore
-                      match={match}
-                      teamName={match.teamB}
-                      logoUrl={match.teamBLogoUrl}
+                      teamName={secondBattingTeam}
+                      logoUrl={logoFor(secondBattingTeam)}
+                      scoreData={rightScore}
                       align="right"
                     />
                   </div>
 
-                  {/* Match status / result */}
                   <div
                     className={`mt-4 rounded-xl border px-3 py-3 ${
                       isLive
@@ -212,7 +320,6 @@ export default function LatestMatches({ initialMatches = [] }) {
                         <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[#8A6B00]">
                           Final Result
                         </p>
-
                         <p className="mt-1.5 text-[11px] font-black leading-relaxed text-[#123D2A]">
                           {match.resultSummary ||
                             (match.winner
@@ -223,7 +330,6 @@ export default function LatestMatches({ initialMatches = [] }) {
                     )}
                   </div>
 
-                  {/* Bottom accent */}
                   <div className="mt-4 flex items-center gap-1">
                     <span className="h-1 flex-1 rounded-full bg-red-600" />
                     <span className="h-1 w-7 rounded-full bg-yellow-400" />
@@ -237,4 +343,5 @@ export default function LatestMatches({ initialMatches = [] }) {
       )}
     </section>
   );
-    }
+        }
+        
