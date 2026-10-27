@@ -1,4 +1,4 @@
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SquadModal({
@@ -11,6 +11,7 @@ export default function SquadModal({
   setPlayerPhoto,
   handleAddPlayer,
   handleDeletePlayer,
+  onEditPlayer, // <-- Added prop
 }) {
   return (
     <AnimatePresence>
@@ -81,9 +82,14 @@ export default function SquadModal({
                     </span>
                   </div>
                                
-                  <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-600 transition-all">
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => onEditPlayer(p)} className="p-1.5 hover:bg-amber-50 rounded-lg text-gray-400 hover:text-amber-600 transition-all">
+                      <Edit2 size={15} />
+                    </button>
+                    <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-600 transition-all">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -92,5 +98,4 @@ export default function SquadModal({
       )}
     </AnimatePresence>
   );
-              }
-                        
+}
