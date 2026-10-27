@@ -38,7 +38,6 @@ export default function EditPlayerModal({
             </div>
 
             <form onSubmit={handleUpdatePlayer} className="space-y-4 pt-4">
-              {/* Player Name Input */}
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1">Player Name</label>
                 <input
@@ -51,11 +50,10 @@ export default function EditPlayerModal({
                 />
               </div>
 
-              {/* Player Photo Input */}
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1">Update Player Photo (Optional)</label>
                 <div className="flex items-center gap-3">
-                  {editingPlayer?.photoUrl && !editPlayerPhoto && (
+                  {Boolean(editingPlayer?.photoUrl) && (
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] border border-emerald-300 shrink-0 flex items-center justify-center">
                       <img src={editingPlayer.photoUrl} alt="Current Photo" className="w-full h-full object-cover" />
                     </div>
@@ -63,13 +61,12 @@ export default function EditPlayerModal({
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setEditPlayerPhoto(e.target.files[0])}
+                    onChange={(e) => setEditPlayerPhoto(e.target.files?.[0] || null)}
                     className="flex-1 text-[10px] text-gray-500 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-100 file:text-[#0C381E] cursor-pointer"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-black py-3 rounded-xl shadow-md active:scale-95 transition-all text-xs uppercase tracking-wider mt-2"
