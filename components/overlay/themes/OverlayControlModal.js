@@ -1,9 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
-import { useState, useRef } from "react";
 
 export default function OverlayControlModal({ 
   isOpen, 
@@ -121,17 +120,12 @@ timeoutRef.current = setTimeout(() => {
 };
 
   
+if (!isOpen) return null;
+
 return (
-  <AnimatePresence initial={false}>
-    {isOpen && (
-      <motion.div
-        key="overlay-control-modal"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-[999999] bg-white flex flex-col"
-      >
+  <div
+    className="fixed inset-0 z-[999999] bg-white flex flex-col"
+  >
           
 
         {/* HEADER */}
@@ -249,8 +243,6 @@ return (
         </div>
 
       
-      </motion.div>
-    )}
-  </AnimatePresence>
+        </div>
 );
-    }
+}
