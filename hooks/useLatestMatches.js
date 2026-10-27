@@ -1,9 +1,6 @@
-// hooks/useLatestMatches.js
-
 import { useEffect, useState } from "react";
 import {
   collection,
-  limit,
   onSnapshot,
   orderBy,
   query,
@@ -25,6 +22,8 @@ export default function useLatestMatches(initialMatches = []) {
     const unsubscribeTournaments = onSnapshot(
       collection(db, "tournaments"),
       (tournamentSnapshot) => {
+        if (!active) return;
+
         matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
         matchUnsubscribers = [];
         matchesByTournament = new Map();
@@ -42,8 +41,7 @@ export default function useLatestMatches(initialMatches = []) {
 
           const matchesQuery = query(
             collection(db, "tournaments", tournamentId, "matches"),
-            orderBy("createdAt", "desc"),
-            limit(10)
+            orderBy("createdAt", "desc")
           );
 
           const unsubscribeMatches = onSnapshot(
@@ -83,21 +81,10 @@ export default function useLatestMatches(initialMatches = []) {
                     String(match.status || "").toLowerCase()
                   )
                 )
-                .sort((a, b) => {
-  const matchA = Number(a.matchNo);
-  const matchB = Number(b.matchNo);
-
-  if (Number.isFinite(matchA) && Number.isFinite(matchB)) {
-    return matchA - matchB;
-  }
-
-  return String(a.matchNo ?? "").localeCompare(
-    String(b.matchNo ?? ""),
-    undefined,
-    { numeric: true }
-  );
-})
-.slice(0, 10);
+                .sort(
+                  (a, b) => getMatchTime(b) - getMatchTime(a)
+                )
+                .slice(0, 10);
 
               setMatches(latestMatches);
               setLoading(false);
@@ -135,9 +122,10 @@ export default function useLatestMatches(initialMatches = []) {
     return () => {
       active = false;
       unsubscribeTournaments();
+
       matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
     };
   }, []);
 
   return { matches, loading, error };
-                  }
+}
