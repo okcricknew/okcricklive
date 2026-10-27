@@ -12,7 +12,7 @@ import {
   deleteDoc,
   updateDoc,
 } from 'firebase/firestore';
-import { ArrowLeft, Plus, X, Trash2, Users, Edit2 } from 'lucide-react';
+import { ArrowLeft, Plus, X, Trash2, Users, Edit2, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { getTournamentInitialProps } from '../../lib/ssr/tournament';
@@ -41,10 +41,10 @@ function TeamRow({
   
   return (
     <div className="w-full">
-      <div className="bg-white border border-emerald-100/80 p-3 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between gap-3">
+      <div className="bg-white border border-emerald-900/10 p-4 rounded-2xl shadow-sm hover:shadow-xl hover:border-emerald-600/40 transition-all duration-300 flex items-center justify-between gap-3 group">
         {/* Left Section: Info */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] border border-emerald-200 shrink-0 flex items-center justify-center shadow-inner">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0C381E] to-[#14532D] border border-emerald-500/30 shrink-0 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
             {team.logoUrl ? (
               <img
                 src={team.logoUrl}
@@ -62,36 +62,41 @@ function TeamRow({
           </div>
 
           <div className="min-w-0">
-            <h3 className="font-black text-[13px] uppercase tracking-tighter text-[#0C381E] truncate leading-tight">
+            <h3 className="font-black text-[14px] uppercase tracking-tight text-[#0C381E] truncate leading-tight group-hover:text-emerald-900 transition-colors">
               {team.name}
             </h3>
-            <p className="text-[9px] text-amber-600 font-extrabold uppercase tracking-widest mt-0.5">
-              {count} SQUAD PLAYERS
-            </p>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <p className="text-[9px] text-amber-600 font-extrabold uppercase tracking-widest">
+                {count} SQUAD PLAYERS
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Right Section: Actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => onEdit(team)}
-            className="p-1.5 text-gray-400 hover:text-amber-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
+            title="Edit Team Name"
           >
-            <Edit2 size={14} />
+            <Edit2 size={15} />
           </button>
 
           <button
             onClick={() => onDelete(team.id)}
-            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+            title="Delete Team"
           >
-            <Trash2 size={14} />
+            <Trash2 size={15} />
           </button>
 
           <button
             onClick={() => onManage(team)}
-            className="ml-1 bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-bold px-3 py-2 rounded-xl active:scale-90 transition-all shadow-sm text-xs"
+            className="ml-1 bg-gradient-to-r from-[#0C381E] to-[#14532D] hover:from-emerald-900 hover:to-emerald-800 text-yellow-300 font-extrabold px-3.5 py-2.5 rounded-xl active:scale-95 transition-all shadow-md shadow-emerald-900/10 text-xs flex items-center gap-1 border border-yellow-400/20"
           >
-            Add Player
+            <span>Add Player</span>
           </button>
         </div>
       </div>
@@ -269,64 +274,70 @@ export default function TournamentDetails({
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F7F5] text-[#0C381E]">
+    <div className="min-h-screen bg-[#F2F7F4] text-[#0C381E]">
       
       {/* STICKY HEADER */}
-      <nav className="w-full bg-white border-b border-emerald-100 sticky top-0 z-40 h-16 md:h-20 flex items-center px-4 shadow-sm">
-        <div className="flex items-center justify-between w-full gap-3">
-          <Link href="/my-tournaments" className="p-2.5 bg-emerald-50 text-[#0C381E] rounded-xl active:scale-95 transition-all shrink-0 hover:bg-emerald-100">
+      <nav className="w-full bg-white/95 backdrop-blur-md border-b border-emerald-900/10 sticky top-0 z-40 h-16 md:h-20 flex items-center px-4 shadow-sm">
+        <div className="flex items-center justify-between w-full gap-3 max-w-7xl mx-auto">
+          <Link href="/my-tournaments" className="p-2.5 bg-emerald-50 text-[#0C381E] rounded-xl active:scale-95 transition-all shrink-0 hover:bg-emerald-100 border border-emerald-200/50 shadow-xs">
             <ArrowLeft size={20} />
           </Link>
 
           <div className="flex-1 min-w-0 text-center">
-            <h1 className="text-[20px] md:text-base font-black uppercase tracking-tighter leading-none truncate px-1 text-[#0C381E]">
+            <h1 className="text-[17px] md:text-lg font-black uppercase tracking-tight leading-none truncate px-1 text-[#0C381E]">
               {tournament?.tournamentName || "Tournament"}
             </h1>
-            <p className="text-[9px] text-red-600 font-extrabold uppercase tracking-[0.2em] mt-1 whitespace-nowrap">Add Team & Players</p>
+            <p className="text-[9px] text-red-600 font-extrabold uppercase tracking-[0.25em] mt-1.5 whitespace-nowrap">Manage Squads & Teams</p>
           </div>
               
         </div>
       </nav>
 
-      <div className="flex justify-center mt-5">
+      {/* CREATE MATCH BUTTON SECTION */}
+      <div className="flex justify-center mt-6">
         <button 
           onClick={() => router.push(`/tournament/manage-match/${id}`)}
-          className="bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 border border-yellow-400/30 px-6 py-3 rounded-xl font-black text-[12px] uppercase flex items-center gap-2 shadow-lg shadow-emerald-900/10 active:scale-95 transition-all"
+          className="bg-gradient-to-r from-[#0C381E] to-[#14532D] hover:from-emerald-900 hover:to-emerald-800 text-yellow-300 border border-yellow-400/40 px-7 py-3.5 rounded-2xl font-black text-[12px] uppercase tracking-wider flex items-center gap-2.5 shadow-xl shadow-emerald-900/15 active:scale-95 transition-all"
         >
-          <Plus size={15} className="text-yellow-400" /> CREATE MATCH
+          <div className="p-1 bg-yellow-400/20 rounded-lg">
+            <Plus size={16} className="text-yellow-400" />
+          </div>
+          <span>CREATE MATCH</span>
         </button>
       </div>
 
-      <main className="w-full px-4 pt-6 pb-32 max-w-7xl mx-auto">
+      <main className="w-full px-4 pt-8 pb-32 max-w-7xl mx-auto">
         
-        {/* COMPACT ADD TEAM INPUT */}
-        <div className="mb-8 max-w-lg mx-auto">
-          <div className="bg-white p-2 border border-emerald-200 flex gap-2 items-center rounded-2xl shadow-sm">
+        {/* COMPACT ADD TEAM INPUT CARD */}
+        <div className="mb-10 max-w-xl mx-auto">
+          <div className="bg-white p-2.5 border-2 border-emerald-900/10 flex flex-col sm:flex-row gap-2.5 items-center rounded-3xl shadow-lg shadow-emerald-900/5 backdrop-blur-sm">
              <input 
-               type="text" placeholder="NEW TEAM NAME..." value={teamName} 
+               type="text" placeholder="ENTER NEW TEAM NAME..." value={teamName} 
                onChange={(e) => setTeamName(e.target.value)} 
-               className="flex-1 bg-transparent pl-3 text-xs outline-none font-black italic uppercase text-[#0C381E] placeholder:text-gray-400" 
+               className="w-full sm:flex-1 bg-emerald-50/50 border border-emerald-900/10 px-4 py-3 rounded-2xl text-xs outline-none font-black italic uppercase text-[#0C381E] placeholder:text-gray-400 focus:bg-white focus:border-emerald-600 transition-all" 
              />
-             <input
-               type="file"
-               accept="image/*"
-               onChange={(e) => setTeamLogo(e.target.files[0])}
-               className="text-[10px] w-[110px] text-gray-500 file:mr-2 file:py-1.5 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-50 file:text-[#0C381E] hover:file:bg-emerald-100 cursor-pointer"
-             />
-             <button onClick={handleAddTeam} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 font-black italic text-[10px] uppercase rounded-xl active:scale-95 transition-all shadow-sm">
-               Add Team
-             </button>
+             <div className="w-full sm:w-auto flex items-center gap-2">
+               <input
+                 type="file"
+                 accept="image/*"
+                 onChange={(e) => setTeamLogo(e.target.files[0])}
+                 className="text-[10px] w-full sm:w-[130px] text-gray-500 file:py-2.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-emerald-100 file:text-[#0C381E] hover:file:bg-emerald-200 cursor-pointer"
+               />
+               <button onClick={handleAddTeam} className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 font-black italic text-[11px] uppercase rounded-2xl active:scale-95 transition-all shadow-md shadow-red-600/20 whitespace-nowrap">
+                 Add Team
+               </button>
+             </div>
           </div>
         </div>
 
         {/* COMPACT DIRECTORY GRID */}
         <div className="w-full">
-          <div className="flex items-center gap-3 mb-6 px-2">
-            <h2 className="text-[10px] font-black uppercase text-emerald-800 tracking-[0.25em] whitespace-nowrap">Squads Directory ({teams.length})</h2>
-            <div className="h-[1px] flex-1 bg-emerald-200/60" />
+          <div className="flex items-center gap-4 mb-6 px-2">
+            <h2 className="text-[11px] font-black uppercase text-emerald-900 tracking-[0.25em] whitespace-nowrap">Squads Directory ({teams.length})</h2>
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-emerald-200/80 to-transparent" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {teams.map((team) => (
               <TeamRow
                 key={team.id}
@@ -344,9 +355,12 @@ export default function TournamentDetails({
           </div>
 
           {teams.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-emerald-200 shadow-sm">
-               <Users className="mx-auto text-emerald-300 mb-4" size={48} />
-               <p className="text-emerald-800 uppercase font-black italic text-[10px] tracking-widest">Awaiting First Squad</p>
+            <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-emerald-200 shadow-sm max-w-md mx-auto">
+               <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+                 <Users className="text-emerald-600" size={32} />
+               </div>
+               <p className="text-emerald-900 uppercase font-black italic text-xs tracking-widest">Awaiting First Squad</p>
+               <p className="text-gray-400 text-[10px] mt-1 font-medium">Add a team above to start managing player lists.</p>
             </div>
           )}
         </div>
@@ -354,52 +368,74 @@ export default function TournamentDetails({
         {/* SQUAD MODAL */}
         <AnimatePresence>
           {isModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
               
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.22, ease: "easeOut" }}
-                className="absolute inset-0 bg-[#0C381E]/60 backdrop-blur-xs"
+                className="absolute inset-0 bg-[#0C381E]/70 backdrop-blur-sm"
                 onClick={() => setIsModalOpen(false)}
               />
     
               <motion.div
-                initial={{ y: 40, opacity: 0 }}
+                initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 30, opacity: 0 }}
+                exit={{ y: 40, opacity: 0 }}
                 transition={{
                   type: "tween",
                   duration: 0.28,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="relative bg-white border-t border-emerald-200 w-full max-w-lg overflow-hidden flex flex-col h-[75vh] sm:h-[600px] shadow-2xl rounded-t-[1.5rem] sm:rounded-3xl will-change-transform"
+                className="relative bg-white border border-emerald-200 w-full max-w-lg overflow-hidden flex flex-col h-[80vh] sm:h-[620px] shadow-2xl rounded-t-[2rem] sm:rounded-3xl will-change-transform z-10"
               >
     
-                <div className="p-6 border-b border-emerald-100 flex justify-between items-center bg-emerald-50/50">
-                  <h2 className="text-lg font-black italic uppercase text-[#0C381E] truncate pr-4">{activeTeam?.name}</h2>
-                  <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white border border-emerald-200 rounded-full active:scale-90 transition-all hover:bg-emerald-50"><X size={18} className="text-[#0C381E]" /></button>
+                {/* Modal Header */}
+                <div className="p-5 border-b border-emerald-100 flex justify-between items-center bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/30">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-3 h-3 rounded-full bg-red-600 animate-pulse shrink-0" />
+                    <h2 className="text-base sm:text-lg font-black italic uppercase text-[#0C381E] truncate">{activeTeam?.name}</h2>
+                  </div>
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white border border-emerald-200 rounded-full active:scale-90 transition-all hover:bg-emerald-50 text-[#0C381E] shadow-xs">
+                    <X size={18} />
+                  </button>
                 </div>
-                <div className="p-4 bg-emerald-50/30 border-b border-emerald-100">
-                  <form onSubmit={handleAddPlayer} className="flex gap-2">
-                    <input autoFocus type="text" required placeholder="PLAYER NAME..." value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="flex-1 bg-white border border-emerald-200 px-4 py-3 rounded-xl text-xs font-black uppercase italic outline-none focus:border-red-600 text-[#0C381E]" />
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setPlayerPhoto(e.target.files[0])}
-                      className="text-[10px] w-[110px] text-gray-500 file:py-2 file:px-2 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-100 file:text-[#0C381E] cursor-pointer"
+                {/* Player Input Section */}
+                <div className="p-4 bg-emerald-50/40 border-b border-emerald-100">
+                  <form onSubmit={handleAddPlayer} className="flex flex-col sm:flex-row gap-2">
+                    <input 
+                      autoFocus 
+                      type="text" 
+                      required 
+                      placeholder="PLAYER NAME..." 
+                      value={playerName} 
+                      onChange={(e) => setPlayerName(e.target.value)} 
+                      className="flex-1 bg-white border border-emerald-200 px-4 py-3 rounded-2xl text-xs font-black uppercase italic outline-none focus:border-red-600 text-[#0C381E] shadow-xs" 
                     />
-    
-                    <button type="submit" className="bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-bold px-4 rounded-xl shadow-md active:scale-95 shrink-0 text-xs">Add Player</button>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setPlayerPhoto(e.target.files[0])}
+                        className="text-[10px] w-[120px] text-gray-500 file:py-2.5 file:px-2.5 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-emerald-100 file:text-[#0C381E] cursor-pointer"
+                      />
+      
+                      <button type="submit" className="bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-extrabold px-5 py-3 rounded-2xl shadow-md active:scale-95 shrink-0 text-xs tracking-wider uppercase border border-yellow-400/20">
+                        Add
+                      </button>
+                    </div>
                   </form>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar pb-24">
+
+                {/* Players List */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-2.5 no-scrollbar pb-24 bg-gray-50/50">
                   {teamPlayers.map((p, index) => (
-                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-emerald-100 rounded-xl shadow-sm hover:border-emerald-200 transition-all">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] flex items-center justify-center shrink-0 border border-emerald-300">
+                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-emerald-100/80 rounded-2xl shadow-xs hover:shadow-md hover:border-emerald-300 transition-all">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-[#0C381E] to-[#14532D] flex items-center justify-center shrink-0 border border-emerald-300 shadow-xs">
                           {p.photoUrl ? (
                             <img
                               src={p.photoUrl}
@@ -413,16 +449,22 @@ export default function TournamentDetails({
                           )}
                         </div>
 
-                        <span className="text-xs font-black uppercase text-[#0C381E] truncate">
+                        <span className="text-xs font-black uppercase tracking-tight text-[#0C381E] truncate">
                           {p.name}
                         </span>
                       </div>
                                    
-                      <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-600 transition-all">
+                      <button onClick={() => handleDeletePlayer(p.id)} className="p-2 hover:bg-red-50 rounded-xl text-gray-300 hover:text-red-600 transition-all" title="Remove Player">
                         <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
+
+                  {teamPlayers.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-xs font-bold uppercase text-emerald-800/60 tracking-wider">No players added to this squad yet.</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -430,9 +472,10 @@ export default function TournamentDetails({
         </AnimatePresence>
       </main>
 
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-[#0C381E] border border-yellow-400/30 shadow-xl rounded-full z-40 flex items-center gap-2">
-        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-        <span className="text-[9px] font-black uppercase tracking-widest text-yellow-300">System Stable</span>
+      {/* SYSTEM STATUS FOOTER PILL */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 px-5 py-2.5 bg-[#0C381E] border border-yellow-400/40 shadow-2xl rounded-full z-40 flex items-center gap-2.5 backdrop-blur-md">
+        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300">Live Database Connected</span>
       </div>
     </div>
   );
@@ -507,5 +550,4 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-    }
-              
+}
