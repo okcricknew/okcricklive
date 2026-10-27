@@ -107,30 +107,50 @@ function TournamentCard({ tournament }) {
                 <h2 className="text-[#1D2939] font-black text-[1.05rem] uppercase tracking-tight truncate leading-none mb-1">
                   {tournament.tournamentName}
                 </h2>
-                {/* EDIT ICON */}
-                <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    setNewTournamentName(tournament.tournamentName);
-                    setEditTournamentLogo(null);
-                    setShowEditModal(true); 
-                  }}
-                  className="text-slate-400 hover:text-blue-600 transition-colors p-1"
-                  title="Edit Tournament"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                </button>
+                
+{/* EDIT ICON */}
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    setNewTournamentName(tournament.tournamentName);
+    setEditTournamentLogo(null);
+    setShowEditModal(true);
+  }}
+  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+  title="Edit Tournament"
+  aria-label="Edit Tournament"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="m15 5 4 4" />
+  </svg>
+</button>
 
-        <button
+{/* DELETE ICON */}
+<button
+  type="button"
   onClick={(e) => {
     e.stopPropagation();
     setShowDeleteModal(true);
   }}
-  className="text-slate-400 hover:text-red-600 transition-colors p-1"
+  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 shadow-sm transition-all duration-200 hover:border-red-500 hover:bg-red-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
   title="Delete Tournament"
+  aria-label="Delete Tournament"
 >
-  <Trash2 size={14} strokeWidth={2.5} />
+  <Trash2 size={15} strokeWidth={2.3} />
 </button>
+    
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
