@@ -128,6 +128,16 @@ function TeamScore({
 export default function LatestMatches({ initialMatches = [] }) {
   const { matches, loading, error } = useLatestMatches(initialMatches);
 
+  const matchesContainerRef = useRef(null);
+
+useEffect(() => {
+  const container = matchesContainerRef.current;
+
+  if (container) {
+    container.scrollLeft = 0;
+  }
+}, []);
+
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
@@ -191,9 +201,14 @@ export default function LatestMatches({ initialMatches = [] }) {
         </div>
       ) : (
         <div
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden pb-3"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
+  ref={matchesContainerRef}
+  dir="ltr"
+  className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden pb-3"
+  style={{
+    WebkitOverflowScrolling: "touch",
+    scrollBehavior: "auto",
+  }}
+>
           {matches.map((match) => {
             const isLive =
               String(match.status || "").toLowerCase() === "live";
