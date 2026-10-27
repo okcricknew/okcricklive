@@ -51,7 +51,15 @@ if (type === "tossResult") {
   }, 8000);
 }
 
-      const ref = doc(db, "tournaments", tId, "matches", matchId);
+      
+const ref = doc(
+  db,
+  "tournaments",
+  activeTournamentId,
+  "matches",
+  activeMatchId
+);
+      
 
       let overlayType = type;
 
@@ -101,8 +109,6 @@ timeoutRef.current = setTimeout(() => {
   }
 };
 
-  if (!isOpen) return null;
-
   // ✅ Button style helper
   const getBtnClass = (type) => {
   return `
@@ -114,14 +120,19 @@ timeoutRef.current = setTimeout(() => {
   `;
 };
 
-  return (
-    <AnimatePresence>
+  
+return (
+  <AnimatePresence initial={false}>
+    {isOpen && (
       <motion.div
+        key="overlay-control-modal"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
         className="fixed inset-0 z-[999999] bg-white flex flex-col"
       >
+          
 
         {/* HEADER */}
         <div className="flex items-center justify-center py-4 border-b">
@@ -237,7 +248,9 @@ timeoutRef.current = setTimeout(() => {
           </button>
         </div>
 
+      
       </motion.div>
-    </AnimatePresence>
-  );
-}
+    )}
+  </AnimatePresence>
+);
+    }
