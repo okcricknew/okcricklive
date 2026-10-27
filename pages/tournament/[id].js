@@ -9,6 +9,7 @@ import SquadModal from '../../components/tournament/SquadModal';
 import AddTeamCard from '../../components/tournament/AddTeamCard';
 import EditTeamModal from '../../components/tournament/EditTeamModal';
 import EditPlayerModal from '../../components/tournament/EditPlayerModal';
+import ConfirmModal from '../../components/tournament/ConfirmModal';
 import { useTournamentDetails } from '../../hooks/useTournamentDetails';
 
 export default function TournamentDetails({
@@ -53,6 +54,11 @@ export default function TournamentDetails({
     setEditPlayerPhoto,
     openEditPlayerModal,
     handleUpdatePlayer,
+    // Delete Confirmation props
+    deleteConfirmOpen,
+    setDeleteConfirmOpen,
+    deleteConfig,
+    executeDelete,
   } = useTournamentDetails(id, initialTeams);
 
   return (
@@ -159,6 +165,15 @@ export default function TournamentDetails({
           setEditPlayerName={setEditPlayerName}
           setEditPlayerPhoto={setEditPlayerPhoto}
           handleUpdatePlayer={handleUpdatePlayer}
+        />
+
+        {/* DELETE CONFIRMATION MODAL */}
+        <ConfirmModal
+          isOpen={deleteConfirmOpen}
+          onClose={() => setDeleteConfirmOpen(false)}
+          onConfirm={executeDelete}
+          title={deleteConfig.title}
+          message={deleteConfig.message}
         />
       </main>
 
