@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { db } from '../lib/firebase';
 import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
 import {
@@ -176,13 +176,15 @@ function TournamentCard({ tournament }) {
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
           >
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.9, opacity: 0 }} 
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+animate={{ opacity: 1, scale: 1, y: 0 }}
+exit={{ opacity: 0, scale: 0.96, y: 8 }}
+transition={{ duration: 0.18, ease: "easeOut" }}
               className="bg-white rounded-2xl p-6 w-[320px] shadow-xl"
             >
               <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Tournament?</h3>
@@ -200,7 +202,8 @@ function TournamentCard({ tournament }) {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} 
