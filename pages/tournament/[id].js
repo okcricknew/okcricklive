@@ -41,10 +41,10 @@ function TeamRow({
   
   return (
     <div className="w-full">
-      <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3">
+      <div className="bg-white border border-emerald-100/80 p-3 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between gap-3">
         {/* Left Section: Info */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] border border-gray-200 shrink-0 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] border border-emerald-200 shrink-0 flex items-center justify-center shadow-inner">
             {team.logoUrl ? (
               <img
                 src={team.logoUrl}
@@ -52,9 +52,9 @@ function TeamRow({
                 className="w-full h-full object-contain p-1"
               />
             ) : (
-              <div className="text-white flex flex-col items-center justify-center w-full h-full">
+              <div className="text-yellow-400 flex flex-col items-center justify-center w-full h-full">
                 <span className="text-sm font-black leading-none">{count}</span>
-                <span className="text-[6px] font-bold uppercase tracking-tighter">
+                <span className="text-[6px] font-bold uppercase tracking-tighter text-yellow-300/80">
                   SQD
                 </span>
               </div>
@@ -62,11 +62,11 @@ function TeamRow({
           </div>
 
           <div className="min-w-0">
-            <h3 className="font-black text-[13px] uppercase tracking-tighter text-[#1D2939] truncate leading-tight">
+            <h3 className="font-black text-[13px] uppercase tracking-tighter text-[#0C381E] truncate leading-tight">
               {team.name}
             </h3>
-            <p className="text-[8px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">
-              {count} SQD
+            <p className="text-[9px] text-amber-600 font-extrabold uppercase tracking-widest mt-0.5">
+              {count} SQUAD PLAYERS
             </p>
           </div>
         </div>
@@ -75,21 +75,21 @@ function TeamRow({
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => onEdit(team)}
-            className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
+            className="p-1.5 text-gray-400 hover:text-amber-600 transition-colors"
           >
             <Edit2 size={14} />
           </button>
 
           <button
             onClick={() => onDelete(team.id)}
-            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
           >
             <Trash2 size={14} />
           </button>
 
           <button
             onClick={() => onManage(team)}
-            className="ml-1 bg-[#1D2939] text-white p-2 rounded-xl active:scale-90 transition-all shadow-sm"
+            className="ml-1 bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-bold px-3 py-2 rounded-xl active:scale-90 transition-all shadow-sm text-xs"
           >
             Add Player
           </button>
@@ -269,31 +269,31 @@ export default function TournamentDetails({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1D2939]">
+    <div className="min-h-screen bg-[#F4F7F5] text-[#0C381E]">
       
       {/* STICKY HEADER */}
-      <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-40 h-16 md:h-20 flex items-center px-4 shadow-sm">
+      <nav className="w-full bg-white border-b border-emerald-100 sticky top-0 z-40 h-16 md:h-20 flex items-center px-4 shadow-sm">
         <div className="flex items-center justify-between w-full gap-3">
-          <Link href="/my-tournaments" className="p-2.5 bg-gray-50 rounded-xl text-gray-600 active:scale-95 transition-all shrink-0">
+          <Link href="/my-tournaments" className="p-2.5 bg-emerald-50 text-[#0C381E] rounded-xl active:scale-95 transition-all shrink-0 hover:bg-emerald-100">
             <ArrowLeft size={20} />
           </Link>
 
           <div className="flex-1 min-w-0 text-center">
-            <h1 className="text-[20px] md:text-base font-black uppercase tracking-tighter leading-none truncate px-1">
+            <h1 className="text-[20px] md:text-base font-black uppercase tracking-tighter leading-none truncate px-1 text-[#0C381E]">
               {tournament?.tournamentName || "Tournament"}
             </h1>
-            <p className="text-[8px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1 whitespace-nowrap">Add Team & Players</p>
+            <p className="text-[9px] text-red-600 font-extrabold uppercase tracking-[0.2em] mt-1 whitespace-nowrap">Add Team & Players</p>
           </div>
               
         </div>
       </nav>
 
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-5">
         <button 
           onClick={() => router.push(`/tournament/manage-match/${id}`)}
-          className="bg-[#2E7D32] text-white px-5 py-2.5 rounded-xl font-black text-[12px] uppercase flex items-center gap-2 shadow-md active:scale-95 transition-all"
+          className="bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 border border-yellow-400/30 px-6 py-3 rounded-xl font-black text-[12px] uppercase flex items-center gap-2 shadow-lg shadow-emerald-900/10 active:scale-95 transition-all"
         >
-          <Plus size={14} /> CREATE MATCH
+          <Plus size={15} className="text-yellow-400" /> CREATE MATCH
         </button>
       </div>
 
@@ -301,19 +301,19 @@ export default function TournamentDetails({
         
         {/* COMPACT ADD TEAM INPUT */}
         <div className="mb-8 max-w-lg mx-auto">
-          <div className="bg-white p-1.5 border border-gray-100 flex gap-2 items-center rounded-2xl shadow-sm">
+          <div className="bg-white p-2 border border-emerald-200 flex gap-2 items-center rounded-2xl shadow-sm">
              <input 
                type="text" placeholder="NEW TEAM NAME..." value={teamName} 
                onChange={(e) => setTeamName(e.target.value)} 
-               className="flex-1 bg-transparent pl-3 text-xs outline-none font-black italic uppercase text-[#1D2939]" 
+               className="flex-1 bg-transparent pl-3 text-xs outline-none font-black italic uppercase text-[#0C381E] placeholder:text-gray-400" 
              />
              <input
                type="file"
                accept="image/*"
                onChange={(e) => setTeamLogo(e.target.files[0])}
-               className="text-[10px] w-[110px]"
+               className="text-[10px] w-[110px] text-gray-500 file:mr-2 file:py-1.5 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-50 file:text-[#0C381E] hover:file:bg-emerald-100 cursor-pointer"
              />
-             <button onClick={handleAddTeam} className="bg-[#1D2939] text-white px-5 py-2.5 font-black italic text-[10px] uppercase rounded-xl active:scale-95 transition-all">
+             <button onClick={handleAddTeam} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 font-black italic text-[10px] uppercase rounded-xl active:scale-95 transition-all shadow-sm">
                Add Team
              </button>
           </div>
@@ -322,31 +322,31 @@ export default function TournamentDetails({
         {/* COMPACT DIRECTORY GRID */}
         <div className="w-full">
           <div className="flex items-center gap-3 mb-6 px-2">
-            <h2 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.25em] whitespace-nowrap">Squads Directory ({teams.length})</h2>
-            <div className="h-[1px] flex-1 bg-gray-100" />
+            <h2 className="text-[10px] font-black uppercase text-emerald-800 tracking-[0.25em] whitespace-nowrap">Squads Directory ({teams.length})</h2>
+            <div className="h-[1px] flex-1 bg-emerald-200/60" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {teams.map((team) => (
               <TeamRow
-  key={team.id}
-  team={team}
-  tournamentId={id}
-  initialCount={initialTeamCounts[team.id] ?? 0}
-  onManage={(t) => {
-    setActiveTeam(t);
-    setIsModalOpen(true);
-  }}
-  onDelete={handleDeleteTeam}
-  onEdit={handleEditTeam}
-/>
+                key={team.id}
+                team={team}
+                tournamentId={id}
+                initialCount={initialTeamCounts[team.id] ?? 0}
+                onManage={(t) => {
+                  setActiveTeam(t);
+                  setIsModalOpen(true);
+                }}
+                onDelete={handleDeleteTeam}
+                onEdit={handleEditTeam}
+              />
             ))}
           </div>
 
           {teams.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
-               <Users className="mx-auto text-gray-100 mb-4" size={48} />
-               <p className="text-gray-400 uppercase font-black italic text-[10px] tracking-widest">Awaiting First Squad</p>
+            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-emerald-200 shadow-sm">
+               <Users className="mx-auto text-emerald-300 mb-4" size={48} />
+               <p className="text-emerald-800 uppercase font-black italic text-[10px] tracking-widest">Awaiting First Squad</p>
             </div>
           )}
         </div>
@@ -356,51 +356,50 @@ export default function TournamentDetails({
           {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
               
-<motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  exit={{ opacity: 0 }}
-  transition={{ duration: 0.22, ease: "easeOut" }}
-  className="absolute inset-0 bg-[#1D2939]/50"
-  onClick={() => setIsModalOpen(false)}
-/>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="absolute inset-0 bg-[#0C381E]/60 backdrop-blur-xs"
+                onClick={() => setIsModalOpen(false)}
+              />
     
-              
-<motion.div
-  initial={{ y: 40, opacity: 0 }}
-  animate={{ y: 0, opacity: 1 }}
-  exit={{ y: 30, opacity: 0 }}
-  transition={{
-    type: "tween",
-    duration: 0.28,
-    ease: [0.22, 1, 0.36, 1],
-  }}
-  className="relative bg-white border-t border-gray-200 w-full max-w-lg overflow-hidden flex flex-col h-[75vh] sm:h-[600px] shadow-2xl rounded-t-[1rem] sm:rounded-3xl will-change-transform"
->
+              <motion.div
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 30, opacity: 0 }}
+                transition={{
+                  type: "tween",
+                  duration: 0.28,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="relative bg-white border-t border-emerald-200 w-full max-w-lg overflow-hidden flex flex-col h-[75vh] sm:h-[600px] shadow-2xl rounded-t-[1.5rem] sm:rounded-3xl will-change-transform"
+              >
     
-                <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-                  <h2 className="text-lg font-black italic uppercase text-[#1D2939] truncate pr-4">{activeTeam?.name}</h2>
-                  <button onClick={() => setIsModalOpen(false)} className="p-2 bg-gray-50 rounded-full active:scale-90 transition-all"><X size={20} className="text-gray-400" /></button>
+                <div className="p-6 border-b border-emerald-100 flex justify-between items-center bg-emerald-50/50">
+                  <h2 className="text-lg font-black italic uppercase text-[#0C381E] truncate pr-4">{activeTeam?.name}</h2>
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white border border-emerald-200 rounded-full active:scale-90 transition-all hover:bg-emerald-50"><X size={18} className="text-[#0C381E]" /></button>
                 </div>
-                <div className="p-4 bg-gray-50/50">
+                <div className="p-4 bg-emerald-50/30 border-b border-emerald-100">
                   <form onSubmit={handleAddPlayer} className="flex gap-2">
-                    <input autoFocus type="text" required placeholder="PLAYER NAME..." value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="flex-1 bg-white border border-gray-200 px-4 py-3 rounded-xl text-xs font-black uppercase italic outline-none focus:border-[#1D2939]" />
+                    <input autoFocus type="text" required placeholder="PLAYER NAME..." value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="flex-1 bg-white border border-emerald-200 px-4 py-3 rounded-xl text-xs font-black uppercase italic outline-none focus:border-red-600 text-[#0C381E]" />
 
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setPlayerPhoto(e.target.files[0])}
-                      className="text-[10px] w-[110px]"
+                      className="text-[10px] w-[110px] text-gray-500 file:py-2 file:px-2 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-emerald-100 file:text-[#0C381E] cursor-pointer"
                     />
     
-                    <button type="submit" className="bg-[#1D2939] text-white px-4 rounded-xl shadow-md active:scale-95 shrink-0">Add Player</button>
+                    <button type="submit" className="bg-[#0C381E] hover:bg-emerald-900 text-yellow-300 font-bold px-4 rounded-xl shadow-md active:scale-95 shrink-0 text-xs">Add Player</button>
                   </form>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar pb-24">
                   {teamPlayers.map((p, index) => (
-                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-gray-100 rounded-xl shadow-sm">
+                    <div key={p.id} className="flex items-center justify-between p-3.5 bg-white border border-emerald-100 rounded-xl shadow-sm hover:border-emerald-200 transition-all">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1D2939] flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0C381E] flex items-center justify-center shrink-0 border border-emerald-300">
                           {p.photoUrl ? (
                             <img
                               src={p.photoUrl}
@@ -408,32 +407,32 @@ export default function TournamentDetails({
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-white text-[11px] font-black">
+                            <span className="text-yellow-300 text-[11px] font-black">
                               {(index + 1).toString().padStart(2, "0")}
                             </span>
                           )}
                         </div>
 
-                        <span className="text-xs font-black uppercase text-[#1D2939] truncate">
+                        <span className="text-xs font-black uppercase text-[#0C381E] truncate">
                           {p.name}
                         </span>
                       </div>
                                    
-                      <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-500 transition-all">
+                      <button onClick={() => handleDeletePlayer(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-600 transition-all">
                         <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
                 </div>
-                    </motion.div>
+              </motion.div>
             </div>
           )}
         </AnimatePresence>
       </main>
 
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-[#1D2939] shadow-xl rounded-full z-40 flex items-center gap-2 border border-white/10">
-        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-        <span className="text-[8px] font-black uppercase tracking-widest text-white/90">System Stable</span>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-[#0C381E] border border-yellow-400/30 shadow-xl rounded-full z-40 flex items-center gap-2">
+        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+        <span className="text-[9px] font-black uppercase tracking-widest text-yellow-300">System Stable</span>
       </div>
     </div>
   );
@@ -456,8 +455,6 @@ export async function getServerSideProps({ params, req, res }) {
       return { notFound: true };
     }
 
-    // Team counts ko server par fetch karein.
-    // Agar count fetch fail ho, tournament page phir bhi render ho sake.
     const initialTeamCounts = {};
 
     try {
@@ -499,7 +496,6 @@ export async function getServerSideProps({ params, req, res }) {
       error?.code || error?.message
     );
 
-    // Server/data configuration error ko 404 na banayein.
     return {
       props: {
         initialTournament: null,
@@ -511,4 +507,5 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-}
+    }
+              
