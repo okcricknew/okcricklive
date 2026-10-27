@@ -1,6 +1,9 @@
+// hooks/useLatestMatches.js
+
 import { useEffect, useState } from "react";
 import {
   collection,
+  limit,
   onSnapshot,
   orderBy,
   query,
@@ -22,8 +25,6 @@ export default function useLatestMatches(initialMatches = []) {
     const unsubscribeTournaments = onSnapshot(
       collection(db, "tournaments"),
       (tournamentSnapshot) => {
-        if (!active) return;
-
         matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
         matchUnsubscribers = [];
         matchesByTournament = new Map();
@@ -41,7 +42,8 @@ export default function useLatestMatches(initialMatches = []) {
 
           const matchesQuery = query(
             collection(db, "tournaments", tournamentId, "matches"),
-            orderBy("createdAt", "desc")
+            orderBy("createdAt", "desc"),
+            limit(10)
           );
 
           const unsubscribeMatches = onSnapshot(
@@ -122,7 +124,6 @@ export default function useLatestMatches(initialMatches = []) {
     return () => {
       active = false;
       unsubscribeTournaments();
-
       matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
     };
   }, []);
