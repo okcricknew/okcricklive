@@ -202,7 +202,6 @@ export function useTournamentDetails(id, initialTeams = []) {
     } catch (e) { console.error(e); }
   };
 
-  // --- OPEN EDIT PLAYER MODAL ---
   const openEditPlayerModal = (player) => {
     setEditingPlayer(player);
     setEditPlayerName(player.name || '');
@@ -210,7 +209,6 @@ export function useTournamentDetails(id, initialTeams = []) {
     setIsEditPlayerModalOpen(true);
   };
 
-  // --- SAVE EDIT PLAYER ---
   const handleUpdatePlayer = async (e) => {
     e.preventDefault();
     if (!editPlayerName.trim() || !editingPlayer || !activeTeam?.id || !id) return;
@@ -269,7 +267,6 @@ export function useTournamentDetails(id, initialTeams = []) {
     handleDeleteTeam,
     handleAddPlayer,
     handleDeletePlayer,
-    // Edit Team exports
     isEditModalOpen,
     setIsEditModalOpen,
     editingTeam,
@@ -278,7 +275,6 @@ export function useTournamentDetails(id, initialTeams = []) {
     setEditTeamLogo,
     openEditModal,
     handleUpdateTeam,
-    // Edit Player exports
     isEditPlayerModalOpen,
     setIsEditPlayerModalOpen,
     editingPlayer,
