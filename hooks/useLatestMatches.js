@@ -1,0 +1,143 @@
+// hooks/useLatestMatches.js
+
+import { useEffect, useState } from "react";
+import {
+  collection,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+
+import { db } from "../lib/firebase";
+import { getMatchTime } from "../lib/matches/formatMatch";
+
+export default function useLatestMatches(initialMatches = []) {
+  const [matches, setMatches] = useState(initialMatches);
+  const [loading, setLoading] = useState(initialMatches.length === 0);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    let matchUnsubscribers = [];
+    let matchesByTournament = new Map();
+
+    const unsubscribeTournaments = onSnapshot(
+      collection(db, "tournaments"),
+      (tournamentSnapshot) => {
+        matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
+        matchUnsubscribers = [];
+        matchesByTournament = new Map();
+
+        if (tournamentSnapshot.empty) {
+          setMatches([]);
+          setLoading(false);
+          setError(false);
+          return;
+        }
+
+        tournamentSnapshot.docs.forEach((tournamentDoc) => {
+          const tournamentData = tournamentDoc.data();
+          const tournamentId = tournamentDoc.id;
+
+          const matchesQuery = query(
+            collection(db, "tournaments", tournamentId, "matches"),
+            orderBy("createdAt", "desc"),
+            limit(10)
+          );
+
+          const unsubscribeMatches = onSnapshot(
+            matchesQuery,
+            (matchSnapshot) => {
+              if (!active) return;
+
+              const tournamentMatches = matchSnapshot.docs.map(
+                (matchDoc) => {
+                  const matchData = matchDoc.data();
+
+                  return {
+                    ...matchData,
+                    id: matchDoc.id,
+                    tournamentId,
+                    tournamentName:
+                      matchData.tournamentName ||
+                      tournamentData.tournamentName ||
+                      tournamentData.name ||
+                      tournamentData.title ||
+                      "Tournament",
+                  };
+                }
+              );
+
+              matchesByTournament.set(
+                tournamentId,
+                tournamentMatches
+              );
+
+              const latestMatches = Array.from(
+                matchesByTournament.values()
+              )
+                .flat()
+                .filter((match) =>
+                  ["live", "completed"].includes(
+                    String(match.status || "").toLowerCase()
+                  )
+                )
+                .sort((a, b) => {
+  const matchA = Number(a.matchNo);
+  const matchB = Number(b.matchNo);
+
+  if (Number.isFinite(matchA) && Number.isFinite(matchB)) {
+    return matchA - matchB;
+  }
+
+  return String(a.matchNo ?? "").localeCompare(
+    String(b.matchNo ?? ""),
+    undefined,
+    { numeric: true }
+  );
+})
+.slice(0, 10);
+
+              setMatches(latestMatches);
+              setLoading(false);
+              setError(false);
+            },
+            (listenerError) => {
+              console.error(
+                "Match listener failed:",
+                listenerError?.code || listenerError?.message
+              );
+
+              if (active) {
+                setError(true);
+                setLoading(false);
+              }
+            }
+          );
+
+          matchUnsubscribers.push(unsubscribeMatches);
+        });
+      },
+      (listenerError) => {
+        console.error(
+          "Tournament listener failed:",
+          listenerError?.code || listenerError?.message
+        );
+
+        if (active) {
+          setError(true);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      active = false;
+      unsubscribeTournaments();
+      matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
+  }, []);
+
+  return { matches, loading, error };
+}
