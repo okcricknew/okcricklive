@@ -37,7 +37,6 @@ export default function TournamentDetails({
     handleDeleteTeam,
     handleAddPlayer,
     handleDeletePlayer,
-    // Edit Team Props
     isEditModalOpen,
     setIsEditModalOpen,
     editingTeam,
@@ -46,7 +45,6 @@ export default function TournamentDetails({
     setEditTeamLogo,
     openEditModal,
     handleUpdateTeam,
-    // Edit Player Props
     isEditPlayerModalOpen,
     setIsEditPlayerModalOpen,
     editingPlayer,
@@ -73,7 +71,6 @@ export default function TournamentDetails({
             </h1>
             <p className="text-[9px] text-red-600 font-extrabold uppercase tracking-[0.2em] mt-1 whitespace-nowrap">Add Team & Players</p>
           </div>
-              
         </div>
       </nav>
 
@@ -242,5 +239,5 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-          }
+            }
             
