@@ -86,7 +86,7 @@ function TeamRow({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
