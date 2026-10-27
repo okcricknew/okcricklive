@@ -9,12 +9,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getHomeInitialProps } from "../lib/ssr/home";
 
-export default function Home({
-  initialMatch = null,
-  initialUser = null,
-  initialUserData = null,
-  initialStats = null,
-}) {
+export default function Home({ initialMatch = null, initialUser = null, initialUserData = null }) { 
   const fastTransition = { duration: 0.1, ease: "easeOut" };
 
   // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
@@ -126,23 +121,17 @@ export default function Home({
           {/* High-End Clean Stats Grid */}
           <div className="bg-white rounded-2xl p-6 flex justify-around border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] relative overflow-hidden">
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.matches ?? 0).toLocaleString('en-IN')}
-</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">850+</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Matches</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.players ?? 0).toLocaleString('en-IN')}
-</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">4.8k</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Players</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.locations ?? 0).toLocaleString('en-IN')}
-</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">15+</p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Cities</p>
             </div>
             <BarChart3 className="absolute w-28 h-28 text-slate-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
@@ -268,4 +257,4 @@ export async function getServerSideProps(context) {
       } 
     };
   }
-            }
+    }
