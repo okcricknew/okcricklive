@@ -282,7 +282,12 @@ transition={{ duration: 0.18, ease: "easeOut" }}
 
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
-export default function MyTournaments({ initialTournaments = [], initialUser = null, initialUserData = null }) {
+export default function MyTournaments({
+  initialTournaments = [],
+  initialUser = null,
+  initialUserData = null,
+  initialLoadError = false,
+}) {
   const [tournaments, setTournaments] = useState(initialTournaments);
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
@@ -442,9 +447,12 @@ function getTimestampMillis(value) {
 }
 
 export async function getServerSideProps({ req, res }) {
-  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader(
+    'Cache-Control',
+    'private, no-store, max-age=0'
+  );
 
-const sessionCookie = req.cookies?.__session;
+  const sessionCookie = req.cookies?.__session;
 
   if (!sessionCookie) {
     return {
@@ -455,15 +463,56 @@ const sessionCookie = req.cookies?.__session;
     };
   }
 
+  let decodedToken;
+
+  // STEP 1: Verify login separately.
   try {
     const adminAuth = getAdminAuth();
-    const adminDb = getAdminDb();
 
-    const decodedToken = await adminAuth.verifySessionCookie(
+    decodedToken = await adminAuth.verifySessionCookie(
       sessionCookie,
       true
     );
+  } catch (error) {
+    console.error(
+      'My Tournaments authentication error:',
+      error.code || error.message
+    );
 
+    const quotaError =
+      error.code === 8 ||
+      error.code === '8' ||
+      String(error.message || '').includes('RESOURCE_EXHAUSTED') ||
+      String(error.message || '').includes('Quota exceeded');
+
+    if (quotaError) {
+      res.statusCode = 503;
+
+      return {
+        props: {
+          initialTournaments: [],
+          initialUser: null,
+          initialUserData: null,
+          initialLoadError: true,
+        },
+      };
+    }
+
+    res.setHeader('Set-Cookie', [
+      '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+    ]);
+
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  // STEP 2: Load tournament data separately.
+  try {
+    const adminDb = getAdminDb();
     const uid = decodedToken.uid;
 
     const userDoc = await adminDb
@@ -471,7 +520,9 @@ const sessionCookie = req.cookies?.__session;
       .doc(uid)
       .get();
 
-    const userData = userDoc.exists ? userDoc.data() : {};
+    const userData = userDoc.exists
+      ? userDoc.data()
+      : {};
 
     const snapshot = await adminDb
       .collection('tournaments')
@@ -482,10 +533,11 @@ const sessionCookie = req.cookies?.__session;
       snapshot.docs.map(async (tournamentDoc) => {
         const tournamentRef = tournamentDoc.ref;
 
-        const [teamsSnapshot, matchesSnapshot] = await Promise.all([
-          tournamentRef.collection('teams').get(),
-          tournamentRef.collection('matches').get(),
-        ]);
+        const [teamsSnapshot, matchesSnapshot] =
+          await Promise.all([
+            tournamentRef.collection('teams').get(),
+            tournamentRef.collection('matches').get(),
+          ]);
 
         return {
           id: tournamentDoc.id,
@@ -512,22 +564,27 @@ const sessionCookie = req.cookies?.__session;
             userData?.name || decodedToken.name || '',
         },
         initialUserData: null,
+        initialLoadError: false,
       },
     };
   } catch (error) {
     console.error(
-      'My Tournaments SSR error:',
+      'My Tournaments Firestore error:',
       error.code || error.message
     );
 
-    res.setHeader('Set-Cookie', [
-      '__session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
-    ]);
+    res.statusCode = 503;
 
     return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
+      props: {
+        initialTournaments: [],
+        initialUser: {
+          uid: decodedToken.uid,
+          email: decodedToken.email || null,
+          displayName: decodedToken.name || '',
+        },
+        initialUserData: null,
+        initialLoadError: true,
       },
     };
   }
