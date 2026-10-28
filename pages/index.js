@@ -1,4 +1,3 @@
-import { getAdminAuth, getAdminDb } from "../lib/firebase-admin";
 import Link from "next/link"; 
 import { Zap, Shield, Globe, BarChart3, Users, Star, MessageSquare, ArrowUpRight } from "lucide-react"; 
 import { motion } from "framer-motion";
@@ -26,8 +25,8 @@ export default function Home({
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-  setUser(currentUser);
-});
+      setUser(currentUser);
+    });
     return () => unsubscribe();
   }, []);
 
@@ -129,29 +128,29 @@ export default function Home({
           <div className="bg-white rounded-2xl p-6 flex justify-around border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] relative overflow-hidden">
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.matches ?? 0).toLocaleString('en-IN')}
-</p>
+                {(initialStats?.matches ?? 0).toLocaleString('en-IN')}
+              </p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Matches</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.players ?? 0).toLocaleString('en-IN')}
-</p>
+                {(initialStats?.players ?? 0).toLocaleString('en-IN')}
+              </p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Players</p>
             </div>
             <div className="w-[1px] bg-slate-100 my-1" />
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-  {(initialStats?.locations ?? 0).toLocaleString('en-IN')}
-</p>
+                {(initialStats?.locations ?? 0).toLocaleString('en-IN')}
+              </p>
               <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Cities</p>
             </div>
             <BarChart3 className="absolute w-28 h-28 text-slate-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
-  {/* Latest Matches - SSR + Live Updates */}
-<LatestMatches initialMatches={initialMatches} />
+          {/* Latest Matches - SSR + Live Updates */}
+          <LatestMatches initialMatches={initialMatches} />
 
           {/* Minimalist Feature Cards Framework */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -229,6 +228,9 @@ function Feature({ icon, title, desc }) {
 
 export async function getServerSideProps(context) {
   try {
+    // Dynamic import to keep firebase-admin strictly out of client bundle & speed up load time
+    const { getAdminAuth, getAdminDb } = await import("../lib/firebase-admin");
+
     const { req } = context;
     const sessionCookie = req.cookies.__session || '';
 
@@ -255,14 +257,14 @@ export async function getServerSideProps(context) {
     }
 
     const homeProps = await getHomeInitialProps().catch(() => ({
-  initialMatch: null,
-  initialStats: {
-    matches: 0,
-    players: 0,
-    locations: 0,
-  },
-  initialMatches: [],
-}));
+      initialMatch: null,
+      initialStats: {
+        matches: 0,
+        players: 0,
+        locations: 0,
+      },
+      initialMatches: [],
+    }));
 
     return {
       props: {
@@ -274,19 +276,18 @@ export async function getServerSideProps(context) {
   } catch (error) {
     console.error("Home SSR failed:", error);
     return {
-  props: {
-    initialMatch: null,
-    initialStats: {
-      matches: 0,
-      players: 0,
-      locations: 0,
-    },
-    initialMatches: [],
-    initialUser: null,
-    initialUserData: null,
-  },
-};
+      props: {
+        initialMatch: null,
+        initialStats: {
+          matches: 0,
+          players: 0,
+          locations: 0,
+        },
+        initialMatches: [],
+        initialUser: null,
+        initialUserData: null,
+      },
+    };
   }
-            }
-
-  
+                }
+            
