@@ -42,38 +42,50 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
   const [tLogo, setTLogo] = useState(null);
 
   
+
 useEffect(() => {
   let unsubscribeSnapshot = null;
   let isFirstAuthCallback = true;
 
-  const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-    if (currentUser) {
-      setUser(currentUser);
-    } else if (!isFirstAuthCallback || !initialUser) {
-      setUser(null);
-    }
+  const unsubscribeAuth = onAuthStateChanged(
+    auth,
+    async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
 
-    setAuthLoading(false);
-
-    if (unsubscribeSnapshot) {
-      unsubscribeSnapshot();
-      unsubscribeSnapshot = null;
-    }
-
-    if (currentUser) {
-      const docRef = doc(db, 'users', currentUser.uid);
-
-      unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+        try {
+          await createServerSession(currentUser);
+        } catch (error) {
+          console.error(
+            "Server session synchronization failed:",
+            error
+          );
         }
-      });
-    } else if (!isFirstAuthCallback || !initialUserData) {
-      setUserData(null);
-    }
+      } else if (!isFirstAuthCallback || !initialUser) {
+        setUser(null);
+      }
 
-    isFirstAuthCallback = false;
-  });
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
+      if (currentUser) {
+        const docRef = doc(db, "users", currentUser.uid);
+
+        unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data());
+          }
+        });
+      } else if (!isFirstAuthCallback || !initialUserData) {
+        setUserData(null);
+      }
+
+      isFirstAuthCallback = false;
+      setAuthLoading(false);
+    }
+  );
 
   return () => {
     unsubscribeAuth();
@@ -83,6 +95,7 @@ useEffect(() => {
     }
   };
 }, []);
+  
 
   
 useEffect(() => {
