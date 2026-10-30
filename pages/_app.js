@@ -7,9 +7,8 @@ import Head from 'next/head';
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   
-  // router.query is available during SSR and on the client.
-  // This removes the server/client markup mismatch caused by window.location.
-  const isLiveOverlay = typeof router.query.theme === 'string';
+  // router.isReady ensure karta hai ki client-side hydration ke baad hi overlay check properly apply ho, eliminating initial layout flash.
+  const isLiveOverlay = Boolean(router.isReady && typeof router.query.theme === 'string');
 
   return (
     <div className={`min-h-screen w-full ${isLiveOverlay ? 'bg-transparent' : 'bg-[#F4F4F4]'}`}>
@@ -98,4 +97,3 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp;
-  
