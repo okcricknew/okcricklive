@@ -7,8 +7,10 @@ import Head from 'next/head';
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   
-  // router.isReady ensure karta hai ki client-side hydration ke baad hi overlay check properly apply ho, eliminating initial layout flash.
-  const isLiveOverlay = Boolean(router.isReady && typeof router.query.theme === 'string');
+  // 🔥 FIX: router.asPath pehle hi frame se URL mein 'theme' detect kar leta hai, zero flicker guarantee ke sath.
+  const isLiveOverlay = typeof window !== 'undefined' 
+    ? window.location.search.includes('theme=') 
+    : (router.asPath && router.asPath.includes('theme='));
 
   return (
     <div className={`min-h-screen w-full ${isLiveOverlay ? 'bg-transparent' : 'bg-[#F4F4F4]'}`}>
@@ -97,3 +99,4 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp;
+  
