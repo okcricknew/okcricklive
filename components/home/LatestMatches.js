@@ -1,11 +1,10 @@
-import React, { memo } from "react";
 import useLatestMatches from "../../hooks/useLatestMatches";
 import {
   getTeamScore,
   getTeamOvers,
 } from "../../lib/matches/formatMatch";
 
-const TeamScore = memo(function TeamScore({ match, teamName, logoUrl, align = "left" }) {
+function TeamScore({ match, teamName, logoUrl, align = "left" }) {
   const score = getTeamScore(match, teamName);
   const overs = getTeamOvers(match, teamName);
 
@@ -46,7 +45,7 @@ const TeamScore = memo(function TeamScore({ match, teamName, logoUrl, align = "l
       </div>
     </div>
   );
-});
+}
 
 export default function LatestMatches({ initialMatches = [] }) {
   const { matches, loading, error } = useLatestMatches(initialMatches);
@@ -238,4 +237,4 @@ export default function LatestMatches({ initialMatches = [] }) {
       )}
     </section>
   );
-}
+    }
