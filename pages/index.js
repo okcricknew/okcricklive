@@ -2,12 +2,26 @@ import Link from "next/link";
 import { Zap, Shield, Globe, BarChart3, Users, Star, MessageSquare, ArrowUpRight } from "lucide-react"; 
 import { motion } from "framer-motion";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getHomeInitialProps } from "../lib/ssr/home";
 import LatestMatches from "../components/home/LatestMatches";
+
+const fastTransition = { duration: 0.1, ease: "easeOut" };
+
+const Feature = memo(function Feature({ icon, title, desc }) { 
+  return ( 
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] hover:border-slate-300 transition-all group"> 
+      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:scale-105 transition-transform shadow-sm"> 
+        {icon} 
+      </div> 
+      <h4 className="text-[11px] font-extrabold uppercase text-slate-900 tracking-wide">{title}</h4> 
+      <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-normal">{desc}</p> 
+    </div> 
+  ); 
+});
 
 export default function Home({
   initialMatch = null,
@@ -16,8 +30,6 @@ export default function Home({
   initialStats = null,
   initialMatches = [],
 }) {
-  const fastTransition = { duration: 0.1, ease: "easeOut" };
-
   // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
   const [user, setUser] = useState(initialUser);
   const [match, setMatch] = useState(initialMatch);
@@ -214,18 +226,6 @@ export default function Home({
   ); 
 }
 
-function Feature({ icon, title, desc }) { 
-  return ( 
-    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] hover:border-slate-300 transition-all group"> 
-      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:scale-105 transition-transform shadow-sm"> 
-        {icon} 
-      </div> 
-      <h4 className="text-[11px] font-extrabold uppercase text-slate-900 tracking-wide">{title}</h4> 
-      <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-normal">{desc}</p> 
-    </div> 
-  ); 
-}
-
 export async function getServerSideProps(context) {
   try {
     // Dynamic import to keep firebase-admin strictly out of client bundle & speed up load time
@@ -289,5 +289,5 @@ export async function getServerSideProps(context) {
       },
     };
   }
-                }
+            }
             
