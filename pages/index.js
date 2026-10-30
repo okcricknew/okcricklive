@@ -30,9 +30,17 @@ export default function Home({
   initialStats = null,
   initialMatches = [],
 }) {
-  // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
+  // 👇 SSR props se direct initialize karke initial render mismatch aur flicker ko khatam kiya gaya hai
   const [user, setUser] = useState(initialUser);
-  const [match, setMatch] = useState(initialMatch);
+  const [match, setMatch] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(`match_demo_match`);
+      if (cached) {
+        try { return JSON.parse(cached); } catch (e) {}
+      }
+    }
+    return initialMatch;
+  });
 
   useEffect(() => {
     const auth = getAuth();
@@ -47,17 +55,14 @@ export default function Home({
     const mId = "demo_match";
     const ref = doc(db, "tournaments", tId, "matches", mId);
 
-    const cached = localStorage.getItem(`match_${mId}`);
-    if (cached) {
-      setMatch(JSON.parse(cached));
-    }
-
     const unsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         setMatch(data);
         localStorage.setItem(`match_${mId}`, JSON.stringify(data));
       }
+    }, (error) => {
+      console.error("Match snapshot error:", error);
     });
 
     return () => unsub();
@@ -228,7 +233,6 @@ export default function Home({
 
 export async function getServerSideProps(context) {
   try {
-    // Dynamic import to keep firebase-admin strictly out of client bundle & speed up load time
     const { getAdminAuth, getAdminDb } = await import("../lib/firebase-admin");
 
     const { req } = context;
@@ -289,5 +293,5 @@ export async function getServerSideProps(context) {
       },
     };
   }
-            }
-            
+                }
+                
