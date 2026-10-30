@@ -1,9 +1,8 @@
 import '../styles/globals.css';
 import Navbar from '../components/Navbar';
-import Layout from '../components/Layout'
+import Layout from '../components/Layout';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -12,15 +11,13 @@ function MyApp({ Component, pageProps }) {
   // This removes the server/client markup mismatch caused by window.location.
   const isLiveOverlay = typeof router.query.theme === 'string';
 
-
-
   return (
     <div className={`min-h-screen w-full ${isLiveOverlay ? 'bg-transparent' : 'bg-[#F4F4F4]'}`}>
       <Head>
         <title>OKCRICK.IN | Cricket Live Scoring App | Tournament Scoreboard & Overlay Themes | OK CRICK</title>
-  <link rel="canonical" href="https://okcrick.in" />
-  
-  <meta name="description" content="Cricket live scoring app for tournaments with real-time scoreboard, ball-by-ball updates and overlay themes system." />
+        <link rel="canonical" href="https://okcrick.in" />
+        
+        <meta name="description" content="Cricket live scoring app for tournaments with real-time scoreboard, ball-by-ball updates and overlay themes system." />
         <meta name="application-name" content="OK CRICK" />
         <meta name="apple-mobile-web-app-title" content="OK CRICK" />
         <meta property="og:site_name" content="OK CRICK" />
@@ -37,31 +34,28 @@ function MyApp({ Component, pageProps }) {
         <meta name="theme-color" content="#1D2939" />
 
         <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "OKCRICK",
-      "alternateName": ["OK CRICK", "OkCrick.in"],
-      "url": "https://okcrick.in",
-      "description": "Professional Cricket Live Scoring WebApp"
-    })
-  }}
-/>
-  
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "OKCRICK",
+              "alternateName": ["OK CRICK", "OkCrick.in"],
+              "url": "https://okcrick.in",
+              "description": "Professional Cricket Live Scoring WebApp"
+            })
+          }}
+        />
 
-          <meta name="google-site-verification" content="boehoyQyzzyR9GYJBuS5ettc4yMzhmNKi2wj1tlk84g" />
-        
-{/*  <meta name="google-site-verification" content="tQXKMJCtG19512-Xrt5ZmUZrElhCMDxgSF26YnErRQI" /> */}
+        <meta name="google-site-verification" content="boehoyQyzzyR9GYJBuS5ettc4yMzhmNKi2wj1tlk84g" />
       </Head>
     
       {!isLiveOverlay && (
-  <Navbar 
-    initialUser={pageProps?.initialUser} 
-    initialUserData={pageProps?.initialUserData} 
-  />
-)}
+        <Navbar 
+          initialUser={pageProps?.initialUser} 
+          initialUserData={pageProps?.initialUserData} 
+        />
+      )}
       
       {isLiveOverlay ? (
         <Component {...pageProps} />
@@ -104,3 +98,4 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp;
+  
