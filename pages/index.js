@@ -30,7 +30,7 @@ export default function Home({
   initialStats = null,
   initialMatches = [],
 }) {
-  // 🔥 100% Pure SSR Data Pipeline (No LocalStorage overhead)
+  // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
   const [user, setUser] = useState(initialUser);
   const [match, setMatch] = useState(initialMatch);
 
@@ -47,13 +47,17 @@ export default function Home({
     const mId = "demo_match";
     const ref = doc(db, "tournaments", tId, "matches", mId);
 
-    // Direct Firestore real-time listener without storage lag
+    const cached = localStorage.getItem(`match_${mId}`);
+    if (cached) {
+      setMatch(JSON.parse(cached));
+    }
+
     const unsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        setMatch(snap.data());
+        const data = snap.data();
+        setMatch(data);
+        localStorage.setItem(`match_${mId}`, JSON.stringify(data));
       }
-    }, (error) => {
-      console.error("Match snapshot error:", error);
     });
 
     return () => unsub();
@@ -224,6 +228,7 @@ export default function Home({
 
 export async function getServerSideProps(context) {
   try {
+    // Dynamic import to keep firebase-admin strictly out of client bundle & speed up load time
     const { getAdminAuth, getAdminDb } = await import("../lib/firebase-admin");
 
     const { req } = context;
@@ -284,5 +289,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-                }
-                  
+            }
