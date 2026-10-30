@@ -30,17 +30,9 @@ export default function Home({
   initialStats = null,
   initialMatches = [],
 }) {
-  // 👇 SSR props se direct initialize karke initial render mismatch aur flicker ko khatam kiya gaya hai
+  // 🔥 100% Pure SSR Data Pipeline (No LocalStorage overhead)
   const [user, setUser] = useState(initialUser);
-  const [match, setMatch] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem(`match_demo_match`);
-      if (cached) {
-        try { return JSON.parse(cached); } catch (e) {}
-      }
-    }
-    return initialMatch;
-  });
+  const [match, setMatch] = useState(initialMatch);
 
   useEffect(() => {
     const auth = getAuth();
@@ -55,11 +47,10 @@ export default function Home({
     const mId = "demo_match";
     const ref = doc(db, "tournaments", tId, "matches", mId);
 
+    // Direct Firestore real-time listener without storage lag
     const unsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        const data = snap.data();
-        setMatch(data);
-        localStorage.setItem(`match_${mId}`, JSON.stringify(data));
+        setMatch(snap.data());
       }
     }, (error) => {
       console.error("Match snapshot error:", error);
@@ -294,4 +285,4 @@ export async function getServerSideProps(context) {
     };
   }
                 }
-                
+                  
