@@ -52,15 +52,6 @@ useEffect(() => {
     async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-
-        try {
-          await createServerSession(currentUser);
-        } catch (error) {
-          console.error(
-            "Server session synchronization failed:",
-            error
-          );
-        }
       } else if (!isFirstAuthCallback || !initialUser) {
         setUser(null);
       }
@@ -158,7 +149,8 @@ useEffect(() => {
 
     return true;
   };
-             const handleAuth = async (e) => {
+
+  const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -395,7 +387,7 @@ useEffect(() => {
               ) : (
                 <div className="space-y-3 pt-4">
                   <button onClick={() => { setShowAuth(true); setAuthMode('login'); setIsOpen(false); }} className="w-full p-4 rounded-2xl border-2 border-[#1D2939] text-[#1D2939] font-black uppercase text-sm italic">Admin Login</button>
-            <button onClick={() => { setShowAuth(true); setAuthMode('register'); setIsOpen(false); }} className="w-full p-4 rounded-2xl bg-[#1D2939] text-white font-black uppercase text-sm italic shadow-xl">Create Account</button>
+                  <button onClick={() => { setShowAuth(true); setAuthMode('register'); setIsOpen(false); }} className="w-full p-4 rounded-2xl bg-[#1D2939] text-white font-black uppercase text-sm italic shadow-xl">Create Account</button>
                 </div>
               )}
             </div>
@@ -445,4 +437,5 @@ useEffect(() => {
       />
     </>
   );
-                }
+              }
+              
