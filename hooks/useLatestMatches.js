@@ -10,22 +10,46 @@ import {
 import { db } from "../lib/firebase";
 
 export default function useLatestMatches(initialMatches = []) {
-  const [matches, setMatches] = useState(initialMatches);
-  const [loading, setLoading] = useState(initialMatches.length === 0);
+  const ssrMatches = Array.isArray(initialMatches)
+    ? initialMatches
+    : [];
+
+  const [matches, setMatches] = useState(ssrMatches);
+  const [loading, setLoading] = useState(ssrMatches.length === 0);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let active = true;
-    let generation = 0;
 
     const matchListeners = new Map();
     const matchesByTournament = new Map();
     const tournamentNames = new Map();
+    const readyTournamentIds = new Set();
+    const failedTournamentIds = new Set();
+
+    let expectedTournamentIds = new Set();
+
+    // SSR matches ko cache mein rakho, taaki refresh par
+    // visible matches turant disappear na hon.
+    ssrMatches.forEach((match) => {
+      if (!match.tournamentId) return;
+
+      const tournamentId = match.tournamentId;
+
+      if (!matchesByTournament.has(tournamentId)) {
+        matchesByTournament.set(tournamentId, []);
+      }
+
+      matchesByTournament.get(tournamentId).push(match);
+    });
 
     const buildLatestMatches = () => {
       const latestMatches = [];
 
-      matchesByTournament.forEach((tournamentMatches) => {
+      expectedTournamentIds.forEach((tournamentId) => {
+        const tournamentMatches =
+          matchesByTournament.get(tournamentId) || [];
+
         latestMatches.push(...tournamentMatches);
       });
 
@@ -46,8 +70,8 @@ export default function useLatestMatches(initialMatches = []) {
             return matchA - matchB;
           }
 
-          return String(matchA === undefined ? "" : a.matchNo ?? "").localeCompare(
-            String(matchB === undefined ? "" : b.matchNo ?? ""),
+          return String(a.matchNo ?? "").localeCompare(
+            String(b.matchNo ?? ""),
             undefined,
             { numeric: true }
           );
@@ -58,24 +82,81 @@ export default function useLatestMatches(initialMatches = []) {
     const publishMatches = () => {
       if (!active) return;
 
-      setMatches(buildLatestMatches());
+      // Jab tak sabhi current tournaments ka first snapshot
+      // nahi aata, existing visible list ko mat badlo.
+      for (const tournamentId of expectedTournamentIds) {
+        if (!readyTournamentIds.has(tournamentId)) {
+          return;
+        }
+      }
+
+      const latestMatches = buildLatestMatches();
+
+      setMatches((current) => {
+        if (
+          JSON.stringify(current) ===
+          JSON.stringify(latestMatches)
+        ) {
+          return current;
+        }
+
+        return latestMatches;
+      });
+
       setLoading(false);
-      setError(false);
+      setError(failedTournamentIds.size > 0);
     };
 
-    const unsubscribeTournament = onSnapshot(
+    const unsubscribeTournaments = onSnapshot(
       collection(db, "tournaments"),
       (tournamentSnapshot) => {
         if (!active) return;
 
-        const currentGeneration = ++generation;
-        const currentTournamentIds = new Set();
+        // SSR matches available hon to empty cache snapshot
+        // ki wajah se unhe clear mat karo.
+        if (
+          ssrMatches.length > 0 &&
+          tournamentSnapshot.metadata?.fromCache &&
+          tournamentSnapshot.empty
+        ) {
+          return;
+        }
+
+        const currentTournamentIds = new Set(
+          tournamentSnapshot.docs.map((doc) => doc.id)
+        );
+
+        expectedTournamentIds = currentTournamentIds;
+
+        // Sirf deleted tournaments ke listeners remove karo.
+        for (const [
+          tournamentId,
+          subscription,
+        ] of matchListeners) {
+          if (!currentTournamentIds.has(tournamentId)) {
+            subscription.unsubscribe?.();
+
+            matchListeners.delete(tournamentId);
+            matchesByTournament.delete(tournamentId);
+            tournamentNames.delete(tournamentId);
+            readyTournamentIds.delete(tournamentId);
+            failedTournamentIds.delete(tournamentId);
+          }
+        }
+
+        if (tournamentSnapshot.empty) {
+          setMatches((current) =>
+            current.length === 0 ? current : []
+          );
+
+          setLoading(false);
+          setError(false);
+          return;
+        }
 
         tournamentSnapshot.docs.forEach((tournamentDoc) => {
           const tournamentId = tournamentDoc.id;
           const tournamentData = tournamentDoc.data();
-
-          currentTournamentIds.add(tournamentId);
 
           const tournamentName =
             tournamentData.tournamentName ||
@@ -83,26 +164,24 @@ export default function useLatestMatches(initialMatches = []) {
             tournamentData.title ||
             "Tournament";
 
-          const previousName = tournamentNames.get(tournamentId);
+          tournamentNames.set(
+            tournamentId,
+            tournamentName
+          );
 
-          tournamentNames.set(tournamentId, tournamentName);
-
-          // Existing listener: update metadata without recreating it.
+          // Existing listener ko recreate mat karo.
           if (matchListeners.has(tournamentId)) {
-            if (previousName !== tournamentName) {
-              const existingMatches =
-                matchesByTournament.get(tournamentId) || [];
+            const existingMatches =
+              matchesByTournament.get(tournamentId) || [];
 
-              matchesByTournament.set(
-                tournamentId,
-                existingMatches.map((match) => ({
-                  ...match,
-                  tournamentName:
-                    match.tournamentName ||
-                    tournamentName,
-                }))
-              );
-            }
+            matchesByTournament.set(
+              tournamentId,
+              existingMatches.map((match) => ({
+                ...match,
+                tournamentName:
+                  match.tournamentName || tournamentName,
+              }))
+            );
 
             return;
           }
@@ -118,18 +197,33 @@ export default function useLatestMatches(initialMatches = []) {
             limit(10)
           );
 
-          const unsubscribeMatch = onSnapshot(
+          const token = {};
+
+          const subscription = {
+            token,
+            unsubscribe: null,
+          };
+
+          matchListeners.set(
+            tournamentId,
+            subscription
+          );
+
+          subscription.unsubscribe = onSnapshot(
             matchesQuery,
             (matchSnapshot) => {
+              if (!active) return;
+
+              // Deleted/replaced listener ka old callback ignore karo.
               if (
-                !active ||
-                currentGeneration !== generation
+                matchListeners.get(tournamentId)?.token !==
+                token
               ) {
                 return;
               }
 
-              const tournamentMatches = matchSnapshot.docs.map(
-                (matchDoc) => {
+              const tournamentMatches =
+                matchSnapshot.docs.map((matchDoc) => {
                   const matchData = matchDoc.data();
 
                   return {
@@ -141,71 +235,73 @@ export default function useLatestMatches(initialMatches = []) {
                       tournamentNames.get(tournamentId) ||
                       "Tournament",
                   };
-                }
-              );
+                });
 
               matchesByTournament.set(
                 tournamentId,
                 tournamentMatches
               );
 
+              readyTournamentIds.add(tournamentId);
+              failedTournamentIds.delete(tournamentId);
+
               publishMatches();
             },
             (listenerError) => {
+              if (!active) return;
+
+              if (
+                matchListeners.get(tournamentId)?.token !==
+                token
+              ) {
+                return;
+              }
+
               console.error(
                 "Match listener failed:",
-                listenerError?.code || listenerError?.message
+                listenerError?.code ||
+                  listenerError?.message
               );
 
-              if (active) {
-                setError(true);
-                setLoading(false);
-              }
+              // Error par existing/SSR matches preserve karo.
+              readyTournamentIds.add(tournamentId);
+              failedTournamentIds.add(tournamentId);
+
+              publishMatches();
             }
           );
-
-          matchListeners.set(tournamentId, unsubscribeMatch);
         });
 
-        // Remove listeners only for deleted tournaments.
-        for (const [tournamentId, unsubscribe] of matchListeners) {
-          if (!currentTournamentIds.has(tournamentId)) {
-            unsubscribe();
-            matchListeners.delete(tournamentId);
-            matchesByTournament.delete(tournamentId);
-            tournamentNames.delete(tournamentId);
-          }
-        }
-
-        if (tournamentSnapshot.empty) {
-          setMatches([]);
-          setLoading(false);
-          setError(false);
-          return;
-        }
-
-        // Publish updated tournament names and removals.
         publishMatches();
       },
       (listenerError) => {
+        if (!active) return;
+
         console.error(
           "Tournament listener failed:",
-          listenerError?.code || listenerError?.message
+          listenerError?.code ||
+            listenerError?.message
         );
 
-        if (active) {
-          setError(true);
-          setLoading(false);
-        }
+        setError(true);
+        setLoading(false);
       }
     );
 
     return () => {
       active = false;
-      unsubscribeTournament();
 
-      matchListeners.forEach((unsubscribe) => unsubscribe());
+      unsubscribeTournaments();
+
+      matchListeners.forEach((subscription) => {
+        subscription.unsubscribe?.();
+      });
+
       matchListeners.clear();
+      matchesByTournament.clear();
+      tournamentNames.clear();
+      readyTournamentIds.clear();
+      failedTournamentIds.clear();
     };
   }, []);
 
