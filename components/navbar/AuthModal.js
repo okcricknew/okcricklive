@@ -2,20 +2,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, Eye, EyeOff, Phone, Mail } from 'lucide-react';
 import ModalInputWrapper from './ModalInputWrapper';
 
-const backdropAnimation = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.16, ease: 'linear' }
-};
-
-const modalAnimation = {
-  initial: { y: 8, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  exit: { y: 8, opacity: 0 },
-  transition: { duration: 0.16, ease: 'easeOut' }
-};
-
 export default function AuthModal({
   isOpen,
   loading,
@@ -48,12 +34,18 @@ export default function AuthModal({
         >
           <motion.div
             className="absolute inset-0 bg-[#1D2939]/90 backdrop-blur-md"
-            {...backdropAnimation}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.16, ease: 'linear' }}
             onClick={() => !loading && onClose()}
           />
 
           <motion.div
-            {...modalAnimation}
+            initial={{ y: 8, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 8, opacity: 0 }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-md bg-white rounded-[1rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-8 border border-slate-200">
@@ -103,5 +95,4 @@ export default function AuthModal({
       )}
     </AnimatePresence>
   );
-                }
-        
+              }
