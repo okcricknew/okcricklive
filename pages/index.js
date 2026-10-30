@@ -1,12 +1,20 @@
-import Link from "next/link"; 
-import { Zap, Shield, Globe, BarChart3, Users, Star, MessageSquare, ArrowUpRight } from "lucide-react"; 
+import Link from "next/link";
+import {
+  Zap,
+  Shield,
+  Globe,
+  BarChart3,
+  Users,
+  Star,
+  MessageSquare,
+  ArrowUpRight,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { getHomeInitialProps } from "../lib/ssr/home";
 import LatestMatches from "../components/home/LatestMatches";
 
 export default function Home({
@@ -16,55 +24,85 @@ export default function Home({
   initialStats = null,
   initialMatches = [],
 }) {
-  const fastTransition = { duration: 0.1, ease: "easeOut" };
+  const fastTransition = {
+    duration: 0.1,
+    ease: "easeOut",
+  };
 
-  // 👇 FIX: Server se aaye hue initialUser se state initialize karein taaki SSR ka poora fayda mile
   const [user, setUser] = useState(initialUser);
   const [match, setMatch] = useState(initialMatch);
 
+  // Authentication listener
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+      }
+    );
+
     return () => unsubscribe();
   }, []);
 
+  // Demo match live listener
   useEffect(() => {
-    const tId = "demo_tournament"; 
-    const mId = "demo_match";
-    const ref = doc(db, "tournaments", tId, "matches", mId);
+    const ref = doc(
+      db,
+      "tournaments",
+      "demo_tournament",
+      "matches",
+      "demo_match"
+    );
 
-    const cached = localStorage.getItem(`match_${mId}`);
-    if (cached) {
-      setMatch(JSON.parse(cached));
-    }
-
-    const unsub = onSnapshot(ref, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setMatch(data);
-        localStorage.setItem(`match_${mId}`, JSON.stringify(data));
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        if (snap.exists()) {
+          setMatch(snap.data());
+        }
+      },
+      (error) => {
+        console.error(
+          "Demo match listener failed:",
+          error?.code || error?.message
+        );
       }
-    });
+    );
 
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
 
-  return ( 
+  return (
     <>
       <Head>
-        <title>OKCRICK | Professional Cricket Live Scoring App & Tournament Management</title>
-        <meta name="description" content="Manage cricket leagues with real-time analytics, ultra-low latency updates, and premium OBS compatible scoreboard overlays instantly." />
-        <meta name="keywords" content="cricket live scoring app, cricket tournament management system, live scoreboard overlay, local cricket organizer" />
+        <title>
+          OKCRICK | Professional Cricket Live Scoring App & Tournament Management
+        </title>
+
+        <meta
+          name="description"
+          content="Manage cricket leagues with real-time analytics, ultra-low latency updates, and premium OBS compatible scoreboard overlays instantly."
+        />
+
+        <meta
+          name="keywords"
+          content="cricket live scoring app, cricket tournament management system, live scoreboard overlay, local cricket organizer"
+        />
+
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://okcrick.in" />
+
+        <link
+          rel="canonical"
+          href="https://okcrick.in"
+        />
       </Head>
-              
-      <motion.div 
-        initial={false} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={fastTransition} 
+
+      <motion.div
+        initial={false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={fastTransition}
         className="w-full bg-[#F8FAFC] min-h-screen text-slate-900 font-sans flex flex-col selection:bg-slate-900 selection:text-white antialiased"
       >
         {/* Abstract Sophisticated Light Glow Pattern */}
@@ -77,12 +115,20 @@ export default function Home({
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] relative overflow-hidden group">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-white mb-5 tracking-wider uppercase">
               <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-              Pro Dashboard Engine {initialUserData ? `(${initialUserData.name || ''})` : ''}
+              Pro Dashboard Engine{" "}
+              {initialUserData
+                ? `(${initialUserData.name || ""})`
+                : ""}
             </span>
+
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-none text-slate-900 uppercase">
-              Cricket Live Scoring &<br/>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">Tournament System</span>
+              Cricket Live Scoring &
+              <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">
+                Tournament System
+              </span>
             </h1>
+
             <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-3 mb-6 leading-relaxed font-medium">
               Experience lightning-fast data entry interfaces integrated with OBS web overlays designed for professional streaming layouts.
             </p>
@@ -90,13 +136,16 @@ export default function Home({
             {!user && (
               <button
                 onClick={() => {
-                  window.dispatchEvent(new Event("openAuthModal"));
+                  window.dispatchEvent(
+                    new Event("openAuthModal")
+                  );
                 }}
                 className="px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wide transition-all shadow-md shadow-slate-900/10 transform hover:-translate-y-0.5"
               >
                 Get Started Free
               </button>
             )}
+
             <Star className="absolute -right-6 -top-6 text-slate-100 w-36 h-36 pointer-events-none group-hover:rotate-12 transition-transform duration-700 ease-out" />
           </div>
 
@@ -106,8 +155,12 @@ export default function Home({
               <div className="bg-emerald-50 w-11 h-11 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-100 shrink-0 shadow-sm">
                 <MessageSquare size={18} />
               </div>
+
               <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Direct Enterprise Support</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+                  Direct Enterprise Support
+                </h3>
+
                 <p className="text-[10px] text-slate-400 font-medium mt-0.5">
                   Connect instantly via WhatsApp for customized platform integrations.
                 </p>
@@ -128,24 +181,38 @@ export default function Home({
           <div className="bg-white rounded-2xl p-6 flex justify-around border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] relative overflow-hidden">
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {(initialStats?.matches ?? 0).toLocaleString('en-IN')}
+                {(initialStats?.matches ?? 0).toLocaleString("en-IN")}
               </p>
-              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Matches</p>
+
+              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">
+                Matches
+              </p>
             </div>
+
             <div className="w-[1px] bg-slate-100 my-1" />
+
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {(initialStats?.players ?? 0).toLocaleString('en-IN')}
+                {(initialStats?.players ?? 0).toLocaleString("en-IN")}
               </p>
-              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Players</p>
+
+              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">
+                Players
+              </p>
             </div>
+
             <div className="w-[1px] bg-slate-100 my-1" />
+
             <div className="text-center z-10">
               <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {(initialStats?.locations ?? 0).toLocaleString('en-IN')}
+                {(initialStats?.locations ?? 0).toLocaleString("en-IN")}
               </p>
-              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">Cities</p>
+
+              <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mt-1">
+                Cities
+              </p>
             </div>
+
             <BarChart3 className="absolute w-28 h-28 text-slate-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
@@ -154,10 +221,29 @@ export default function Home({
 
           {/* Minimalist Feature Cards Framework */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Feature icon={<Zap size={18} className="text-amber-500"/>} title="Fast Sync" desc="0.5s updates" />
-            <Feature icon={<Shield size={18} className="text-blue-600"/>} title="Secure" desc="Safe system" />
-            <Feature icon={<Users size={18} className="text-purple-600"/>} title="Teams" desc="Player stats" />
-            <Feature icon={<Globe size={18} className="text-emerald-600"/>} title="Global" desc="Share anywhere" />
+            <Feature
+              icon={<Zap size={18} className="text-amber-500" />}
+              title="Fast Sync"
+              desc="0.5s updates"
+            />
+
+            <Feature
+              icon={<Shield size={18} className="text-blue-600" />}
+              title="Secure"
+              desc="Safe system"
+            />
+
+            <Feature
+              icon={<Users size={18} className="text-purple-600" />}
+              title="Teams"
+              desc="Player stats"
+            />
+
+            <Feature
+              icon={<Globe size={18} className="text-emerald-600" />}
+              title="Global"
+              desc="Share anywhere"
+            />
           </div>
 
           {/* Luxury Video Tutorial Module */}
@@ -167,11 +253,18 @@ export default function Home({
                 <div className="bg-slate-100 w-11 h-11 rounded-xl flex items-center justify-center text-slate-900 border border-slate-200/40">
                   <Zap size={18} fill="currentColor" />
                 </div>
+
                 <div>
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Media Tutorial Framework</h3>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Learn professional operations under 2 minutes</p>
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+                    Media Tutorial Framework
+                  </h3>
+
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Learn professional operations under 2 minutes
+                  </p>
                 </div>
               </div>
+
               <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-md hidden sm:inline-flex items-center gap-1">
                 HD Quality <ArrowUpRight size={12} />
               </span>
@@ -180,14 +273,14 @@ export default function Home({
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/80 shadow-inner">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/" 
+                src="https://www.youtube.com/embed/"
                 title="Tutorial Video"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
             </div>
-            
+
             <p className="text-[9px] text-center text-slate-400 font-extrabold uppercase tracking-[0.25em]">
               Access full learning deployment parameters on YouTube
             </p>
@@ -201,92 +294,141 @@ export default function Home({
             <Star size={10} className="text-slate-300" />
             <div className="h-[1px] w-6 bg-slate-200" />
           </div>
+
           <p className="text-[9px] text-slate-400 uppercase tracking-[0.4em] font-bold">
             OKCRICK PRO MODULE ENGINE
           </p>
         </footer>
 
         <style jsx global>{`
-          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
         `}</style>
       </motion.div>
     </>
-  ); 
+  );
 }
 
-function Feature({ icon, title, desc }) { 
-  return ( 
-    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] hover:border-slate-300 transition-all group"> 
-      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:scale-105 transition-transform shadow-sm"> 
-        {icon} 
-      </div> 
-      <h4 className="text-[11px] font-extrabold uppercase text-slate-900 tracking-wide">{title}</h4> 
-      <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-normal">{desc}</p> 
-    </div> 
-  ); 
+function Feature({ icon, title, desc }) {
+  return (
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] hover:border-slate-300 transition-all group">
+      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:scale-105 transition-transform shadow-sm">
+        {icon}
+      </div>
+
+      <h4 className="text-[11px] font-extrabold uppercase text-slate-900 tracking-wide">
+        {title}
+      </h4>
+
+      <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-normal">
+        {desc}
+      </p>
+    </div>
+  );
 }
 
+// SSR IS COMPULSORY
 export async function getServerSideProps(context) {
-  try {
-    // Dynamic import to keep firebase-admin strictly out of client bundle & speed up load time
-    const { getAdminAuth, getAdminDb } = await import("../lib/firebase-admin");
+  const fallbackHomeProps = {
+    initialMatch: null,
+    initialStats: {
+      matches: 0,
+      players: 0,
+      locations: 0,
+    },
+    initialMatches: [],
+  };
 
-    const { req } = context;
-    const sessionCookie = req.cookies.__session || '';
+  const sessionCookie = context.req.cookies.__session || "";
 
+  // Homepage data fetching
+  const homePropsPromise = (async () => {
+    try {
+      const { getHomeInitialProps } = await import(
+        "../lib/ssr/home"
+      );
+
+      return await getHomeInitialProps();
+    } catch (error) {
+      console.error("Home data fetching failed:", error);
+      return fallbackHomeProps;
+    }
+  })();
+
+  // Session verification
+  const userPropsPromise = (async () => {
     let initialUser = null;
     let initialUserData = null;
 
-    if (sessionCookie) {
-      try {
-        const adminAuth = getAdminAuth();
-        const adminDb = getAdminDb();
-
-        const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
-        const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
-        initialUserData = userDoc.exists ? userDoc.data() : null;
-
-        initialUser = {
-          uid: decodedToken.uid,
-          email: decodedToken.email,
-          displayName: initialUserData?.name || decodedToken.name || '',
-        };
-      } catch (err) {
-        console.error("Session verification failed:", err);
-      }
+    if (!sessionCookie) {
+      return {
+        initialUser,
+        initialUserData,
+      };
     }
 
-    const homeProps = await getHomeInitialProps().catch(() => ({
-      initialMatch: null,
-      initialStats: {
-        matches: 0,
-        players: 0,
-        locations: 0,
-      },
-      initialMatches: [],
-    }));
+    try {
+      const { getAdminAuth, getAdminDb } = await import(
+        "../lib/firebase-admin"
+      );
+
+      const adminAuth = getAdminAuth();
+      const adminDb = getAdminDb();
+
+      const decodedToken = await adminAuth.verifySessionCookie(
+        sessionCookie,
+        true
+      );
+
+      const userDoc = await adminDb
+        .collection("users")
+        .doc(decodedToken.uid)
+        .get();
+
+      initialUserData = userDoc.exists
+        ? userDoc.data()
+        : null;
+
+      initialUser = {
+        uid: decodedToken.uid,
+        email: decodedToken.email,
+        displayName:
+          initialUserData?.name || decodedToken.name || "",
+      };
+    } catch (error) {
+      console.error("Session verification failed:", error);
+    }
+
+    return {
+      initialUser,
+      initialUserData,
+    };
+  })();
+
+  try {
+    const [homeProps, userProps] = await Promise.all([
+      homePropsPromise,
+      userPropsPromise,
+    ]);
 
     return {
       props: {
+        ...fallbackHomeProps,
         ...homeProps,
-        initialUser,
-        initialUserData,
+        ...userProps,
       },
     };
   } catch (error) {
     console.error("Home SSR failed:", error);
+
     return {
       props: {
-        initialMatch: null,
-        initialStats: {
-          matches: 0,
-          players: 0,
-          locations: 0,
-        },
-        initialMatches: [],
+        ...fallbackHomeProps,
         initialUser: null,
         initialUserData: null,
       },
     };
   }
             }
+                
