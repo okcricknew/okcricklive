@@ -1,9 +1,13 @@
+
 "use client"
 
 import OverBall from "../../shared/OverBall";
 import styles from "./cwc.module.css";
 import { useOverlay } from "../../core/OverlayProvider";
 import { motion } from "framer-motion";
+
+const BASE_PATH = "/themes/OkCrick";
+const DEFAULT_TEAM_LOGO = `${BASE_PATH}/default-team.png`;
 
 export default function BowlingPanel({ team: propsTeam }) {
   const match = useOverlay();
@@ -25,6 +29,25 @@ export default function BowlingPanel({ team: propsTeam }) {
 
     return currentBatting === tA ? tB : tA;
   };
+
+  const bowlingTeamName = getBowlingTeamName();
+
+  const normalizeTeamName = (name) =>
+    String(name || "").trim().toLowerCase();
+
+  let bowlingTeamLogo = DEFAULT_TEAM_LOGO;
+
+  if (
+    normalizeTeamName(bowlingTeamName) &&
+    normalizeTeamName(bowlingTeamName) === normalizeTeamName(match.teamA)
+  ) {
+    bowlingTeamLogo = match.teamALogoUrl || DEFAULT_TEAM_LOGO;
+  } else if (
+    normalizeTeamName(bowlingTeamName) &&
+    normalizeTeamName(bowlingTeamName) === normalizeTeamName(match.teamB)
+  ) {
+    bowlingTeamLogo = match.teamBLogoUrl || DEFAULT_TEAM_LOGO;
+  }
 
   const bowlerBalls = (match.ballHistory || []).filter(
     b => b.bowler === bowlerName && Number(b.innings) === inningsNum
@@ -58,7 +81,7 @@ export default function BowlingPanel({ team: propsTeam }) {
   const displayBalls = balls.slice(-8);
 
   return (
-    <motion.div 
+    <motion.div
       className={styles.bowlingWrapper}
       initial={{ x: "100%", y: "50%", opacity: 0, skewX: 10 }}
       animate={{ x: 0, y: 0, opacity: 1, skewX: 0 }}
@@ -66,20 +89,37 @@ export default function BowlingPanel({ team: propsTeam }) {
       transition={{ type: "spring", stiffness: 50, damping: 15 }}
     >
       <div className={styles.pngLayerFix}>
-        {/* TEAM BG */}
+        {/* TEAM BG + TEAM LOGO */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/bowling-team.png" className={`${styles.img} ${styles.teamBgRight}`} />
-          <span className={`${styles.overlay} ${styles.teamNameRight}`}>
-            {(getBowlingTeamName() || "")}
-          </span>
+          <img
+            src={`${BASE_PATH}/bowling-team.png`}
+            className={`${styles.img} ${styles.teamBgRight}`}
+            alt=""
+          />
+
+          <img
+            src={bowlingTeamLogo}
+            className={styles.teamLogoRight}
+            alt={`${bowlingTeamName || "Bowling team"} logo`}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = DEFAULT_TEAM_LOGO;
+            }}
+          />
         </div>
 
         {/* BOWLER */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/bowler.png" className={`${styles.img} ${styles.bowlerImg}`} />
+          <img
+            src={`${BASE_PATH}/bowler.png`}
+            className={`${styles.img} ${styles.bowlerImg}`}
+            alt=""
+          />
+
           <span className={`${styles.overlay} ${styles.bowlerName}`}>
             {bowlerName}
           </span>
+
           <span className={`${styles.overlay} ${styles.bowlerStats}`}>
             <span className={styles.wicketRuns}>{wickets}-{runs}</span>
             <span className={styles.bowlerOvers}>({overs})</span>
@@ -97,9 +137,13 @@ export default function BowlingPanel({ team: propsTeam }) {
 
         {/* STRIP */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/strip-right.png" className={`${styles.img} ${styles.stripRight}`} />
+          <img
+            src={`${BASE_PATH}/strip-right.png`}
+            className={`${styles.img} ${styles.stripRight}`}
+            alt=""
+          />
         </div>
       </div>
     </motion.div>
   );
-          }
+}
