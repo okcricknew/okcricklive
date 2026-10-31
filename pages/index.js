@@ -3,9 +3,6 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
-
-import { db } from "../lib/firebase";
 
 import HomeHero from "../components/home/HomeHero";
 import HomeContact from "../components/home/HomeContact";
@@ -15,13 +12,11 @@ import HomeTutorial from "../components/home/HomeTutorial";
 import HomeFooter from "../components/home/HomeFooter";
 
 export default function Home({
-  initialMatch = null,
   initialUser = null,
   initialUserData = null,
   initialStats = null,
 }) {
   const [user, setUser] = useState(initialUser);
-  const [match, setMatch] = useState(initialMatch);
 
   // Authentication listener
   useEffect(() => {
@@ -31,34 +26,6 @@ export default function Home({
       auth,
       (currentUser) => {
         setUser(currentUser);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  // Demo match live listener
-  useEffect(() => {
-    const ref = doc(
-      db,
-      "tournaments",
-      "demo_tournament",
-      "matches",
-      "demo_match"
-    );
-
-    const unsubscribe = onSnapshot(
-      ref,
-      (snap) => {
-        if (snap.exists()) {
-          setMatch(snap.data());
-        }
-      },
-      (error) => {
-        console.error(
-          "Demo match listener failed:",
-          error?.code || error?.message
-        );
       }
     );
 
@@ -140,12 +107,11 @@ export default function Home({
 }
 
 // ========================================
-// SERVER SIDE RENDERING - COMPULSORY
+// SERVER SIDE RENDERING - PRESERVED
 // ========================================
 
 export async function getServerSideProps(context) {
   const fallbackHomeProps = {
-    initialMatch: null,
     initialStats: {
       matches: 0,
       players: 0,
@@ -156,7 +122,7 @@ export async function getServerSideProps(context) {
   const sessionCookie =
     context.req.cookies?.__session || "";
 
-  // Homepage SSR data
+  // Homepage statistics SSR
   const homePropsPromise = (async () => {
     try {
       const { getHomeInitialProps } = await import(
@@ -263,4 +229,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-          }
+}
