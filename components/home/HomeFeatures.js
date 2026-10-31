@@ -1,10 +1,9 @@
 import {
-  Zap,
+  BarChart3,
   ShieldCheck,
   Users,
   Globe,
   Trophy,
-  ChartNoAxesCombined,
   MonitorPlay,
   Palette,
   Cloud,
@@ -75,7 +74,7 @@ const features = [
     linkText: "Explore Player Statistics",
   },
   {
-    icon: ChartNoAxesCombined,
+    icon: BarChart3,
     title: "Advanced Match Analytics",
     desc: "Understand match performance through automatically calculated cricket statistics and match analysis.",
     points: [
