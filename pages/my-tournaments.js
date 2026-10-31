@@ -343,8 +343,7 @@ export default function MyTournaments({
             Scoreboard Overlay Link
           </Link>
         </div>
-
-        {tournaments.length === 0 ? (
+                    {tournaments.length === 0 ? (
           <div className="py-24 text-center bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
             <Trophy className="text-slate-200 mx-auto mb-6" size={40} />
             <h3 className="text-[#1D2939] font-black text-lg uppercase tracking-tight">No Tournaments Found</h3>
@@ -533,17 +532,17 @@ export async function getServerSideProps({ req, res }) {
       snapshot.docs.map(async (tournamentDoc) => {
         const tournamentRef = tournamentDoc.ref;
 
-        const [teamsSnapshot, matchesSnapshot] =
+        const [teamsCountSnapshot, matchesCountSnapshot] =
           await Promise.all([
-            tournamentRef.collection('teams').get(),
-            tournamentRef.collection('matches').get(),
+            tournamentRef.collection('teams').count().get(),
+            tournamentRef.collection('matches').count().get(),
           ]);
 
         return {
           id: tournamentDoc.id,
           ...serializeValue(tournamentDoc.data()),
-          teamCount: teamsSnapshot.size,
-          matchCount: matchesSnapshot.size,
+          teamCount: teamsCountSnapshot.data()?.count || 0,
+          matchCount: matchesCountSnapshot.data()?.count || 0,
         };
       })
     );
@@ -588,4 +587,4 @@ export async function getServerSideProps({ req, res }) {
       },
     };
   }
-}
+              }
