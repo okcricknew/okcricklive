@@ -311,11 +311,11 @@ useEffect(() => {
             </div>
       
             <div className="flex flex-col">
-              <span className="text-xl font-black text-white uppercase tracking-normal leading-none">
-                OKCRICK<span className="text-[#FACC15]">.IN</span>
+              <span className="text-xl font-black text-cyan uppercase tracking-normal leading-none">
+                OKCRICK<span className="text-[#FFFFFF]">.IN</span>
               </span>
               {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
-                <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5 italic">
+                <span className="text-[9px] text-neon green/40 font-bold uppercase tracking-widest mt-0.5 italic">
                   Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
                 </span>
               )}
