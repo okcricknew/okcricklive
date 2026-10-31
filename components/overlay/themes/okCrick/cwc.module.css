@@ -590,3 +590,27 @@ color: #31007A;
     transform: translateX(0) translateZ(0); /* Wapas center me aaya aur text ko cover kar diya */
   }
   }
+
+/* OKCRICK LOWER THIRD TEAM LOGOS */
+
+.teamLogoLeft {
+  position: absolute;
+  left: 70px;
+  bottom: 15px;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  z-index: 220;
+  pointer-events: none;
+}
+
+.teamLogoRight {
+  position: absolute;
+  right: 70px;
+  bottom: 15px;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  z-index: 220;
+  pointer-events: none;
+}
