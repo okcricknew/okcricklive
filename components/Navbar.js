@@ -299,7 +299,7 @@ useEffect(() => {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#1D2939] px-5 py-3.5 shadow-xl border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#B0C4DE] px-5 py-3.5 shadow-xl border-b border-white/5">
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
