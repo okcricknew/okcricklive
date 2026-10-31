@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --primary-navy: #1D2939;
+  --primary-navy: #778899;
   --secondary-gold: #FACC15;
   /* Updated to your requested color #F4F4F4 */
   --bg-light: #F4F4F4; 
