@@ -3,6 +3,7 @@ import { MessageSquare } from "lucide-react";
 
 export default function HomeContact() {
   return (
+    <>
 
     {/* Advertisement Banner */}
 <div className="w-full overflow-hidden rounded-2xl">
@@ -45,5 +46,6 @@ export default function HomeContact() {
       </a>
 
     </section>
+          </>
   );
 }
