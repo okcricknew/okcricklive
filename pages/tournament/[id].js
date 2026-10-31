@@ -210,15 +210,17 @@ export async function getServerSideProps({ params, req, res }) {
 
       await Promise.all(
         (data.teams || []).map(async (team) => {
-          const playersSnapshot = await adminDb
+          const playersCountSnapshot = await adminDb
             .collection("tournaments")
             .doc(params.id)
             .collection("teams")
             .doc(team.id)
             .collection("players")
+            .count()
             .get();
 
-          initialTeamCounts[team.id] = playersSnapshot.size;
+          initialTeamCounts[team.id] =
+            playersCountSnapshot.data()?.count || 0;
         })
       );
     } catch (countError) {
@@ -255,4 +257,5 @@ export async function getServerSideProps({ params, req, res }) {
     };
   }
             }
+
             
