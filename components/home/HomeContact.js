@@ -3,6 +3,18 @@ import { MessageSquare } from "lucide-react";
 
 export default function HomeContact() {
   return (
+
+    {/* Advertisement Banner */}
+<div className="w-full overflow-hidden rounded-2xl">
+  <img
+    src="/images/cricketline.jpg"
+    alt="Advertisement"
+    className="block w-full h-auto object-contain"
+    loading="lazy"
+    decoding="async"
+  />
+</div>
+      
     <section className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.01)] flex flex-col sm:flex-row items-center sm:justify-between gap-4 backdrop-blur-md">
 
       <div className="flex items-center gap-4 w-full sm:w-auto">
