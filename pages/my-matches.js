@@ -19,53 +19,112 @@ export default function MyMatches() {
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
 
-  // LOGIC PRESERVED: Original Auth & Real-time Snapshot Integration
+  // Keep one set of match listeners and always clean them up when auth changes
+  // or the page unmounts. This prevents abandoned listeners from continuing
+  // to consume reads in the background.
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const tourneyQuery = query(
-            collection(db, "tournaments"),
-            where("adminId", "==", currentUser.uid)
-          );
-          
-          const tourneySnapshot = await getDocs(tourneyQuery);
-          
-          if (tourneySnapshot.empty) {
-            setMatches([]);
-            setLoading(false);
-            return;
-          }
+    let isMounted = true;
+    let authVersion = 0;
+    let matchUnsubscribers = [];
 
-          tourneySnapshot.docs.forEach((tourneyDoc) => {
-            const matchesRef = collection(db, "tournaments", tourneyDoc.id, "matches");
-            
-            onSnapshot(matchesRef, (matchSnap) => {
-              const tourneyMatches = matchSnap.docs.map(doc => ({
-                id: doc.id,
+    const clearMatchListeners = () => {
+      matchUnsubscribers.forEach((unsubscribe) => unsubscribe());
+      matchUnsubscribers = [];
+    };
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      const currentVersion = ++authVersion;
+      clearMatchListeners();
+
+      if (!isMounted) return;
+
+      setUser(currentUser);
+
+      if (!currentUser) {
+        setMatches([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const tourneyQuery = query(
+          collection(db, "tournaments"),
+          where("adminId", "==", currentUser.uid)
+        );
+
+        const tourneySnapshot = await getDocs(tourneyQuery);
+
+        if (!isMounted || currentVersion !== authVersion) return;
+
+        if (tourneySnapshot.empty) {
+          setMatches([]);
+          setLoading(false);
+          return;
+        }
+
+        const nextUnsubscribers = tourneySnapshot.docs.map((tourneyDoc) => {
+          const matchesRef = collection(
+            db,
+            "tournaments",
+            tourneyDoc.id,
+            "matches"
+          );
+
+          return onSnapshot(
+            matchesRef,
+            (matchSnap) => {
+              if (!isMounted || currentVersion !== authVersion) return;
+
+              const tourneyMatches = matchSnap.docs.map((matchDoc) => ({
+                id: matchDoc.id,
                 tournamentId: tourneyDoc.id,
-                ...doc.data()
+                ...matchDoc.data(),
               }));
 
-              setMatches(prev => {
-                const otherMatches = prev.filter(m => m.tournamentId !== tourneyDoc.id);
-                const combined = [...otherMatches, ...tourneyMatches];
-                return combined.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-              });
-            });
-          });
+              setMatches((previousMatches) => {
+                const otherMatches = previousMatches.filter(
+                  (match) => match.tournamentId !== tourneyDoc.id
+                );
 
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setLoading(false);
+                return [...otherMatches, ...tourneyMatches].sort(
+                  (a, b) =>
+                    (b.createdAt?.seconds || 0) -
+                    (a.createdAt?.seconds || 0)
+                );
+              });
+            },
+            (error) => {
+              console.error(
+                "Match listener failed:",
+                error?.code || error?.message
+              );
+            }
+          );
+        });
+
+        if (!isMounted || currentVersion !== authVersion) {
+          nextUnsubscribers.forEach((unsubscribe) => unsubscribe());
+          return;
         }
-      } else {
+
+        matchUnsubscribers = nextUnsubscribers;
+        setLoading(false);
+      } catch (error) {
+        if (!isMounted || currentVersion !== authVersion) return;
+
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     });
-    return () => unsubscribeAuth();
+
+    return () => {
+      isMounted = false;
+      authVersion += 1;
+      unsubscribeAuth();
+      clearMatchListeners();
+    };
   }, []);
 
   const handleManageClick = (match) => {
@@ -221,4 +280,4 @@ export default function MyMatches() {
       )}
     </div>
   );
-                  }
+    }
