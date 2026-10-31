@@ -5,9 +5,12 @@ import styles from "./cwc.module.css"
 import { useOverlay } from "../../core/OverlayProvider"
 import { motion } from "framer-motion"
 
+const BASE_PATH = "/themes/OkCrick"
+const DEFAULT_TEAM_LOGO = `${BASE_PATH}/default-team.png`
+
 export default function BattingPanel({ team }) {
   const match = useOverlay()
-  
+
   const [slots, setSlots] = useState({
     player1: null,
     player2: null
@@ -48,6 +51,25 @@ export default function BattingPanel({ team }) {
 
   if (!match) return null;
 
+  const battingTeamName = team || match.battingTeam || "";
+
+  const normalizeTeamName = (name) =>
+    String(name || "").trim().toLowerCase();
+
+  let battingTeamLogo = DEFAULT_TEAM_LOGO;
+
+  if (
+    normalizeTeamName(battingTeamName) &&
+    normalizeTeamName(battingTeamName) === normalizeTeamName(match.teamA)
+  ) {
+    battingTeamLogo = match.teamALogoUrl || DEFAULT_TEAM_LOGO;
+  } else if (
+    normalizeTeamName(battingTeamName) &&
+    normalizeTeamName(battingTeamName) === normalizeTeamName(match.teamB)
+  ) {
+    battingTeamLogo = match.teamBLogoUrl || DEFAULT_TEAM_LOGO;
+  }
+
   const batsmen = [
     {
       name: slots.player1 || "-",
@@ -64,7 +86,7 @@ export default function BattingPanel({ team }) {
   ];
 
   return (
-    <motion.div 
+    <motion.div
       className={styles.battingWrapper}
       initial={{ x: "-100%", y: "50%", opacity: 0, skewX: -10 }}
       animate={{ x: 0, y: 0, opacity: 1, skewX: 0 }}
@@ -72,29 +94,48 @@ export default function BattingPanel({ team }) {
       transition={{ type: "spring", stiffness: 50, damping: 15 }}
     >
       <div className={styles.pngLayerFix}>
-        {/* TEAM BG */}
+        {/* TEAM BG + TEAM LOGO */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/batting-team.png" className={`${styles.img} ${styles.teamBg}`} alt="" />
-          <span className={`${styles.overlay} ${styles.teamText}`}>
-            {team || match.battingTeam}
-          </span>
+          <img
+            src={`${BASE_PATH}/batting-team.png`}
+            className={`${styles.img} ${styles.teamBg}`}
+            alt=""
+          />
+
+          <img
+            src={battingTeamLogo}
+            className={styles.teamLogoLeft}
+            alt={`${battingTeamName || "Batting team"} logo`}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = DEFAULT_TEAM_LOGO;
+            }}
+          />
         </div>
 
         {/* BATSMAN LAYER */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/batsman.png" className={`${styles.img} ${styles.batsman}`} alt="" />
+          <img
+            src={`${BASE_PATH}/batsman.png`}
+            className={`${styles.img} ${styles.batsman}`}
+            alt=""
+          />
+
           <div className={styles.playersContainer}>
             {batsmen.map((b, i) => (
               <div key={i} className={styles.playerRow}>
                 <span className={`${styles.overlay} ${styles.striker}`}>
                   {b.isStriker ? "★" : ""}
                 </span>
+
                 <span className={`${styles.overlay} ${styles.playerName}`}>
                   {b.name}
                 </span>
+
                 <span className={`${styles.overlay} ${styles.playerRuns}`}>
                   {b.runs}
                 </span>
+
                 <span className={`${styles.overlay} ${styles.playerBalls}`}>
                   ({b.balls})
                 </span>
@@ -105,9 +146,13 @@ export default function BattingPanel({ team }) {
 
         {/* STRIP */}
         <div className={styles.layer}>
-          <img src="/themes/OkCrick/strip-left.png" className={`${styles.img} ${styles.stripLeft}`} alt="" />
+          <img
+            src={`${BASE_PATH}/strip-left.png`}
+            className={`${styles.img} ${styles.stripLeft}`}
+            alt=""
+          />
         </div>
       </div>
     </motion.div>
   )
-            }
+          }
