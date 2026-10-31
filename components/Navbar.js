@@ -338,7 +338,7 @@ useEffect(() => {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#778899] px-5 py-3.5 shadow-xl border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#000000] px-5 py-3.5 shadow-xl border-b border-white/5">
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
@@ -350,11 +350,11 @@ useEffect(() => {
             </div>
       
             <div className="flex flex-col">
-              <span className="text-xl font-black text-[#00FFFF] uppercase tracking-normal leading-none">
-                OKCRICK<span className="text-[#FFFFFF]">.IN</span>
+              <span className="text-xl font-black text-[#FFFFFF] uppercase tracking-normal leading-none">
+                OKCRICK<span className="text-[#FFD700]">.IN</span>
               </span>
               {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
-                <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5 italic">
+                <span className="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5 italic">
                   Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
                 </span>
               )}
