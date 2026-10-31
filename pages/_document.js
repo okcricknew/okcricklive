@@ -10,6 +10,21 @@ export default function Document() {
           href="/images/okcrick-logoC.png"
           fetchPriority="high"
         />
+
+            {/* Favicon */}
+<link
+  rel="icon"
+  href="/favicon.ico"
+  sizes="any"
+/>
+
+<link
+  rel="preload"
+  as="image"
+  href="/favicon.ico"
+  fetchPriority="high"
+/>
+    
       </Head>
       <body>
         <Main />
