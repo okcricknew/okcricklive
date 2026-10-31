@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Menu, X, User, Trophy, LogOut, Home } from 'lucide-react';
@@ -24,6 +24,7 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
 
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const sessionSyncRef = useRef({ uid: null, promise: null });
 
   // Form States
   const [email, setEmail] = useState('');
@@ -63,6 +64,7 @@ useEffect(() => {
         }
       } else if (!isFirstAuthCallback || !initialUser) {
         setUser(null);
+        sessionSyncRef.current = { uid: null, promise: null };
       }
 
       if (unsubscribeSnapshot) {
@@ -141,22 +143,42 @@ useEffect(() => {
       throw new Error("Firebase user is missing.");
     }
 
-    const idToken = await firebaseUser.getIdToken(true);
+    const uid = firebaseUser.uid;
 
-    const response = await fetch("/api/auth/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ idToken }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data?.error || "Unable to create server authentication session.");
+    // Auth listener and login handler can fire together. Share one session request.
+    if (sessionSyncRef.current.uid === uid && sessionSyncRef.current.promise) {
+      return sessionSyncRef.current.promise;
     }
 
-    return true;
+    const syncPromise = (async () => {
+      const idToken = await firebaseUser.getIdToken();
+
+      const response = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || "Unable to create server authentication session.");
+      }
+
+      return true;
+    })();
+
+    sessionSyncRef.current = { uid, promise: syncPromise };
+
+    try {
+      return await syncPromise;
+    } catch (error) {
+      if (sessionSyncRef.current.promise === syncPromise) {
+        sessionSyncRef.current = { uid: null, promise: null };
+      }
+      throw error;
+    }
   };
              const handleAuth = async (e) => {
     e.preventDefault();
@@ -182,6 +204,7 @@ useEffect(() => {
         await setDoc(doc(db, "users", userCredential.user.uid), newUser);
         setUserData(newUser);
         await createServerSession(userCredential.user);
+        setUser(userCredential.user);
 
         alert("Account Created!");
       } else {
@@ -198,11 +221,11 @@ useEffect(() => {
         }
 
         await createServerSession(loggedInUser);
+        setUser(loggedInUser);
       }
 
       setShowAuth(false);
       setIsOpen(false);
-      router.reload(); // Server cookie sync ke liye page reload
     } catch (error) {
       console.error("Authentication error:", error);
       alert(error.message);
@@ -278,17 +301,33 @@ useEffect(() => {
   };
 
   const handleLogout = async () => {
+    // Capture any session request already in progress before signOut changes auth state.
+    const pendingSession = sessionSyncRef.current.promise;
+
     try {
       await signOut(auth);
-      await fetch("/api/auth/logout", {
+
+      // Ensure an in-flight session creation cannot finish after the logout API clears the cookie.
+      if (pendingSession) {
+        await pendingSession.catch(() => {});
+      }
+
+      const response = await fetch("/api/auth/logout", {
         method: "POST",
       });
+
+      if (!response.ok) {
+        throw new Error("Unable to clear server authentication session.");
+      }
+
+      sessionSyncRef.current = { uid: null, promise: null };
+      setUser(null);
+      setUserData(null);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
       setIsOpen(false);
-      router.push("/");
-      router.reload();
+      await router.push("/");
     }
   };
 
@@ -315,7 +354,7 @@ useEffect(() => {
                 OKCRICK<span className="text-[#FFFFFF]">.IN</span>
               </span>
               {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
-                <span className="text-[9px] text-white/70 font-bold uppercase tracking-widest mt-0.5 italic">
+                <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5 italic">
                   Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
                 </span>
               )}
@@ -445,4 +484,5 @@ useEffect(() => {
       />
     </>
   );
-}
+      }
+    
