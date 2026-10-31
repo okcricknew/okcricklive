@@ -363,7 +363,7 @@ useEffect(() => {
 
   <div className="flex flex-col">
   <img
-    src="/images/okcrick-logo.png"
+    src="/images/okcrick-logoC.png"
     alt="OKCRICK.IN"
     width="900"
     height="250"
