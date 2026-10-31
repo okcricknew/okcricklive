@@ -365,8 +365,8 @@ useEffect(() => {
   <img
     src="/images/okcrick-logo.png"
     alt="OKCRICK.IN"
-    width="180"
-    height="50"
+    width="230"
+    height="200"
     fetchPriority="high"
     decoding="async"
     className="w-auto h-10 object-contain"
