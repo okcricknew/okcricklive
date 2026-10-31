@@ -11,6 +11,13 @@ export default function Document() {
           fetchPriority="high"
         />
 
+            <link
+          rel="preload"
+          as="image"
+          href="/images/cricketline.jpg"
+          fetchPriority="high"
+        />
+
             {/* Favicon */}
 <link
   rel="icon"
