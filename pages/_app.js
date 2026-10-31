@@ -34,7 +34,7 @@ function MyApp({ Component, pageProps }) {
         <link rel="apple-touch-icon" sizes="144x144" href="/icon.png" /> 
         
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-        <meta name="theme-color" content="#1D2939" />
+        <meta name="theme-color" content="#778899" />
 
         <script
   type="application/ld+json"
