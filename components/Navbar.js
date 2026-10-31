@@ -348,7 +348,7 @@ useEffect(() => {
                 className="w-full h-full object-contain"
               />
             </div>
-      
+  {/* Old Logo text
             <div className="flex flex-col">
               <span className="text-xl font-black text-[#FFFFFF] uppercase tracking-normal leading-none">
                 OKCRICK<span className="text-[#FFD700]">.IN</span>
@@ -359,6 +359,27 @@ useEffect(() => {
                 </span>
               )}
             </div>
+            */}
+
+  <div className="flex flex-col">
+  <img
+    src="/images/okcrick-logo.png"
+    alt="OKCRICK.IN"
+    width="180"
+    height="50"
+    fetchPriority="high"
+    decoding="async"
+    className="w-auto h-10 object-contain"
+  />
+
+  {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
+    <span className="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5 italic">
+      Hi, {(activeUser.displayName || activeUserData.name).split(' ')[0]}
+    </span>
+  )}
+</div>
+
+  
           </Link>
 
           <button type="button" onClick={() => setIsOpen((previous) => !previous)} aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={isOpen} className="p-2.5 bg-white/10 rounded-xl border border-white/10 text-white">
