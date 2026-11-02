@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { getAdminDb } from "../../lib/firebase-admin";
 import { OverlayProvider } from "../../components/overlay/core/OverlayProvider";
 import ThemeProvider from "../../components/overlay/core/ThemeProvider";
 
@@ -174,6 +173,7 @@ export async function getServerSideProps({ query, res }) {
 
   if (tId && theme) {
     try {
+      const { getAdminDb } = await import("../../lib/firebase-admin");
       const db = getAdminDb();
       const matchesRef = db
         .collection("tournaments")
@@ -289,4 +289,4 @@ const styles = {
     cursor: "pointer",
   },
 };
-      
+
