@@ -1,27 +1,12 @@
-import { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot } from 'firebase/firestore';
 import { Trash2, Edit2 } from 'lucide-react';
 
 export default function TeamRow({
   team,
-  tournamentId,
-  initialCount = 0,
+  count = 0,
   onManage,
   onDelete,
   onEdit,
 }) {
-  const [count, setCount] = useState(initialCount);
-
-  useEffect(() => {
-    if (!tournamentId || !team.id) return;
-    const q = query(collection(db, "tournaments", tournamentId, "teams", team.id, "players"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setCount(snapshot.docs.length);
-    });
-    return () => unsubscribe();
-  }, [team.id, tournamentId]);
-
   return (
     <div className="w-full">
       <div className="bg-white border border-emerald-100/80 p-3 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between gap-3">
