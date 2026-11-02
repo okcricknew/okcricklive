@@ -1,5 +1,5 @@
-import { getAdminAuth, getAdminDb } from "../../../lib/firebase-admin";
 import TournamentStats from "../../../components/scoring/TournamentStats";
+import { getNavbarInitialProps } from "../../../lib/ssr/auth";
 
 function serializeValue(value) {
   if (value === null || value === undefined) return null;
@@ -68,36 +68,11 @@ export async function getServerSideProps({ req, params, res }) {
   let initialUserData = null;
 
   try {
+    const { getAdminDb } = await import("../../../lib/firebase-admin");
     const adminDb = getAdminDb();
-    const adminAuth = getAdminAuth();
-    const sessionCookie = req.cookies?.__session || "";
-
-    if (sessionCookie) {
-      try {
-        const decodedToken = await adminAuth.verifySessionCookie(
-          sessionCookie,
-          true
-        );
-
-        const userDoc = await adminDb
-          .collection("users")
-          .doc(decodedToken.uid)
-          .get();
-
-        initialUserData = userDoc.exists
-          ? serializeValue(userDoc.data())
-          : null;
-
-        initialUser = {
-          uid: decodedToken.uid,
-          email: decodedToken.email || null,
-          displayName:
-            initialUserData?.name || decodedToken.name || "",
-        };
-      } catch (error) {
-        console.error("Stats page session verification failed:", error.code || error.message);
-      }
-    }
+    const navbarProps = await getNavbarInitialProps(req);
+    initialUser = navbarProps.initialUser;
+    initialUserData = navbarProps.initialUserData;
 
     const tId = params.tId;
 
