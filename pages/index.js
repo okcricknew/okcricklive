@@ -140,62 +140,19 @@ export async function getServerSideProps(context) {
     }
   })();
 
-  // Server-side session verification
+  // Server-side session verification and profile lookup. The shared helper
+  // uses a short server cache so other SSR pages can reuse the profile read.
   const userPropsPromise = (async () => {
-    let initialUser = null;
-    let initialUserData = null;
-
-    if (!sessionCookie) {
-      return {
-        initialUser,
-        initialUserData,
-      };
-    }
-
     try {
-      const {
-        getAdminAuth,
-        getAdminDb,
-      } = await import("../lib/firebase-admin");
-
-      const adminAuth = getAdminAuth();
-      const adminDb = getAdminDb();
-
-      const decodedToken =
-        await adminAuth.verifySessionCookie(
-          sessionCookie,
-          true
-        );
-
-      const userDoc = await adminDb
-        .collection("users")
-        .doc(decodedToken.uid)
-        .get();
-
-      initialUserData = userDoc.exists
-        ? userDoc.data()
-        : null;
-
-      initialUser = {
-        uid: decodedToken.uid,
-        email: decodedToken.email || null,
-        displayName:
-          initialUserData?.name ||
-          decodedToken.name ||
-          "",
-      };
-
+      const { getNavbarInitialProps } = await import("../lib/ssr/auth");
+      return await getNavbarInitialProps(context.req);
     } catch (error) {
       console.error(
         "Session verification failed:",
         error?.code || error?.message
       );
+      return { initialUser: null, initialUserData: null };
     }
-
-    return {
-      initialUser,
-      initialUserData,
-    };
   })();
 
   try {
