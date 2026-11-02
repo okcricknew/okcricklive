@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../lib/firebase';
-import { getAdminAuth, getAdminDb } from '../lib/firebase-admin';
 import {
   collection,
   deleteDoc,
@@ -463,6 +462,16 @@ export async function getServerSideProps({ req, res }) {
   }
 
   let decodedToken;
+  let getAdminAuth;
+  let getAdminDb;
+
+  // Load Firebase Admin only in the server request, never in the browser bundle.
+  try {
+    ({ getAdminAuth, getAdminDb } = await import('../lib/firebase-admin'));
+  } catch (error) {
+    console.error('Firebase Admin initialization failed:', error?.code || error?.message);
+    return { props: { initialTournaments: [], initialUser: null, initialUserData: null, initialLoadError: true } };
+  }
 
   // STEP 1: Verify login separately.
   try {
@@ -587,4 +596,4 @@ export async function getServerSideProps({ req, res }) {
       },
     };
   }
-              }
+          }
