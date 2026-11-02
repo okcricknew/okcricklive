@@ -72,7 +72,9 @@ useEffect(() => {
         unsubscribeSnapshot = null;
       }
 
-      if (currentUser) {
+      // SSR already supplied the user's display name on authenticated pages.
+      // Avoid opening a second Firestore listener for the same user document.
+      if (currentUser && !initialUserData) {
         const docRef = doc(db, "users", currentUser.uid);
 
         unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
@@ -80,7 +82,7 @@ useEffect(() => {
             setUserData(docSnap.data());
           }
         });
-      } else if (!isFirstAuthCallback || !initialUserData) {
+      } else if (!currentUser && (!isFirstAuthCallback || !initialUserData)) {
         setUserData(null);
       }
 
@@ -506,4 +508,5 @@ useEffect(() => {
     </>
   );
       }
-    
+
+          
