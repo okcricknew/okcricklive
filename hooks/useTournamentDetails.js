@@ -12,8 +12,9 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 
-export function useTournamentDetails(id, initialTeams = []) {
+export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = {}) {
   const [teams, setTeams] = useState(initialTeams);
+  const [teamCounts, setTeamCounts] = useState(initialTeamCounts);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTeam, setActiveTeam] = useState(null);
   const [teamPlayers, setTeamPlayers] = useState([]); 
@@ -206,6 +207,10 @@ export function useTournamentDetails(id, initialTeams = []) {
         runs: 0, balls: 0, wickets: 0, role: 'Batsman',
         createdAt: serverTimestamp()
       });
+      setTeamCounts((previous) => ({
+        ...previous,
+        [activeTeam.id]: (previous[activeTeam.id] || 0) + 1,
+      }));
       setPlayerName('');
       setPlayerPhoto(null);
     } catch (e) { console.error(e); }
@@ -269,8 +274,17 @@ export function useTournamentDetails(id, initialTeams = []) {
     try {
       if (deleteConfig.type === 'team') {
         await deleteDoc(doc(db, "tournaments", id, "teams", deleteConfig.id));
+        setTeamCounts((previous) => {
+          const next = { ...previous };
+          delete next[deleteConfig.id];
+          return next;
+        });
       } else if (deleteConfig.type === 'player' && activeTeam?.id) {
         await deleteDoc(doc(db, "tournaments", id, "teams", activeTeam.id, "players", deleteConfig.id));
+        setTeamCounts((previous) => ({
+          ...previous,
+          [activeTeam.id]: Math.max(0, (previous[activeTeam.id] || 0) - 1),
+        }));
       }
     } catch (e) {
       console.error("Deletion failed:", e);
@@ -282,6 +296,7 @@ export function useTournamentDetails(id, initialTeams = []) {
 
   return {
     teams,
+    teamCounts,
     isModalOpen,
     setIsModalOpen,
     activeTeam,
@@ -319,4 +334,4 @@ export function useTournamentDetails(id, initialTeams = []) {
     deleteConfig,
     executeDelete,
   };
-          }
+        }
