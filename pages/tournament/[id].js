@@ -23,6 +23,7 @@ export default function TournamentDetails({
 
   const {
     teams,
+    teamCounts,
     isModalOpen,
     setIsModalOpen,
     activeTeam,
@@ -59,7 +60,7 @@ export default function TournamentDetails({
     setDeleteConfirmOpen,
     deleteConfig,
     executeDelete,
-  } = useTournamentDetails(id, initialTeams);
+  } = useTournamentDetails(id, initialTeams, initialTeamCounts);
 
   return (
     <div className="min-h-screen bg-[#F4F7F5] text-[#0C381E]">
@@ -111,8 +112,7 @@ export default function TournamentDetails({
               <TeamRow
                 key={team.id}
                 team={team}
-                tournamentId={id}
-                initialCount={initialTeamCounts[team.id] ?? 0}
+                count={teamCounts[team.id] ?? 0}
                 onManage={(t) => {
                   setActiveTeam(t);
                   setIsModalOpen(true);
@@ -258,4 +258,5 @@ export async function getServerSideProps({ params, req, res }) {
   }
             }
 
-            
+
+        
