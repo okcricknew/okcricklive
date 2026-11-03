@@ -22,6 +22,7 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
   const [playerPhoto, setPlayerPhoto] = useState(null);
   const [teamName, setTeamName] = useState('');
   const [teamLogo, setTeamLogo] = useState(null);
+  const [teamColor, setTeamColor] = useState('#004BA0');
 
   // --- EDIT TEAM STATES ---
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -80,10 +81,18 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     if (!teamName.trim()) return;
 
     const tempId = "temp_" + Date.now();
+    const normalizedColor = teamColor.replace('#', '');
+    const teamRgb = {
+      r: parseInt(normalizedColor.slice(0, 2), 16),
+      g: parseInt(normalizedColor.slice(2, 4), 16),
+      b: parseInt(normalizedColor.slice(4, 6), 16),
+    };
     setTeams(prev => [
       {
         id: tempId,
         name: teamName.trim().toUpperCase(),
+        color: teamRgb,
+        colorHex: teamColor,
         logoUrl: teamLogo ? URL.createObjectURL(teamLogo) : "",
         createdAt: new Date(),
         temp: true
@@ -110,10 +119,13 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
       await addDoc(collection(db, "tournaments", id, "teams"), { 
         name: teamName.trim().toUpperCase(), 
         logoUrl: logoUrl,
+        color: teamRgb,
+        colorHex: teamColor,
         createdAt: serverTimestamp()
       });
       setTeamName(''); 
       setTeamLogo(null);
+      setTeamColor('#004BA0');
     } catch (e) { console.error(e); }
   };
 
@@ -308,6 +320,8 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     teamName,
     setTeamName,
     setTeamLogo,
+    teamColor,
+    setTeamColor,
     handleAddTeam,
     handleDeleteTeam,
     handleAddPlayer,
@@ -335,3 +349,4 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     executeDelete,
   };
         }
+        
