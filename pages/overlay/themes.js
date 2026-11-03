@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { OverlayProvider } from "../../components/overlay/core/OverlayProvider";
 import ThemeProvider from "../../components/overlay/core/ThemeProvider";
+import { Trophy, Copy, Check, ExternalLink, Sparkles, Layers } from "lucide-react";
 
 function serializeValue(value) {
   if (value === null || value === undefined) return value;
@@ -41,7 +42,7 @@ export default function ThemePage({
   initialMatch,
 }) {
   const router = useRouter();
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
 
   const tId = initialTId || router.query.tId;
   const theme = initialTheme || router.query.theme;
@@ -49,20 +50,21 @@ export default function ThemePage({
 
   if (!tId) {
     return (
-      <div style={styles.container}>
-        <p>Tournament ID is missing from the URL.</p>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-white font-sans">
+        <div className="max-w-md w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 text-center shadow-2xl">
+          <div className="w-12 h-12 bg-rose-500/10 text-rose-400 rounded-xl flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <Trophy size={24} />
+          </div>
+          <h2 className="text-lg font-bold text-slate-100 mb-1">Tournament ID Missing</h2>
+          <p className="text-sm text-slate-400">Tournament ID is missing from the URL parameters.</p>
+        </div>
       </div>
     );
   }
 
   if (theme) {
     return (
-      <div
-        style={{
-          background: "transparent",
-          minHeight: "100vh",
-        }}
-      >
+      <div className="bg-transparent min-h-screen">
         <style jsx global>{`
           html,
           body,
@@ -92,13 +94,13 @@ export default function ThemePage({
   const themes = [
     {
       id: "willow",
-      name: "Willow",
-      desc: "Classic clean UI for professional look",
+      name: "Willow Theme",
+      desc: "Classic clean UI crafted for professional broadcast presentation.",
     },
     {
       id: "okCrick",
-      name: "CWC 23",
-      desc: "Modern scoreboard with vibrant colors",
+      name: "CWC 23 Theme",
+      desc: "Modern energetic scoreboard with vibrant layout and dynamics.",
     },
   ];
 
@@ -107,55 +109,98 @@ export default function ThemePage({
 
     try {
       await navigator.clipboard.writeText(link);
-      setCopied(true);
-      alert(`Link Copied for ${themeId} ✅`);
+      setCopiedId(themeId);
+      setTimeout(() => setCopiedId(null), 2500);
     } catch (error) {
       window.prompt("Copy overlay link:", link);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>🎬 Overlay Themes</h2>
-        <p style={styles.subtitle}>
-          Select and copy broadcast overlay link
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 font-sans antialiased selection:bg-rose-500 selection:text-white">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <div className="text-center space-y-3 bg-slate-900/60 border border-slate-800/80 p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-indigo-500/10 blur-3xl pointer-events-none" />
+          
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-slate-900 border border-slate-700/60 rounded-2xl text-amber-400 shadow-inner mb-1">
+            <Layers size={28} />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white uppercase italic">
+            Broadcast Overlay Themes
+          </h1>
+          <p className="text-slate-400 text-sm max-w-md mx-auto">
+            Select a broadcast template below and copy your live streaming link for OBS Studio or VMix.
+          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 text-xs font-semibold text-slate-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Tournament ID: <span className="text-amber-400 font-mono">{tId}</span>
+          </div>
+        </div>
 
-      <div style={styles.tableWrapper}>
-        <table style={styles.table}>
-          <thead style={styles.tableHeader}>
-            <tr>
-              <th style={styles.th}>#</th>
-              <th style={styles.th}>Theme</th>
-              <th style={styles.th}>Description</th>
-              <th style={styles.th}>Action</th>
-            </tr>
-          </thead>
+        {/* Themes Table / Card List Container */}
+        <div className="bg-slate-900/60 border border-slate-800/80 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
+                  <th className="py-4 px-6 w-16 text-center">#</th>
+                  <th className="py-4 px-6">Theme Profile</th>
+                  <th className="py-4 px-6">Description</th>
+                  <th className="py-4 px-6 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-sm">
+                {themes.map((item, index) => {
+                  const isCopied = copiedId === item.id;
+                  return (
+                    <tr 
+                      key={item.id} 
+                      className="hover:bg-slate-800/40 transition-colors group"
+                    >
+                      <td className="py-5 px-6 text-center">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs border border-slate-700">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="py-5 px-6 font-bold text-white">
+                        <div className="flex items-center gap-2">
+                          <Sparkles size={16} className="text-rose-500 shrink-0" />
+                          <span>{item.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-slate-400 text-xs sm:text-sm">
+                        {item.desc}
+                      </td>
+                      <td className="py-5 px-6 text-right">
+                        <button
+                          onClick={() => copyLink(item.id)}
+                          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg transition-all active:scale-95 cursor-pointer ${
+                            isCopied
+                              ? "bg-emerald-600 text-white shadow-emerald-900/30"
+                              : "bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white shadow-rose-900/30"
+                          }`}
+                        >
+                          {isCopied ? (
+                            <>
+                              <Check size={15} /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={15} /> Copy Link
+                            </>
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-          <tbody>
-            {themes.map((item, index) => (
-              <tr key={item.id} style={styles.tr}>
-                <td style={styles.td}>
-                  <span style={styles.badge}>{index + 1}</span>
-                </td>
-                <td style={{ ...styles.td, fontWeight: "bold" }}>
-                  {item.name}
-                </td>
-                <td style={styles.td}>{item.desc}</td>
-                <td style={styles.td}>
-                  <button
-                    onClick={() => copyLink(item.id)}
-                    style={styles.copyBtn}
-                  >
-                    Copy Link
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   );
@@ -220,73 +265,4 @@ export async function getServerSideProps({ query, res }) {
       initialMatch,
     },
   };
-}
-
-const styles = {
-  container: {
-    padding: "40px 20px",
-    fontFamily: "sans-serif",
-    background: "linear-gradient(135deg, #0f172a, #1e293b)",
-    minHeight: "100vh",
-    color: "white",
-  },
-  header: {
-    textAlign: "center",
-    marginBottom: "30px",
-  },
-  title: {
-    fontSize: "30px",
-    fontWeight: "900",
-  },
-  subtitle: {
-    fontSize: "14px",
-    color: "#94a3b8",
-  },
-  tableWrapper: {
-    maxWidth: "900px",
-    margin: "auto",
-    background: "rgba(255,255,255,0.05)",
-    borderRadius: "16px",
-    overflow: "hidden",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255,255,255,0.1)",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  tableHeader: {
-    background: "rgba(255,255,255,0.08)",
-  },
-  th: {
-    padding: "16px",
-    fontSize: "12px",
-    textTransform: "uppercase",
-    color: "#94a3b8",
-    textAlign: "left",
-  },
-  tr: {
-    borderTop: "1px solid rgba(255,255,255,0.05)",
-    transition: "0.3s",
-  },
-  td: {
-    padding: "16px",
-  },
-  badge: {
-    background: "#C10E44",
-    padding: "4px 10px",
-    borderRadius: "6px",
-    fontSize: "12px",
-    fontWeight: "bold",
-  },
-  copyBtn: {
-    background: "linear-gradient(90deg, #C10E44, #9E0B36)",
-    border: "none",
-    padding: "8px 14px",
-    borderRadius: "8px",
-    color: "white",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-};
-
+                    }
