@@ -8,7 +8,7 @@ import AuthModal from './navbar/AuthModal';
 import { auth, db } from '../lib/firebase'; 
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore'; 
-import Image from 'next/image';
+
 export default function Navbar({ initialUser = null, initialUserData = null }) {
   const router = useRouter(); 
   // SSR props se initial state set karne par loading false rahegi taaki flicker na ho
