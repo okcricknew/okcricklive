@@ -345,7 +345,7 @@ useEffect(() => {
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
               <img 
-                src="/favicon.ico" 
+                src="/favicon.webp" 
                 alt="Logo" 
                 className="w-full h-full object-contain"
               />
