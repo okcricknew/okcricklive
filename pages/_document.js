@@ -11,18 +11,11 @@ export default function Document() {
           fetchPriority="high"
         />
 
-            {/* Favicon */}
+            {/* Primary Favicon */}
 <link
   rel="icon"
-  href="/favicon.ico"
-  sizes="any"
-/>
-
-<link
-  rel="preload"
-  as="image"
+  type="image/webp"
   href="/favicon.webp"
-  fetchPriority="high"
 />
     
       </Head>
