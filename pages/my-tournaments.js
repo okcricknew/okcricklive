@@ -8,7 +8,6 @@ import {
   getDocs,
 } from 'firebase/firestore';
 import { Trophy, MapPin, Loader2, PlusCircle, ChevronRight, ChevronLeft, Users, Swords, LayoutList, Calendar, Trash2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; 
 import Link from 'next/link';
 
 // --- SUB-COMPONENT: COMPACT TOURNAMENT CARD (OPTIMIZED) ---
@@ -83,10 +82,7 @@ function TournamentCard({ tournament }) {
   };
 
   return (
-    <motion.div 
-      layout="position"
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0 }}
+    <div 
       className="w-full bg-white rounded-2xl p-5 border border-slate-200/60 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 group relative overflow-hidden"
     >
       <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#1D2939] to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -152,7 +148,7 @@ function TournamentCard({ tournament }) {
     
               </div>
               <div className="flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active Arena</span>
               </div>
             </div>
@@ -195,90 +191,62 @@ function TournamentCard({ tournament }) {
       </div>
 
       {/* --- MODALS --- */}
-      <AnimatePresence>
-        {showDeleteModal && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
-          >
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
-animate={{ opacity: 1, scale: 1, y: 0 }}
-exit={{ opacity: 0, scale: 0.96, y: 8 }}
-transition={{ duration: 0.18, ease: "easeOut" }}
-              className="bg-white rounded-2xl p-6 w-[320px] shadow-xl"
-            >
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Tournament?</h3>
-              <p className="text-sm text-gray-500 mb-6">All matches, teams and players will be permanently deleted.</p>
-              <div className="flex justify-end gap-3">
-                <button onClick={()=>setShowDeleteModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
-                <button onClick={handleDelete} className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 font-bold">Delete</button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl p-6 w-[320px] shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Tournament?</h3>
+            <p className="text-sm text-gray-500 mb-6">All matches, teams and players will be permanently deleted.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={()=>setShowDeleteModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
+              <button onClick={handleDelete} className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 font-bold">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-        {showEditModal && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-transition={{ duration: 0.18, ease: "easeOut" }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.9, opacity: 0 }}
-transition={{ duration: 0.18, ease: "easeOut" }}
-              className="bg-white rounded-2xl p-6 w-[360px] shadow-xl"
-            >
-              <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Tournament</h3>
-              
-              <div className="mb-4">
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Tournament Name</label>
-                <input 
-                  type="text" 
-                  value={newTournamentName}
-                  onChange={(e) => setNewTournamentName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs uppercase font-bold text-[#1D2939] focus:outline-none focus:border-blue-600"
-                  placeholder="TOURNAMENT NAME..."
+      {showEditModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl p-6 w-[360px] shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Tournament</h3>
+            
+            <div className="mb-4">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Tournament Name</label>
+              <input 
+                type="text" 
+                value={newTournamentName}
+                onChange={(e) => setNewTournamentName(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs uppercase font-bold text-[#1D2939] focus:outline-none focus:border-blue-600"
+                placeholder="TOURNAMENT NAME..."
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Update Tournament Logo (Optional)</label>
+              <div className="flex items-center gap-3">
+                {Boolean(tournament?.logoUrl) && !editTournamentLogo && (
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center p-1">
+                    <img src={tournament.logoUrl} alt="Current Logo" className="w-full h-full object-contain" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditTournamentLogo(e.target.files?.[0] || null)}
+                  className="flex-1 text-[10px] text-gray-500 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-slate-100 file:text-[#1D2939] cursor-pointer"
                 />
               </div>
+            </div>
 
-              <div className="mb-6">
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Update Tournament Logo (Optional)</label>
-                <div className="flex items-center gap-3">
-                  {Boolean(tournament?.logoUrl) && !editTournamentLogo && (
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center p-1">
-                      <img src={tournament.logoUrl} alt="Current Logo" className="w-full h-full object-contain" />
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setEditTournamentLogo(e.target.files?.[0] || null)}
-                    className="flex-1 text-[10px] text-gray-500 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-slate-100 file:text-[#1D2939] cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
-                <button onClick={handleEdit} className="px-4 py-2 text-sm rounded-lg bg-[#1D2939] text-white hover:bg-slate-800 font-bold">Save Changes</button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+            <div className="flex justify-end gap-3">
+              <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 font-bold">Cancel</button>
+              <button onClick={handleEdit} className="px-4 py-2 text-sm rounded-lg bg-[#1D2939] text-white hover:bg-slate-800 font-bold">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-                     }
-                
-
+}
 
 // --- MAIN DASHBOARD (FULLY SSR) ---
 export default function MyTournaments({
@@ -291,7 +259,7 @@ export default function MyTournaments({
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
   
-    const [activeTourId, setActiveTourId] = useState(() => {
+  const [activeTourId, setActiveTourId] = useState(() => {
     return initialTournaments[0]?.id || null;
   });
 
@@ -305,16 +273,13 @@ export default function MyTournaments({
   const totalPages = Math.ceil(tournaments.length / tournamentsPerPage);
 
   return (
-    <motion.div 
+    <div 
       suppressHydrationWarning={true}
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ duration: 0.1, ease: "linear" }}
       className="min-h-screen w-full bg-[#F4F4F4] px-4 pb-32"
     >
       <div className="w-full max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 px-1">
-          <motion.div initial={{ x: -20 }} animate={{ x: 0 }}>
+          <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1D2939]/5 text-[#1D2939] text-[9px] font-black uppercase tracking-widest mb-3">
               <Calendar size={12} />
               <span>Season 2026 Management</span>
@@ -326,7 +291,7 @@ export default function MyTournaments({
               <span className="w-8 h-[1px] bg-slate-300 inline-block"></span>
               {tournaments.length} Active Environments
             </p>
-          </motion.div>
+          </div>
           <button 
             onClick={() => window.dispatchEvent(new Event('openCreateTournamentModal'))}
             className="flex items-center justify-center gap-3 bg-[#C10E44] text-white px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-wider active:scale-95 transition-all shadow-[0_10px_20px_-5px_rgba(193,14,68,0.3)] hover:brightness-110"
@@ -337,12 +302,12 @@ export default function MyTournaments({
           <Link
             href={activeTourId ? `/overlay/themes?tId=${activeTourId}` : '#'}
             className={`mt-2 flex items-center justify-center gap-2 w-full px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow transition-all 
-            ${tournaments.length === 0 ? 'bg-gray-300 pointer-events-none' : 'bg-white hover:bg-gray-800'}`}
+            ${tournaments.length === 0 ? 'bg-gray-300 pointer-events-none' : 'bg-white hover:bg-gray-800 hover:text-white'}`}
           >
             Scoreboard Overlay Link
           </Link>
         </div>
-                    {tournaments.length === 0 ? (
+        {tournaments.length === 0 ? (
           <div className="py-24 text-center bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
             <Trophy className="text-slate-200 mx-auto mb-6" size={40} />
             <h3 className="text-[#1D2939] font-black text-lg uppercase tracking-tight">No Tournaments Found</h3>
@@ -384,7 +349,7 @@ export default function MyTournaments({
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -465,7 +430,6 @@ export async function getServerSideProps({ req, res }) {
   let getAdminAuth;
   let getAdminDb;
 
-  // Load Firebase Admin only in the server request, never in the browser bundle.
   try {
     ({ getAdminAuth, getAdminDb } = await import('../lib/firebase-admin'));
   } catch (error) {
@@ -473,7 +437,6 @@ export async function getServerSideProps({ req, res }) {
     return { props: { initialTournaments: [], initialUser: null, initialUserData: null, initialLoadError: true } };
   }
 
-  // STEP 1: Verify login separately.
   try {
     const adminAuth = getAdminAuth();
 
@@ -518,8 +481,7 @@ export async function getServerSideProps({ req, res }) {
     };
   }
 
-  // STEP 2: Load tournament data separately.
-  try {
+ try {
     const adminDb = getAdminDb();
     const uid = decodedToken.uid;
 
@@ -596,4 +558,4 @@ export async function getServerSideProps({ req, res }) {
       },
     };
   }
-          }
+}
