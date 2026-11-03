@@ -185,7 +185,7 @@ export default function TournamentDetails({
   );
 }
 
-// --- SERVER SIDE RENDERING (SSR) ---
+// --- OPTIMIZED SERVER SIDE RENDERING (SSR) ---
 export async function getServerSideProps({ params, req, res }) {
   res.setHeader(
     "Cache-Control",
@@ -202,33 +202,11 @@ export async function getServerSideProps({ params, req, res }) {
       return { notFound: true };
     }
 
+    // Directly extract team counts without N+1 subcollection queries
     const initialTeamCounts = {};
-
-    try {
-      const { getAdminDb } = await import("../../lib/firebase-admin");
-      const adminDb = getAdminDb();
-
-      await Promise.all(
-        (data.teams || []).map(async (team) => {
-          const playersCountSnapshot = await adminDb
-            .collection("tournaments")
-            .doc(params.id)
-            .collection("teams")
-            .doc(team.id)
-            .collection("players")
-            .count()
-            .get();
-
-          initialTeamCounts[team.id] =
-            playersCountSnapshot.data()?.count || 0;
-        })
-      );
-    } catch (countError) {
-      console.error(
-        "SSR team counts failed:",
-        countError?.code || countError?.message
-      );
-    }
+    (data.teams || []).forEach((team) => {
+      initialTeamCounts[team.id] = team.playerCount || 0;
+    });
 
     return {
       props: {
@@ -256,7 +234,4 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-            }
-
-
-        
+}
