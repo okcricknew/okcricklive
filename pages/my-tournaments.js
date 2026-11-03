@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { db } from '../lib/firebase';
 import {
   collection,
@@ -494,29 +493,21 @@ export async function getServerSideProps({ req, res }) {
       ? userDoc.data()
       : {};
 
+    // OPTIMIZED QUERY: Fetch tournaments directly without heavy subcollection count calls
     const snapshot = await adminDb
       .collection('tournaments')
       .where('adminId', '==', uid)
       .get();
 
-    const initialTournaments = await Promise.all(
-      snapshot.docs.map(async (tournamentDoc) => {
-        const tournamentRef = tournamentDoc.ref;
-
-        const [teamsCountSnapshot, matchesCountSnapshot] =
-          await Promise.all([
-            tournamentRef.collection('teams').count().get(),
-            tournamentRef.collection('matches').count().get(),
-          ]);
-
-        return {
-          id: tournamentDoc.id,
-          ...serializeValue(tournamentDoc.data()),
-          teamCount: teamsCountSnapshot.data()?.count || 0,
-          matchCount: matchesCountSnapshot.data()?.count || 0,
-        };
-      })
-    );
+    const initialTournaments = snapshot.docs.map((tournamentDoc) => {
+      const data = tournamentDoc.data();
+      return {
+        id: tournamentDoc.id,
+        ...serializeValue(data),
+        teamCount: data.teamCount || 0,
+        matchCount: data.matchCount || 0,
+      };
+    });
 
     initialTournaments.sort(
       (a, b) =>
@@ -559,3 +550,4 @@ export async function getServerSideProps({ req, res }) {
     };
   }
 }
+  
