@@ -7,6 +7,8 @@ import AuthModal from './navbar/AuthModal';
 import { auth, db } from '../lib/firebase'; 
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore'; 
+import Image from 'next/image';
+
 
 export default function Navbar({ initialUser = null, initialUserData = null }) {
   const router = useRouter(); 
@@ -332,17 +334,16 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
       <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#000000] px-4 py-2 shadow-xl border-b border-white/5">
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
-              <img
-                src="/favicon.webp"
-                alt="OKCRICK Icon"
-                width={40}
-                height={40}
-                loading="eager"
-                fetchPriority="high"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <div className="w-10 h-10 min-w-[40px] min-h-[40px] bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0 relative">
+    <Image
+      src="/favicon.webp"
+      alt="OKCRICK Icon"
+      width={40}
+      height={40}
+      priority={true}
+      className="w-full h-full object-contain"
+    />
+  </div>
 
             <div className="flex flex-col justify-center">
               <img
