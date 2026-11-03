@@ -7,7 +7,7 @@ export default function Document() {
         <link
           rel="preload"
           as="image"
-          href="/images/okcrick-logoC.png"
+          href="/images/okcrick-logoC.webp"
           fetchPriority="high"
         />
 
