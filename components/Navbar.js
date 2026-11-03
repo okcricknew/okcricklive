@@ -344,11 +344,16 @@ useEffect(() => {
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-              <img 
-                src="/favicon.webp" 
-                alt="Logo" 
-                className="w-full h-full object-contain"
-              />
+              <img
+  src="/favicon.webp"
+  alt="OKCRICK Icon"
+  width="40"
+  height="40"
+  loading="eager"
+  fetchPriority="high"
+  decoding="async"
+  className="w-full h-full object-contain"
+/>
             </div>
   {/* Old Logo text
             <div className="flex flex-col">
@@ -364,14 +369,16 @@ useEffect(() => {
             */}
 
   <div className="flex flex-col justify-center">
-  <Image
+  <img
     src="/images/okcrick-logoC.webp"
     alt="OKCRICK.IN"
-    width={900}
-    height={250}
-    priority
+    width="900"
+    height="250"
+    loading="eager"
+    fetchPriority="high"
+    decoding="async"
     className="w-auto h-10 object-contain"
-    sizes="180px"
+    style={{ width: "auto", height: "40px" }}
   />
 
   {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
