@@ -332,7 +332,6 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
       <nav className="fixed top-0 left-0 right-0 z-[1001] bg-[#000000] px-4 py-2 shadow-xl border-b border-white/5">
         <div className="w-full flex justify-between items-center px-1">
           <Link href="/" className="flex items-center gap-3">
-            {/* Favicon WebP Fixed Sizing & Anti-Flicker */}
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
               <img
                 src="/favicon.webp"
@@ -341,24 +340,20 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
                 height={40}
                 loading="eager"
                 fetchPriority="high"
-                decoding="async"
                 className="w-full h-full object-contain"
-                style={{ width: '40px', height: '40px', aspectRatio: '1 / 1' }}
               />
             </div>
 
-            {/* Logo WebP Fixed Sizing & Anti-Flicker */}
             <div className="flex flex-col justify-center">
               <img
                 src="/images/okcrick-logoC.webp"
                 alt="OKCRICK.IN"
-                width={140}
-                height={40}
+                width={900}
+                height={250}
                 loading="eager"
                 fetchPriority="high"
-                decoding="async"
                 className="w-auto h-10 object-contain"
-                style={{ width: "auto", height: "40px", minHeight: "40px" }}
+                style={{ width: "auto", height: "40px" }}
               />
 
               {!authLoading && activeUser && (activeUser.displayName || activeUserData?.name) && (
@@ -381,7 +376,7 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
         </div>
       </nav>
 
-      {/* SIDEBAR & BACKDROP (Completely Animation & Flicker Free) */}
+      {/* SIDEBAR & BACKDROP (Without Framer Motion / Flickering) */}
       {isOpen && (
         <div className="fixed inset-0 z-[1002]">
           {/* Backdrop */}
@@ -487,5 +482,5 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
       />
     </>
   );
-    }
+                        }
                 
