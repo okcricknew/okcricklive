@@ -89,9 +89,10 @@ function TournamentCard({ tournament }) {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2.5">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-50 border-2 border-slate-200 flex items-center justify-center">
+            {/* FIXED LOGO CONTAINER TO PREVENT SQUISHING */}
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0">
               {tournament.logoUrl ? (
-                <img src={tournament.logoUrl} alt={tournament.tournamentName} className="w-full h-full object-contain p-1" />
+                <img src={tournament.logoUrl} alt={tournament.tournamentName} className="w-full h-full object-cover" />
               ) : (
                 <Trophy size={22} className="text-[#1D2939]" />
               )}
@@ -224,7 +225,7 @@ function TournamentCard({ tournament }) {
               <div className="flex items-center gap-3">
                 {Boolean(tournament?.logoUrl) && !editTournamentLogo && (
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center p-1">
-                    <img src={tournament.logoUrl} alt="Current Logo" className="w-full h-full object-contain" />
+                    <img src={tournament.logoUrl} alt="Current Logo" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <input
@@ -493,7 +494,7 @@ export async function getServerSideProps({ req, res }) {
       ? userDoc.data()
       : {};
 
-    // OPTIMIZED QUERY: Fetch tournaments directly without heavy subcollection count calls
+    // OPTIMIZED QUERY: Fetch tournaments directly without heavy subcollection count calls (Reads = 2 total)
     const snapshot = await adminDb
       .collection('tournaments')
       .where('adminId', '==', uid)
@@ -504,8 +505,8 @@ export async function getServerSideProps({ req, res }) {
       return {
         id: tournamentDoc.id,
         ...serializeValue(data),
-        teamCount: data.teamCount || 0,
-        matchCount: data.matchCount || 0,
+        teamCount: data.teamCount ?? data.teamsCount ?? 0,
+        matchCount: data.matchCount ?? data.matchesCount ?? 0,
       };
     });
 
@@ -550,4 +551,3 @@ export async function getServerSideProps({ req, res }) {
     };
   }
 }
-  
