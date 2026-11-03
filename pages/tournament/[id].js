@@ -185,7 +185,7 @@ export default function TournamentDetails({
   );
 }
 
-// --- OPTIMIZED SERVER SIDE RENDERING (SSR) ---
+// --- SERVER SIDE RENDERING (SSR WITH SMART FALLBACK) ---
 export async function getServerSideProps({ params, req, res }) {
   res.setHeader(
     "Cache-Control",
@@ -202,11 +202,39 @@ export async function getServerSideProps({ params, req, res }) {
       return { notFound: true };
     }
 
-    // Directly extract team counts without N+1 subcollection queries
     const initialTeamCounts = {};
-    (data.teams || []).forEach((team) => {
-      initialTeamCounts[team.id] = team.playerCount || 0;
-    });
+
+    try {
+      const { getAdminDb } = await import("../../lib/firebase-admin");
+      const adminDb = getAdminDb();
+
+      await Promise.all(
+        (data.teams || []).map(async (team) => {
+          // Agar team document mein playerCount pehle se hai, toh wahi use karo (0 extra reads)
+          if (typeof team.playerCount === 'number') {
+            initialTeamCounts[team.id] = team.playerCount;
+          } else {
+            // Fallback: agar field nahi hai toh count query chalegi taaki refresh par 0 na ho
+            const playersCountSnapshot = await adminDb
+              .collection("tournaments")
+              .doc(params.id)
+              .collection("teams")
+              .doc(team.id)
+              .collection("players")
+              .count()
+              .get();
+
+            initialTeamCounts[team.id] =
+              playersCountSnapshot.data()?.count || 0;
+          }
+        })
+      );
+    } catch (countError) {
+      console.error(
+        "SSR team counts failed:",
+        countError?.code || countError?.message
+      );
+    }
 
     return {
       props: {
@@ -234,4 +262,5 @@ export async function getServerSideProps({ params, req, res }) {
       },
     };
   }
-}
+          }
+                  
