@@ -27,6 +27,11 @@ function MyApp({ Component, pageProps }) {
         <meta property="og:title" content="OKCRICK.IN | Professional Cricket Live Scoring WebApp" />
         <meta property="og:description" content="Next-Gen Scoring Hub for local matches. Ok crick. Ok Cricket. Live scoring overlay scoreboard. cricket scoreboard overlay free. cricket scoreboard overlay themes free" />
         
+        {/* 🔥 Logo Fix: Added Versioning and multiple sizes for better domain detection */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/icon.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/icon.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/icon.png" /> 
         
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <meta name="theme-color" content="#000000" />
