@@ -35,6 +35,8 @@ export default function TournamentDetails({
     teamName,
     setTeamName,
     setTeamLogo,
+    teamColor,
+    setTeamColor,
     handleAddTeam,
     handleDeleteTeam,
     handleAddPlayer,
@@ -97,6 +99,8 @@ export default function TournamentDetails({
           teamName={teamName}
           setTeamName={setTeamName}
           setTeamLogo={setTeamLogo}
+          teamColor={teamColor}
+          setTeamColor={setTeamColor}
           handleAddTeam={handleAddTeam}
         />
 
@@ -263,4 +267,5 @@ export async function getServerSideProps({ params, req, res }) {
     };
   }
           }
-                  
+
+            
