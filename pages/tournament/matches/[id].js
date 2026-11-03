@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { db } from '../../../lib/firebase';
-import { collection, query, onSnapshot, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ArrowLeft, Loader2, ChevronRight, Play, Eye, Trophy, PlusCircle, Pencil, Trash2, Radio } from 'lucide-react'; 
 
 import TossModal from '../../../components/TossModal'; 
@@ -10,6 +10,16 @@ import MatchSummaryModal from '../../../components/MatchSummaryModal';
 import EditMatchModal from '../../../components/scoring/EditMatchModal';
 import { getMatchListInitialProps } from '../../../lib/ssr/tournament';
 import { getNavbarInitialProps } from '../../../lib/ssr/auth';
+
+// --- ROBUST TIMESTAMP HELPER FOR SORTING ---
+function getTimestampMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (typeof value.toDate === 'function') return value.toDate().getTime();
+  if (typeof value.seconds === 'number') return value.seconds * 1000;
+  const millis = new Date(value).getTime();
+  return Number.isFinite(millis) ? millis : 0;
+}
 
 export default function MatchList({ initialTournament = null, initialMatches = [] }) {
   const router = useRouter();
@@ -24,6 +34,15 @@ export default function MatchList({ initialTournament = null, initialMatches = [
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // Sync props on change
+  useEffect(() => {
+    setMatches(initialMatches);
+  }, [initialMatches]);
+
+  useEffect(() => {
+    setTournament(initialTournament);
+  }, [initialTournament]);
+
   useEffect(() => {
     if (!id) return;
 
@@ -33,17 +52,35 @@ export default function MatchList({ initialTournament = null, initialMatches = [
       if (snap.exists()) setTournament(snap.data());
     });
 
-    // 2. Matches List Realtime Sync
-    const q = query(collection(db, "tournaments", id, "matches"));
-    const unsubMatches = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-      const matchesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      // Sorting
-      const sortedMatches = matchesData.sort((a, b) => 
-        (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
-      );
-
-      setMatches(sortedMatches);
+    // 2. Optimized Matches Realtime Sync (Only listens to live matches to keep reads minimal)
+    const q = query(collection(db, "tournaments", id, "matches"), where('status', '==', 'live'));
+    const unsubMatches = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach(async (change) => {
+        if (change.type === 'removed') {
+          // If match completed or removed from live, fetch its final state with a single read
+          try {
+            const docSnap = await getDoc(doc(db, "tournaments", id, "matches", change.doc.id));
+            if (docSnap.exists()) {
+              const finalMatch = { id: docSnap.id, ...docSnap.data() };
+              setMatches(prev => prev.map(m => m.id === finalMatch.id ? finalMatch : m));
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
+          const updatedMatch = { id: change.doc.id, ...change.doc.data() };
+          setMatches(prevMatches => {
+            const index = prevMatches.findIndex(m => m.id === updatedMatch.id);
+            if (index !== -1) {
+              const newMatches = [...prevMatches];
+              newMatches[index] = updatedMatch;
+              return newMatches;
+            } else {
+              return [updatedMatch, ...prevMatches];
+            }
+          });
+        }
+      });
     });
 
     return () => {
@@ -217,7 +254,7 @@ export default function MatchList({ initialTournament = null, initialMatches = [
   );
 
   return (
-    <div className="min-h-screen bg-[#F4F4F4] pb-24">
+    <div suppressHydrationWarning={true} className="min-h-screen bg-[#F4F4F4] pb-24">
       {/* HEADER SECTION */}
       <div className="sticky top-16 left-0 right-0 z-[150] px-4 pt-3 pointer-events-none">
         <header className="bg-[#1D2939] text-white h-16 flex items-center px-4 shadow-xl rounded-2xl pointer-events-auto border border-slate-700/30">
@@ -425,4 +462,5 @@ export async function getServerSideProps({ params, req, res }) {
 
     return { notFound: true };
   }
-}
+                               }
+                    
