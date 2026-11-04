@@ -1,0 +1,145 @@
+/* WCPL assets are full-canvas 16:9 transparent WebP files.
+   All three images share the same 3264x1836 coordinate system. */
+.canvas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+  overflow: hidden;
+}
+.battingPanel, .bowlingPanel, .centerPanel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #171717;
+}
+.battingArt, .bowlingArt, .centerArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.battingLogo, .bowlingLogo {
+  position: absolute;
+  top: 87.5%;
+  width: 3.4%;
+  height: 7.5%;
+  object-fit: contain;
+  z-index: 3;
+}
+.battingLogo { left: 1.7%; }
+.bowlingLogo { right: 1.7%; }
+.battingTeam, .bowlingTeam {
+  position: absolute;
+  top: 89.2%;
+  z-index: 4;
+  max-width: 18%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: clamp(9px, 1.05vw, 20px);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.battingTeam { left: 5.5%; }
+.bowlingTeam { right: 5.5%; text-align: right; }
+.batsmen {
+  position: absolute;
+  left: 15%;
+  top: 88.2%;
+  width: 25%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35vw;
+}
+.batsmanRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45vw;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: clamp(8px, 0.9vw, 17px);
+  line-height: 1.25;
+}
+.strikerMark { width: 0.8em; color: #16843b; }
+.batsmanName { overflow: hidden; text-overflow: ellipsis; flex: 1; font-weight: 700; text-transform: uppercase; }
+.batsmanRow strong { min-width: 1.5em; text-align: right; }
+.bowlerInfo {
+  position: absolute;
+  right: 15%;
+  top: 88.2%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.7vw;
+  max-width: 25%;
+  white-space: nowrap;
+  font-size: clamp(8px, 0.9vw, 17px);
+}
+.bowlerInfo strong { overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+.ballHistory {
+  position: absolute;
+  right: 3.2%;
+  top: 92.2%;
+  z-index: 6;
+  display: flex;
+  gap: 0.25vw;
+}
+.ball {
+  width: clamp(14px, 1.65vw, 30px);
+  height: clamp(14px, 1.65vw, 30px);
+  border: 1px solid #252525;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(8px, 0.8vw, 15px);
+  font-weight: 800;
+  white-space: pre-line;
+  text-align: center;
+  line-height: 0.9;
+}
+.wicket { background: #d81b60; color: #fff; border-color: #d81b60; }
+.four { background: #00d7e8; color: #111; }
+.six { background: #22c55e; color: #111; }
+.extraBall { font-size: clamp(6px, 0.55vw, 10px); }
+.score {
+  position: absolute;
+  left: 50%;
+  top: 88.9%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  font-size: clamp(14px, 2vw, 38px);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.teams {
+  position: absolute;
+  left: 50%;
+  top: 92.1%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  font-size: clamp(8px, 0.9vw, 17px);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.teams span { margin: 0 0.35em; opacity: 0.65; }
+.overs {
+  position: absolute;
+  left: 50%;
+  top: 95%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  font-size: clamp(8px, 0.8vw, 15px);
+  font-weight: 700;
+  white-space: nowrap;
+}
+@media (max-aspect-ratio: 16/9) {
+  .canvas { width: 100vw; }
+}
