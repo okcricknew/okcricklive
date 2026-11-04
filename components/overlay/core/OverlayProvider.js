@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   doc,
   onSnapshot,
@@ -16,43 +16,32 @@ export function OverlayProvider({
   matchId,
   initialMatch = null,
 }) {
-  // Server se mila match pehle render hoga.
   const [match, setMatch] = useState(initialMatch);
-  const [teamColors, setTeamColors] = useState({ teamA: null, teamB: null });
+  const [teamDocs, setTeamDocs] = useState({
+    teamAId: null,
+    teamBId: null,
+    teamA: null,
+    teamB: null,
+    loadedA: false,
+    loadedB: false,
+  });
 
   useEffect(() => {
     if (!tId) return;
 
     let unsub;
 
-    // CASE 1: Specific match ID
     if (matchId && matchId !== "undefined" && matchId !== "null") {
-      const refDoc = doc(
-        db,
-        "tournaments",
-        tId,
-        "matches",
-        matchId
-      );
+      const refDoc = doc(db, "tournaments", tId, "matches", matchId);
 
       unsub = onSnapshot(
         refDoc,
         (snap) => {
-          if (snap.exists()) {
-            setMatch({
-              id: snap.id,
-              ...snap.data(),
-            });
-          } else {
-            setMatch(null);
-          }
+          setMatch(snap.exists() ? { id: snap.id, ...snap.data() } : null);
         },
-        (error) => {
-          console.error("Firebase Doc Error:", error);
-        }
+        (error) => console.error("Firebase Doc Error:", error)
       );
     } else {
-      // CASE 2: Automatically find the active overlay match
       const q = query(
         collection(db, "tournaments", tId, "matches"),
         where("isOverlayActive", "in", [true, "true"])
@@ -63,75 +52,93 @@ export function OverlayProvider({
         (snapshot) => {
           if (!snapshot.empty) {
             const activeMatchDoc = snapshot.docs[0];
-
-            setMatch({
-              id: activeMatchDoc.id,
-              ...activeMatchDoc.data(),
-            });
-
-            console.log("Match Data Connected! ✅");
+            setMatch({ id: activeMatchDoc.id, ...activeMatchDoc.data() });
           } else {
-            console.log("No Active Match Found in DB ❌");
             setMatch(null);
           }
         },
-        (error) => {
-          console.error("Firebase Query Error:", error);
-        }
+        (error) => console.error("Firebase Query Error:", error)
       );
     }
 
-    return () => {
-      if (unsub) {
-        unsub();
-      }
-    };
+    return () => unsub?.();
   }, [tId, matchId]);
 
-  // Team colors are read from the existing team documents only.
-  // No color fields are copied into or written to the match document.
+  // Read the existing team documents only. No color is copied into the match document.
   useEffect(() => {
-    if (!tId || !match?.teamAId || !match?.teamBId) {
-      setTeamColors({ teamA: null, teamB: null });
-      return;
-    }
+    const teamAId = match?.teamAId || null;
+    const teamBId = match?.teamBId || null;
 
-    const readColor = (data) => {
-      // Team documents normally store colorHex. Accept older supported formats
-      // too, but never pass an invalid value through to CSS.
-      const isValidHex = (value) =>
-        typeof value === "string" && /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value.trim());
-      const isValidRgb = (value) =>
-        typeof value === "string" && /^rgba?\(\s*(?:\d{1,3}\s*,\s*){2}\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i.test(value.trim()) &&
-        [...value.matchAll(/\d+(?:\.\d+)?/g)].slice(0, 3).every((match) => Number(match[0]) <= 255);
-      const candidates = [data?.colorHex, data?.teamColor, data?.color];
-      for (const candidate of candidates) {
-        if (isValidHex(candidate) || isValidRgb(candidate)) return candidate.trim();
-      }
+    setTeamDocs({
+      teamAId,
+      teamBId,
+      teamA: null,
+      teamB: null,
+      loadedA: !teamAId,
+      loadedB: !teamBId,
+    });
 
-      const rgb = data?.color;
-      if (rgb && [rgb.r, rgb.g, rgb.b].every((value) => Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 255)) {
-        return `rgb(${Number(rgb.r)}, ${Number(rgb.g)}, ${Number(rgb.b)})`;
-      }
-      return null;
+    if (!tId || (!teamAId && !teamBId)) return;
+
+    const unsubscribers = [];
+
+    const listenToTeam = (teamId, key, loadedKey) => {
+      if (!teamId) return;
+
+      const teamRef = doc(db, "tournaments", tId, "teams", teamId);
+      const unsubscribe = onSnapshot(
+        teamRef,
+        (snap) => {
+          setTeamDocs((previous) => {
+            // Ignore late callbacks belonging to a previous match.
+            if (previous.teamAId !== teamAId || previous.teamBId !== teamBId) {
+              return previous;
+            }
+            return {
+              ...previous,
+              [key]: snap.exists() ? { id: snap.id, ...snap.data() } : null,
+              [loadedKey]: true,
+            };
+          });
+        },
+        (error) => {
+          console.error(`Firebase ${key} Error:`, error);
+          setTeamDocs((previous) => {
+            if (previous.teamAId !== teamAId || previous.teamBId !== teamBId) {
+              return previous;
+            }
+            return { ...previous, [loadedKey]: true };
+          });
+        }
+      );
+      unsubscribers.push(unsubscribe);
     };
 
-    const teamARef = doc(db, "tournaments", tId, "teams", match.teamAId);
-    const teamBRef = doc(db, "tournaments", tId, "teams", match.teamBId);
-    const unsubA = onSnapshot(teamARef, (snap) => {
-      setTeamColors((previous) => ({ ...previous, teamA: snap.exists() ? readColor(snap.data()) : null }));
-    }, (error) => console.error("Team A color listener failed:", error));
-    const unsubB = onSnapshot(teamBRef, (snap) => {
-      setTeamColors((previous) => ({ ...previous, teamB: snap.exists() ? readColor(snap.data()) : null }));
-    }, (error) => console.error("Team B color listener failed:", error));
+    listenToTeam(teamAId, "teamA", "loadedA");
+    listenToTeam(teamBId, "teamB", "loadedB");
 
-    return () => { unsubA(); unsubB(); };
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, [tId, match?.teamAId, match?.teamBId]);
 
-  const matchWithTeamColors = match ? { ...match, teamColors } : match;
+  const contextValue = useMemo(() => {
+    if (!match) return null;
+
+    const docsMatchCurrentTeams =
+      teamDocs.teamAId === (match.teamAId || null) &&
+      teamDocs.teamBId === (match.teamBId || null);
+
+    return {
+      ...match,
+      teamAColorDocument: docsMatchCurrentTeams ? teamDocs.teamA : null,
+      teamBColorDocument: docsMatchCurrentTeams ? teamDocs.teamB : null,
+      teamColorsReady: docsMatchCurrentTeams
+        ? teamDocs.loadedA && teamDocs.loadedB
+        : !(match.teamAId || match.teamBId),
+    };
+  }, [match, teamDocs]);
 
   return (
-    <OverlayContext.Provider value={matchWithTeamColors}>
+    <OverlayContext.Provider value={contextValue}>
       {children}
     </OverlayContext.Provider>
   );
