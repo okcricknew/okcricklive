@@ -3,7 +3,7 @@ import OverBall from "../../shared/OverBall";
 import { getTeamPanelColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
-const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
+const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
 const DEFAULT_BOWLING_COLOR = "#16A34A";
 
 export default function BowlingPanel({ team }) {
@@ -74,4 +74,4 @@ export default function BowlingPanel({ team }) {
     </div>
   );
           }
-          
+
