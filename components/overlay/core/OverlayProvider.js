@@ -18,6 +18,7 @@ export function OverlayProvider({
 }) {
   // Server se mila match pehle render hoga.
   const [match, setMatch] = useState(initialMatch);
+  const [teamColors, setTeamColors] = useState({ teamA: null, teamB: null });
 
   useEffect(() => {
     if (!tId) return;
@@ -87,8 +88,50 @@ export function OverlayProvider({
     };
   }, [tId, matchId]);
 
+  // Team colors are read from the existing team documents only.
+  // No color fields are copied into or written to the match document.
+  useEffect(() => {
+    if (!tId || !match?.teamAId || !match?.teamBId) {
+      setTeamColors({ teamA: null, teamB: null });
+      return;
+    }
+
+    const readColor = (data) => {
+      // Team documents normally store colorHex. Accept older supported formats
+      // too, but never pass an invalid value through to CSS.
+      const isValidHex = (value) =>
+        typeof value === "string" && /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value.trim());
+      const isValidRgb = (value) =>
+        typeof value === "string" && /^rgba?\(\s*(?:\d{1,3}\s*,\s*){2}\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i.test(value.trim()) &&
+        [...value.matchAll(/\d+(?:\.\d+)?/g)].slice(0, 3).every((match) => Number(match[0]) <= 255);
+      const candidates = [data?.colorHex, data?.teamColor, data?.color];
+      for (const candidate of candidates) {
+        if (isValidHex(candidate) || isValidRgb(candidate)) return candidate.trim();
+      }
+
+      const rgb = data?.color;
+      if (rgb && [rgb.r, rgb.g, rgb.b].every((value) => Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 255)) {
+        return `rgb(${Number(rgb.r)}, ${Number(rgb.g)}, ${Number(rgb.b)})`;
+      }
+      return null;
+    };
+
+    const teamARef = doc(db, "tournaments", tId, "teams", match.teamAId);
+    const teamBRef = doc(db, "tournaments", tId, "teams", match.teamBId);
+    const unsubA = onSnapshot(teamARef, (snap) => {
+      setTeamColors((previous) => ({ ...previous, teamA: snap.exists() ? readColor(snap.data()) : null }));
+    }, (error) => console.error("Team A color listener failed:", error));
+    const unsubB = onSnapshot(teamBRef, (snap) => {
+      setTeamColors((previous) => ({ ...previous, teamB: snap.exists() ? readColor(snap.data()) : null }));
+    }, (error) => console.error("Team B color listener failed:", error));
+
+    return () => { unsubA(); unsubB(); };
+  }, [tId, match?.teamAId, match?.teamBId]);
+
+  const matchWithTeamColors = match ? { ...match, teamColors } : match;
+
   return (
-    <OverlayContext.Provider value={match}>
+    <OverlayContext.Provider value={matchWithTeamColors}>
       {children}
     </OverlayContext.Provider>
   );
