@@ -24,6 +24,27 @@
   height: 100%;
   object-fit: fill;
 }
+
+/* Tint is painted only through each WebP's own alpha channel.
+   The source artwork's transparent pixels remain fully transparent. */
+.battingArt, .bowlingArt {
+  z-index: 1;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  mask-mode: alpha;
+}
+.battingArt {
+  -webkit-mask-image: url("/themes/WCPL/batting-panel.webp");
+  mask-image: url("/themes/WCPL/batting-panel.webp");
+}
+.bowlingArt {
+  -webkit-mask-image: url("/themes/WCPL/bowling-panel.webp");
+  mask-image: url("/themes/WCPL/bowling-panel.webp");
+}
 .battingLogo, .bowlingLogo {
   position: absolute;
   top: 87.5%;
