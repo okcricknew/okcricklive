@@ -3,6 +3,7 @@ import OverBall from "../../shared/OverBall";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
+const DEFAULT_BOWLING_COLOR = "#16A34A";
 
 export default function BowlingPanel({ team }) {
   const match = useOverlay();
@@ -13,6 +14,12 @@ export default function BowlingPanel({ team }) {
   let logo = DEFAULT_LOGO;
   if (norm(teamName) && norm(teamName) === norm(match.teamA)) logo = match.teamALogoUrl || DEFAULT_LOGO;
   else if (norm(teamName) && norm(teamName) === norm(match.teamB)) logo = match.teamBLogoUrl || DEFAULT_LOGO;
+
+  const teamColor = norm(teamName) === norm(match.teamA)
+    ? match.teamColors?.teamA
+    : norm(teamName) === norm(match.teamB)
+      ? match.teamColors?.teamB
+      : null;
 
   const bowlerName = match.bowler || "Selecting...";
   const bowler = (match.bowlingStats || {})[bowlerName] || {};
@@ -45,7 +52,7 @@ export default function BowlingPanel({ team }) {
 
   return (
     <div className={styles.bowlingPanel}>
-      <img className={styles.bowlingArt} src="/themes/WCPL/bowling-panel.webp" alt="" />
+      <div className={styles.bowlingArt} style={{ backgroundColor: teamColor || DEFAULT_BOWLING_COLOR }} aria-hidden="true" />
       <img className={styles.bowlingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.bowlingTeam}>{teamName}</div>
       <div className={styles.bowlerInfo}>
@@ -57,4 +64,4 @@ export default function BowlingPanel({ team }) {
       </div>
     </div>
   );
-  }
+}
