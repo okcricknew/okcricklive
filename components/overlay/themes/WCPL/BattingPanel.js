@@ -2,6 +2,7 @@ import { useOverlay } from "../../core/OverlayProvider";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
+const DEFAULT_BATTING_COLOR = "#2563EB";
 
 export default function BattingPanel({ team }) {
   const match = useOverlay();
@@ -13,13 +14,19 @@ export default function BattingPanel({ team }) {
   if (norm(teamName) && norm(teamName) === norm(match.teamA)) logo = match.teamALogoUrl || DEFAULT_LOGO;
   else if (norm(teamName) && norm(teamName) === norm(match.teamB)) logo = match.teamBLogoUrl || DEFAULT_LOGO;
 
+  const teamColor = norm(teamName) === norm(match.teamA)
+    ? match.teamColors?.teamA
+    : norm(teamName) === norm(match.teamB)
+      ? match.teamColors?.teamB
+      : null;
+
   const stats = match.battingStats || {};
   const players = [match.striker, match.nonStriker].filter(Boolean);
   const orderedPlayers = [...new Set(players)];
 
   return (
     <div className={styles.battingPanel}>
-      <img className={styles.battingArt} src="/themes/WCPL/batting-panel.webp" alt="" />
+      <div className={styles.battingArt} style={{ backgroundColor: teamColor || DEFAULT_BATTING_COLOR }} aria-hidden="true" />
       <img className={styles.battingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.battingTeam}>{teamName}</div>
       <div className={styles.batsmen}>
@@ -38,3 +45,4 @@ export default function BattingPanel({ team }) {
     </div>
   );
   }
+  
