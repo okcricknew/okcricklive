@@ -103,7 +103,33 @@ function TournamentCard({ tournament }) {
                   {tournament.tournamentName}
                 </h2>
                 
-{/* EDIT ICON */}
+
+
+{/* DELETE ICON */}
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  }}
+  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 shadow-sm transition-all duration-200 hover:border-red-500 hover:bg-red-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+  title="Delete Tournament"
+  aria-label="Delete Tournament"
+>
+  <Trash2 size={15} strokeWidth={2.3} />
+</button>
+    
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                 <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active Arena</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 ml-1">
+            <div className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
+              {/* EDIT ICON */}
 <button
   type="button"
   onClick={(e) => {
@@ -131,35 +157,6 @@ function TournamentCard({ tournament }) {
     <path d="m15 5 4 4" />
   </svg>
 </button>
-
-{/* DELETE ICON */}
-<button
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    setShowDeleteModal(true);
-  }}
-  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 shadow-sm transition-all duration-200 hover:border-red-500 hover:bg-red-600 hover:text-white hover:shadow-md active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-  title="Delete Tournament"
-  aria-label="Delete Tournament"
->
-  <Trash2 size={15} strokeWidth={2.3} />
-</button>
-    
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                 <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active Arena</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 ml-1">
-            <div className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
-              <Users size={14} strokeWidth={2.5} />
-              <span className="text-[11px] font-extrabold uppercase tracking-wider">
-                {teamCount} Teams
-              </span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-500 hover:text-red-500 transition-colors">
               <Swords size={14} strokeWidth={2.5} />
