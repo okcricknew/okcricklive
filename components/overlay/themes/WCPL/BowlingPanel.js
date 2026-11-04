@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import OverBall from "../../shared/OverBall";
 import { getTeamPanelColor } from "./teamColor";
@@ -6,27 +5,11 @@ import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
 const DEFAULT_BOWLING_COLOR = "#16A34A";
-const BOWLING_ART = "/themes/WCPL/bowling-panel.webp";
 
 export default function BowlingPanel({ team }) {
   const match = useOverlay();
-  const [artReady, setArtReady] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    setArtReady(false);
-    const image = new Image();
-    image.onload = () => active && setArtReady(true);
-    image.onerror = () => active && setArtReady(false);
-    image.src = BOWLING_ART;
-    return () => {
-      active = false;
-      image.onload = null;
-      image.onerror = null;
-    };
-  }, []);
-
-  if (!match || !match.teamColorsReady || !artReady) return null;
+  if (!match || !match.teamColorsReady) return null;
 
   const teamName = team || match.bowlingTeam || "";
   const norm = (value) => String(value || "").trim().toLowerCase();
@@ -90,4 +73,5 @@ export default function BowlingPanel({ team }) {
       </div>
     </div>
   );
-}
+          }
+          
