@@ -98,6 +98,11 @@ export default function ThemePage({
       name: "CWC 23",
       desc: "Modern scoreboard with vibrant colors",
     },
+    {
+      id: "WCPL",
+      name: "WCPL",
+      desc: "WCPL broadcast scoreboard theme",
+    },
   ];
 
   const copyLink = async (themeId) => {
@@ -249,4 +254,4 @@ export async function getServerSideProps({ query, res }) {
       initialMatch,
     },
   };
-}
+          }
