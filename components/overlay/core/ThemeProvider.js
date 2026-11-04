@@ -17,19 +17,33 @@ export default function ThemeProvider({ initialTheme }) {
   const [decodedTheme, setDecodedTheme] = useState("");
 
   useEffect(() => {
-    if (theme !== "WCPL") return;
+    if (theme !== "WCPL") {
+      setDecodedTheme("");
+      return;
+    }
 
     let active = true;
-    preloadAndDecodeWcplArtwork().then(() => {
-      if (active) setDecodedTheme("WCPL");
-    });
+    preloadAndDecodeWcplArtwork()
+      .then(() => {
+        if (active) setDecodedTheme("WCPL");
+      })
+      .catch((error) => {
+        // Keep the overlay fail-safe: a broken artwork request should be
+        // visible in the console rather than silently treated as decoded.
+        console.error("[WCPL] Artwork could not be prepared:", error);
+      });
 
     return () => {
       active = false;
     };
   }, [theme]);
 
-  const wcplReady = theme !== "WCPL" || decodedTheme === "WCPL";
+  // Artwork and final team colors are prepared independently, in parallel.
+  // The WCPL overlay is revealed only when both are ready, preventing a
+  // default-color frame followed by a team-color flash.
+  const wcplReady =
+    theme !== "WCPL" ||
+    (decodedTheme === "WCPL" && Boolean(match?.teamColorsReady));
 
   return (
     <>
@@ -39,16 +53,19 @@ export default function ThemeProvider({ initialTheme }) {
             rel="preload"
             as="image"
             href="/themes/WCPL/batting-panel.webp"
+            fetchPriority="high"
           />
           <link
             rel="preload"
             as="image"
             href="/themes/WCPL/bowling-panel.webp"
+            fetchPriority="high"
           />
           <link
             rel="preload"
             as="image"
             href="/themes/WCPL/match-center.webp"
+            fetchPriority="high"
           />
         </Head>
       )}
@@ -66,4 +83,4 @@ export default function ThemeProvider({ initialTheme }) {
       )}
     </>
   );
-}
+              }
