@@ -1,29 +1,63 @@
-// WCPL artwork is small and reused by both <img> elements and CSS masks.
-// Keep one decoded Image instance per asset for the lifetime of this page.
+// Shared WCPL artwork preparation for the two CSS alpha masks and center image.
+// Keep the Image instances alive so the browser can reuse their decoded resources.
 export const WCPL_ARTWORK = [
   "/themes/WCPL/batting-panel.webp",
   "/themes/WCPL/bowling-panel.webp",
   "/themes/WCPL/match-center.webp",
 ];
 
-let decodePromise;
+const imageCache = new Map();
+let decodePromise = null;
+
+function loadAndDecode(src) {
+  if (imageCache.has(src)) return imageCache.get(src);
+
+  const image = new window.Image();
+  image.decoding = "async";
+  image.loading = "eager";
+  image.fetchPriority = "high";
+
+  const ready = new Promise((resolve, reject) => {
+    let decodeStarted = false;
+
+    const decodeLoadedImage = () => {
+      if (decodeStarted) return;
+      if (!image.naturalWidth || !image.naturalHeight) {
+        reject(new Error(`WCPL artwork loaded without image dimensions: ${src}`));
+        return;
+      }
+
+      decodeStarted = true;
+      if (typeof image.decode === "function") {
+        image.decode().then(resolve).catch(reject);
+      } else {
+        // Older browsers: the load event means the resource is available
+        // for the browser's normal rendering pipeline.
+        resolve();
+      }
+    };
+
+    image.onload = decodeLoadedImage;
+    image.onerror = () => reject(new Error(`Failed to load WCPL artwork: ${src}`));
+    image.src = src;
+
+    // The browser may have completed a cached request before handlers run.
+    if (image.complete) decodeLoadedImage();
+  });
+
+  imageCache.set(src, { image, ready });
+  return ready;
+}
 
 export function preloadAndDecodeWcplArtwork() {
   if (typeof window === "undefined") return Promise.resolve();
 
   if (!decodePromise) {
-    const images = WCPL_ARTWORK.map((src) => {
-      const image = new window.Image();
-      image.decoding = "async";
-      image.src = src;
-      return image.decode().catch((error) => {
-        // Do not permanently block the overlay if a browser cannot decode
-        // an asset; the rendered image can still report its own load error.
-        console.warn("[WCPL] Artwork decode failed:", src, error);
-      });
+    decodePromise = Promise.all(WCPL_ARTWORK.map(loadAndDecode)).catch((error) => {
+      // Permit an explicit retry if a transient network failure occurred.
+      decodePromise = null;
+      throw error;
     });
-
-    decodePromise = Promise.all(images);
   }
 
   return decodePromise;
