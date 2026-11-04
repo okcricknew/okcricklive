@@ -1,25 +1,47 @@
+import { useEffect, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import OverBall from "../../shared/OverBall";
+import { getTeamPanelColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
 const DEFAULT_BOWLING_COLOR = "#16A34A";
+const BOWLING_ART = "/themes/WCPL/bowling-panel.webp";
 
 export default function BowlingPanel({ team }) {
   const match = useOverlay();
-  if (!match) return null;
+  const [artReady, setArtReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setArtReady(false);
+    const image = new Image();
+    image.onload = () => active && setArtReady(true);
+    image.onerror = () => active && setArtReady(false);
+    image.src = BOWLING_ART;
+    return () => {
+      active = false;
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, []);
+
+  if (!match || !match.teamColorsReady || !artReady) return null;
 
   const teamName = team || match.bowlingTeam || "";
   const norm = (value) => String(value || "").trim().toLowerCase();
-  let logo = DEFAULT_LOGO;
-  if (norm(teamName) && norm(teamName) === norm(match.teamA)) logo = match.teamALogoUrl || DEFAULT_LOGO;
-  else if (norm(teamName) && norm(teamName) === norm(match.teamB)) logo = match.teamBLogoUrl || DEFAULT_LOGO;
-
-  const teamColor = norm(teamName) === norm(match.teamA)
-    ? match.teamColors?.teamA
-    : norm(teamName) === norm(match.teamB)
-      ? match.teamColors?.teamB
+  const bowlingIsTeamA = norm(teamName) === norm(match.teamA);
+  const bowlingIsTeamB = norm(teamName) === norm(match.teamB);
+  const teamDocument = bowlingIsTeamA
+    ? match.teamAColorDocument
+    : bowlingIsTeamB
+      ? match.teamBColorDocument
       : null;
+  const panelColor = getTeamPanelColor(teamDocument, DEFAULT_BOWLING_COLOR);
+
+  let logo = DEFAULT_LOGO;
+  if (bowlingIsTeamA) logo = match.teamALogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
+  else if (bowlingIsTeamB) logo = match.teamBLogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
 
   const bowlerName = match.bowler || "Selecting...";
   const bowler = (match.bowlingStats || {})[bowlerName] || {};
@@ -52,7 +74,11 @@ export default function BowlingPanel({ team }) {
 
   return (
     <div className={styles.bowlingPanel}>
-      <div className={styles.bowlingArt} style={{ backgroundColor: teamColor || DEFAULT_BOWLING_COLOR }} aria-hidden="true" />
+      <div
+        className={styles.bowlingArt}
+        style={{ backgroundColor: panelColor }}
+        aria-hidden="true"
+      />
       <img className={styles.bowlingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.bowlingTeam}>{teamName}</div>
       <div className={styles.bowlerInfo}>
