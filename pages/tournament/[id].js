@@ -47,6 +47,8 @@ export default function TournamentDetails({
     editTeamName,
     setEditTeamName,
     setEditTeamLogo,
+    editTeamColor,      // Hook se aane wala color state
+    setEditTeamColor,
     openEditModal,
     handleUpdateTeam,
     isEditPlayerModalOpen,
