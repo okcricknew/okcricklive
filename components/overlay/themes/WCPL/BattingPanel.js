@@ -1,24 +1,46 @@
+import { useEffect, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
+import { getTeamPanelColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
 const DEFAULT_BATTING_COLOR = "#2563EB";
+const BATTING_ART = "/themes/WCPL/batting-panel.webp";
 
 export default function BattingPanel({ team }) {
   const match = useOverlay();
-  if (!match) return null;
+  const [artReady, setArtReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setArtReady(false);
+    const image = new Image();
+    image.onload = () => active && setArtReady(true);
+    image.onerror = () => active && setArtReady(false);
+    image.src = BATTING_ART;
+    return () => {
+      active = false;
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, []);
+
+  if (!match || !match.teamColorsReady || !artReady) return null;
 
   const teamName = team || match.battingTeam || "";
   const norm = (value) => String(value || "").trim().toLowerCase();
-  let logo = DEFAULT_LOGO;
-  if (norm(teamName) && norm(teamName) === norm(match.teamA)) logo = match.teamALogoUrl || DEFAULT_LOGO;
-  else if (norm(teamName) && norm(teamName) === norm(match.teamB)) logo = match.teamBLogoUrl || DEFAULT_LOGO;
-
-  const teamColor = norm(teamName) === norm(match.teamA)
-    ? match.teamColors?.teamA
-    : norm(teamName) === norm(match.teamB)
-      ? match.teamColors?.teamB
+  const battingIsTeamA = norm(teamName) === norm(match.teamA);
+  const battingIsTeamB = norm(teamName) === norm(match.teamB);
+  const teamDocument = battingIsTeamA
+    ? match.teamAColorDocument
+    : battingIsTeamB
+      ? match.teamBColorDocument
       : null;
+  const panelColor = getTeamPanelColor(teamDocument, DEFAULT_BATTING_COLOR);
+
+  let logo = DEFAULT_LOGO;
+  if (battingIsTeamA) logo = match.teamALogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
+  else if (battingIsTeamB) logo = match.teamBLogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
 
   const stats = match.battingStats || {};
   const players = [match.striker, match.nonStriker].filter(Boolean);
@@ -26,7 +48,11 @@ export default function BattingPanel({ team }) {
 
   return (
     <div className={styles.battingPanel}>
-      <div className={styles.battingArt} style={{ backgroundColor: teamColor || DEFAULT_BATTING_COLOR }} aria-hidden="true" />
+      <div
+        className={styles.battingArt}
+        style={{ backgroundColor: panelColor }}
+        aria-hidden="true"
+      />
       <img className={styles.battingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.battingTeam}>{teamName}</div>
       <div className={styles.batsmen}>
@@ -44,5 +70,4 @@ export default function BattingPanel({ team }) {
       </div>
     </div>
   );
-  }
-  
+}
