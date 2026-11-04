@@ -1,31 +1,14 @@
-import { useEffect, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import { getTeamPanelColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/WCPL/default-team.png";
 const DEFAULT_BATTING_COLOR = "#2563EB";
-const BATTING_ART = "/themes/WCPL/batting-panel.webp";
 
 export default function BattingPanel({ team }) {
   const match = useOverlay();
-  const [artReady, setArtReady] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    setArtReady(false);
-    const image = new Image();
-    image.onload = () => active && setArtReady(true);
-    image.onerror = () => active && setArtReady(false);
-    image.src = BATTING_ART;
-    return () => {
-      active = false;
-      image.onload = null;
-      image.onerror = null;
-    };
-  }, []);
-
-  if (!match || !match.teamColorsReady || !artReady) return null;
+  if (!match || !match.teamColorsReady) return null;
 
   const teamName = team || match.battingTeam || "";
   const norm = (value) => String(value || "").trim().toLowerCase();
