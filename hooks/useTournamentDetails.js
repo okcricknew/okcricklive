@@ -29,6 +29,7 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
   const [editingTeam, setEditingTeam] = useState(null);
   const [editTeamName, setEditTeamName] = useState('');
   const [editTeamLogo, setEditTeamLogo] = useState(null);
+  const [editTeamColor, setEditTeamColor] = useState('#004BA0'); // 👈 Added state for edit color
 
   // --- EDIT PLAYER STATES ---
   const [isEditPlayerModalOpen, setIsEditPlayerModalOpen] = useState(false);
@@ -132,6 +133,8 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
   const openEditModal = (team) => {
     setEditingTeam(team);
     setEditTeamName(team.name || '');
+    // Set existing team color when opening modal
+    setEditTeamColor(team.colorHex || team.teamColor || '#004BA0');
     setEditTeamLogo(null);
     setIsEditModalOpen(true);
   };
@@ -141,6 +144,14 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     if (!editTeamName.trim() || !editingTeam) return;
 
     try {
+      // Calculate RGB values from editTeamColor
+      const normalizedColor = (editTeamColor || '#004BA0').replace('#', '');
+      const teamRgb = {
+        r: parseInt(normalizedColor.slice(0, 2), 16) || 0,
+        g: parseInt(normalizedColor.slice(2, 4), 16) || 0,
+        b: parseInt(normalizedColor.slice(4, 6), 16) || 0,
+      };
+
       let logoUrl = editingTeam.logoUrl || "";
       if (editTeamLogo) {
         const formData = new FormData();
@@ -156,15 +167,19 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
         logoUrl = data.secure_url;
       }
 
+      // 🚀 Added colorHex and color to updateDoc so it saves in Firebase
       await updateDoc(doc(db, "tournaments", id, "teams", editingTeam.id), {
         name: editTeamName.trim().toUpperCase(),
         logoUrl: logoUrl,
+        colorHex: editTeamColor,
+        color: teamRgb,
       });
 
       setIsEditModalOpen(false);
       setEditingTeam(null);
       setEditTeamName('');
       setEditTeamLogo(null);
+      setEditTeamColor('#004BA0');
     } catch (e) {
       console.error("Failed to update team:", e);
     }
@@ -332,6 +347,8 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     editTeamName,
     setEditTeamName,
     setEditTeamLogo,
+    editTeamColor,      // 👈 Return editTeamColor
+    setEditTeamColor,   // 👈 Return setEditTeamColor
     openEditModal,
     handleUpdateTeam,
     isEditPlayerModalOpen,
@@ -348,5 +365,4 @@ export function useTournamentDetails(id, initialTeams = [], initialTeamCounts = 
     deleteConfig,
     executeDelete,
   };
-        }
-        
+    }
