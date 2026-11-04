@@ -149,7 +149,7 @@ export default function TournamentDetails({
           onEditPlayer={openEditPlayerModal}
         />
 
-        {/* EDIT TEAM MODAL */}
+                {/* EDIT TEAM MODAL */}
         <EditTeamModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
@@ -157,8 +157,11 @@ export default function TournamentDetails({
           editTeamName={editTeamName}
           setEditTeamName={setEditTeamName}
           setEditTeamLogo={setEditTeamLogo}
+          editTeamColor={editTeamColor}     // 👈 Yeh add karna hai
+          setEditTeamColor={setEditTeamColor} // 👈 Yeh add karna hai
           handleUpdateTeam={handleUpdateTeam}
         />
+            
 
         {/* EDIT PLAYER MODAL */}
         <EditPlayerModal
