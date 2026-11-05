@@ -1,6 +1,4 @@
-/* WCPL assets are full-canvas 16:9 transparent WebP files.
-   All three use the same canvas and are preloaded/decoded by wcplArtwork.js
-   before MatchOverlay is revealed. */
+/* WCPL artwork is server-rendered as image elements and preloaded in the document head. */
 .canvas {
   position: absolute;
   left: 0;
@@ -45,6 +43,16 @@
 .bowlingArt {
   -webkit-mask-image: url("/themes/WCPL/bowling-panel.webp");
   mask-image: url("/themes/WCPL/bowling-panel.webp");
+}
+.artworkSource {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
 }
 .battingLogo, .bowlingLogo {
   position: absolute;
