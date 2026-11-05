@@ -1,5 +1,5 @@
 import { useOverlay } from "../../core/OverlayProvider";
-import { getTeamPanelColor } from "./teamColor";
+import { getTeamPanelColor, getReadableTextColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
@@ -20,6 +20,7 @@ export default function BattingPanel({ team }) {
       ? match.teamBColorDocument
       : null;
   const panelColor = getTeamPanelColor(teamDocument, DEFAULT_BATTING_COLOR);
+  const textColor = getReadableTextColor(panelColor);
 
   let logo = DEFAULT_LOGO;
   if (battingIsTeamA) logo = match.teamALogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
@@ -30,7 +31,8 @@ export default function BattingPanel({ team }) {
   const orderedPlayers = [...new Set(players)];
 
   return (
-    <div className={styles.battingPanel}>
+    <div className={styles.battingPanel} style={{ color: textColor }}>
+      <img className={styles.artworkSource} src="/themes/WCPL/batting-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
       <div
         className={styles.battingArt}
         style={{ backgroundColor: panelColor }}
