@@ -4,7 +4,10 @@ import Head from "next/head";
 import MatchOverlay from "../themes/willow/MatchOverlay";
 import OkCrickOverlay from "../themes/okCrick/MatchOverlay";
 import WcplOverlay from "../themes/WCPL/MatchOverlay";
-import { preloadAndDecodeWcplArtwork } from "../themes/WCPL/wcplArtwork";
+import {
+  WCPL_ARTWORK,
+  preloadAndDecodeWcplArtwork,
+} from "../themes/WCPL/wcplArtwork";
 import { useOverlay } from "./OverlayProvider";
 import styles from "../themes/willow/willow.module.css";
 
@@ -49,24 +52,15 @@ export default function ThemeProvider({ initialTheme }) {
     <>
       {theme === "WCPL" && (
         <Head>
-          <link
-            rel="preload"
-            as="image"
-            href="/themes/WCPL/batting-panel.webp"
-            fetchPriority="high"
-          />
-          <link
-            rel="preload"
-            as="image"
-            href="/themes/WCPL/bowling-panel.webp"
-            fetchPriority="high"
-          />
-          <link
-            rel="preload"
-            as="image"
-            href="/themes/WCPL/match-center.webp"
-            fetchPriority="high"
-          />
+          {WCPL_ARTWORK.map((src) => (
+            <link
+              key={src}
+              rel="preload"
+              as="image"
+              href={src}
+              fetchPriority="high"
+            />
+          ))}
         </Head>
       )}
 
@@ -83,4 +77,4 @@ export default function ThemeProvider({ initialTheme }) {
       )}
     </>
   );
-              }
+                          }
