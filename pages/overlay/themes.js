@@ -56,6 +56,7 @@ export default function ThemePage({
   initialMatchId,
   initialMatch,
   initialTeamDocs,
+  initialTeamDocsResolved,
 }) {
   const router = useRouter();
   const [copiedId, setCopiedId] = useState(false);
@@ -99,6 +100,7 @@ export default function ThemePage({
           matchId={matchId}
           initialMatch={initialMatch}
           initialTeamDocs={initialTeamDocs}
+          initialTeamDocsResolved={initialTeamDocsResolved}
         >
           <ThemeProvider initialTheme={theme} />
         </OverlayProvider>
@@ -233,6 +235,7 @@ export async function getServerSideProps({ query, res }) {
     teamA: null,
     teamB: null,
   };
+  let initialTeamDocsResolved = false;
 
   if (tId && theme) {
     try {
@@ -299,12 +302,16 @@ export async function getServerSideProps({ query, res }) {
           teamA: serializeTeamColorDocument(teamADoc),
           teamB: serializeTeamColorDocument(teamBDoc),
         };
+        // A missing team document is a resolved lookup; WCPL uses its safe fallback color.
+        initialTeamDocsResolved = true;
       }
     } catch (error) {
       console.error(
         "Overlay SSR fetch failed:",
         error.code || error.message
       );
+      // Do not block server rendering if a team-color document is unavailable.
+      if (theme.toLowerCase() === "wcpl") initialTeamDocsResolved = true;
     }
   }
 
@@ -315,7 +322,9 @@ export async function getServerSideProps({ query, res }) {
       initialMatchId: matchId,
       initialMatch,
       initialTeamDocs,
+      initialTeamDocsResolved,
     },
   };
             }
-                            
+
+            
