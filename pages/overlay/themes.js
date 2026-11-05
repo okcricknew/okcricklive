@@ -35,11 +35,27 @@ function serializeValue(value) {
   return value;
 }
 
+// Only send the fields required by WCPL panels.
+function serializeTeamColorDocument(docSnap) {
+  if (!docSnap?.exists) return null;
+
+  const data = docSnap.data();
+
+  return serializeValue({
+    id: docSnap.id,
+    colorHex: data.colorHex ?? null,
+    teamColor: data.teamColor ?? null,
+    color: data.color ?? null,
+    logoUrl: data.logoUrl ?? null,
+  });
+}
+
 export default function ThemePage({
   initialTId,
   initialTheme,
   initialMatchId,
   initialMatch,
+  initialTeamDocs,
 }) {
   const router = useRouter();
   const [copiedId, setCopiedId] = useState(false);
@@ -52,7 +68,9 @@ export default function ThemePage({
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-white font-sans">
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-xl max-w-md w-full">
-          <p className="text-slate-300 font-medium text-sm">Tournament ID is missing from the URL.</p>
+          <p className="text-slate-300 font-medium text-sm">
+            Tournament ID is missing from the URL.
+          </p>
         </div>
       </div>
     );
@@ -80,6 +98,7 @@ export default function ThemePage({
           tId={tId}
           matchId={matchId}
           initialMatch={initialMatch}
+          initialTeamDocs={initialTeamDocs}
         >
           <ThemeProvider initialTheme={theme} />
         </OverlayProvider>
@@ -120,8 +139,7 @@ export default function ThemePage({
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 font-sans">
       <div className="max-w-3xl mx-auto space-y-8">
-        
-        {/* Header */}
+
         <div className="text-center space-y-2">
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase">
             🎬 Overlay Themes
@@ -131,7 +149,6 @@ export default function ThemePage({
           </p>
         </div>
 
-        {/* Clean Professional Table Wrapper */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -143,12 +160,14 @@ export default function ThemePage({
                   <th className="py-4 px-6 text-right">Action</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-slate-800/60 text-sm">
                 {themes.map((item, index) => {
                   const isCopied = copiedId === item.id;
+
                   return (
-                    <tr 
-                      key={item.id} 
+                    <tr
+                      key={item.id}
                       className="hover:bg-slate-800/40 transition-colors"
                     >
                       <td className="py-4 px-6 text-center">
@@ -156,12 +175,15 @@ export default function ThemePage({
                           {index + 1}
                         </span>
                       </td>
+
                       <td className="py-4 px-6 font-bold text-white">
                         {item.name}
                       </td>
+
                       <td className="py-4 px-6 text-slate-400 text-xs sm:text-sm">
                         {item.desc}
                       </td>
+
                       <td className="py-4 px-6 text-right">
                         <button
                           onClick={() => copyLink(item.id)}
@@ -196,7 +218,10 @@ export default function ThemePage({
 }
 
 export async function getServerSideProps({ query, res }) {
-  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+  res.setHeader(
+    "Cache-Control",
+    "private, no-store, max-age=0"
+  );
 
   const tId = typeof query.tId === "string" ? query.tId : "";
   const theme = typeof query.theme === "string" ? query.theme : "";
@@ -204,11 +229,16 @@ export async function getServerSideProps({ query, res }) {
     typeof query.matchId === "string" ? query.matchId : "";
 
   let initialMatch = null;
+  let initialTeamDocs = {
+    teamA: null,
+    teamB: null,
+  };
 
   if (tId && theme) {
     try {
       const { getAdminDb } = await import("../../lib/firebase-admin");
       const db = getAdminDb();
+
       const matchesRef = db
         .collection("tournaments")
         .doc(tId)
@@ -238,9 +268,41 @@ export async function getServerSideProps({ query, res }) {
           };
         }
       }
+
+      // WCPL only: fetch both team colors on the server.
+      // Other themes retain their existing behavior.
+      if (theme.toLowerCase() === "wcpl" && initialMatch) {
+        const teamAId = initialMatch.teamAId || null;
+        const teamBId = initialMatch.teamBId || null;
+
+        const [teamADoc, teamBDoc] = await Promise.all([
+          teamAId
+            ? db
+                .collection("tournaments")
+                .doc(tId)
+                .collection("teams")
+                .doc(teamAId)
+                .get()
+            : Promise.resolve(null),
+
+          teamBId
+            ? db
+                .collection("tournaments")
+                .doc(tId)
+                .collection("teams")
+                .doc(teamBId)
+                .get()
+            : Promise.resolve(null),
+        ]);
+
+        initialTeamDocs = {
+          teamA: serializeTeamColorDocument(teamADoc),
+          teamB: serializeTeamColorDocument(teamBDoc),
+        };
+      }
     } catch (error) {
       console.error(
-        "Overlay SSR match fetch failed:",
+        "Overlay SSR fetch failed:",
         error.code || error.message
       );
     }
@@ -252,6 +314,8 @@ export async function getServerSideProps({ query, res }) {
       initialTheme: theme,
       initialMatchId: matchId,
       initialMatch,
+      initialTeamDocs,
     },
   };
-          }
+            }
+                            
