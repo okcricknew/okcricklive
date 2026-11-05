@@ -1,5 +1,6 @@
 /* WCPL assets are full-canvas 16:9 transparent WebP files.
-   All three images share the same 3264x1836 coordinate system. */
+   All three use the same canvas and are preloaded/decoded by wcplArtwork.js
+   before MatchOverlay is revealed. */
 .canvas {
   position: absolute;
   left: 0;
