@@ -18,7 +18,7 @@ import { db } from "../../../lib/firebase";
 
 const OverlayContext = createContext(null);
 
-function createTeamDocsState(match, initialTeamDocs) {
+function createTeamDocsState(match, initialTeamDocs, initialTeamDocsResolved) {
   const teamAId = match?.teamAId || null;
   const teamBId = match?.teamBId || null;
 
@@ -37,8 +37,8 @@ function createTeamDocsState(match, initialTeamDocs) {
     teamBId,
     teamA,
     teamB,
-    loadedA: !teamAId || !!teamA,
-    loadedB: !teamBId || !!teamB,
+    loadedA: !teamAId || !!teamA || Boolean(initialTeamDocsResolved),
+    loadedB: !teamBId || !!teamB || Boolean(initialTeamDocsResolved),
   };
 }
 
@@ -48,11 +48,12 @@ export function OverlayProvider({
   matchId,
   initialMatch = null,
   initialTeamDocs = null,
+  initialTeamDocsResolved = false,
 }) {
   const [match, setMatch] = useState(initialMatch);
 
   const [teamDocs, setTeamDocs] = useState(() =>
-    createTeamDocsState(initialMatch, initialTeamDocs)
+    createTeamDocsState(initialMatch, initialTeamDocs, initialTeamDocsResolved)
   );
 
   // Existing live match listener - unchanged behavior.
