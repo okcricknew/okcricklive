@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   doc,
   onSnapshot,
@@ -6,38 +13,71 @@ import {
   query,
   where,
 } from "firebase/firestore";
+
 import { db } from "../../../lib/firebase";
 
 const OverlayContext = createContext(null);
+
+function createTeamDocsState(match, initialTeamDocs) {
+  const teamAId = match?.teamAId || null;
+  const teamBId = match?.teamBId || null;
+
+  const teamA =
+    teamAId && initialTeamDocs?.teamA?.id === teamAId
+      ? initialTeamDocs.teamA
+      : null;
+
+  const teamB =
+    teamBId && initialTeamDocs?.teamB?.id === teamBId
+      ? initialTeamDocs.teamB
+      : null;
+
+  return {
+    teamAId,
+    teamBId,
+    teamA,
+    teamB,
+    loadedA: !teamAId || !!teamA,
+    loadedB: !teamBId || !!teamB,
+  };
+}
 
 export function OverlayProvider({
   children,
   tId,
   matchId,
   initialMatch = null,
+  initialTeamDocs = null,
 }) {
   const [match, setMatch] = useState(initialMatch);
-  const [teamDocs, setTeamDocs] = useState({
-    teamAId: null,
-    teamBId: null,
-    teamA: null,
-    teamB: null,
-    loadedA: false,
-    loadedB: false,
-  });
 
+  const [teamDocs, setTeamDocs] = useState(() =>
+    createTeamDocsState(initialMatch, initialTeamDocs)
+  );
+
+  // Existing live match listener - unchanged behavior.
   useEffect(() => {
     if (!tId) return;
 
     let unsub;
 
     if (matchId && matchId !== "undefined" && matchId !== "null") {
-      const refDoc = doc(db, "tournaments", tId, "matches", matchId);
+      const refDoc = doc(
+        db,
+        "tournaments",
+        tId,
+        "matches",
+        matchId
+      );
 
       unsub = onSnapshot(
         refDoc,
         (snap) => {
-          setMatch(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+          setMatch(
+            snap.exists()
+              ? { id: snap.id, ...snap.data() }
+              : null
+          );
         },
         (error) => console.error("Firebase Doc Error:", error)
       );
@@ -52,7 +92,11 @@ export function OverlayProvider({
         (snapshot) => {
           if (!snapshot.empty) {
             const activeMatchDoc = snapshot.docs[0];
-            setMatch({ id: activeMatchDoc.id, ...activeMatchDoc.data() });
+
+            setMatch({
+              id: activeMatchDoc.id,
+              ...activeMatchDoc.data(),
+            });
           } else {
             setMatch(null);
           }
@@ -64,18 +108,27 @@ export function OverlayProvider({
     return () => unsub?.();
   }, [tId, matchId]);
 
-  // Read the existing team documents only. No color is copied into the match document.
+  // SSR team colors are used immediately.
+  // Existing team listeners remain active for live color changes.
   useEffect(() => {
     const teamAId = match?.teamAId || null;
     const teamBId = match?.teamBId || null;
 
-    setTeamDocs({
-      teamAId,
-      teamBId,
-      teamA: null,
-      teamB: null,
-      loadedA: !teamAId,
-      loadedB: !teamBId,
+    setTeamDocs((previous) => {
+      const sameTeams =
+        previous.teamAId === teamAId &&
+        previous.teamBId === teamBId;
+
+      if (sameTeams) return previous;
+
+      return {
+        teamAId,
+        teamBId,
+        teamA: null,
+        teamB: null,
+        loadedA: !teamAId,
+        loadedB: !teamBId,
+      };
     });
 
     if (!tId || (!teamAId && !teamBId)) return;
@@ -85,39 +138,62 @@ export function OverlayProvider({
     const listenToTeam = (teamId, key, loadedKey) => {
       if (!teamId) return;
 
-      const teamRef = doc(db, "tournaments", tId, "teams", teamId);
+      const teamRef = doc(
+        db,
+        "tournaments",
+        tId,
+        "teams",
+        teamId
+      );
+
       const unsubscribe = onSnapshot(
         teamRef,
         (snap) => {
           setTeamDocs((previous) => {
-            // Ignore late callbacks belonging to a previous match.
-            if (previous.teamAId !== teamAId || previous.teamBId !== teamBId) {
+            if (
+              previous.teamAId !== teamAId ||
+              previous.teamBId !== teamBId
+            ) {
               return previous;
             }
+
             return {
               ...previous,
-              [key]: snap.exists() ? { id: snap.id, ...snap.data() } : null,
+              [key]: snap.exists()
+                ? { id: snap.id, ...snap.data() }
+                : null,
               [loadedKey]: true,
             };
           });
         },
         (error) => {
           console.error(`Firebase ${key} Error:`, error);
+
           setTeamDocs((previous) => {
-            if (previous.teamAId !== teamAId || previous.teamBId !== teamBId) {
+            if (
+              previous.teamAId !== teamAId ||
+              previous.teamBId !== teamBId
+            ) {
               return previous;
             }
-            return { ...previous, [loadedKey]: true };
+
+            return {
+              ...previous,
+              [loadedKey]: true,
+            };
           });
         }
       );
+
       unsubscribers.push(unsubscribe);
     };
 
     listenToTeam(teamAId, "teamA", "loadedA");
     listenToTeam(teamBId, "teamB", "loadedB");
 
-    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
   }, [tId, match?.teamAId, match?.teamBId]);
 
   const contextValue = useMemo(() => {
@@ -129,8 +205,15 @@ export function OverlayProvider({
 
     return {
       ...match,
-      teamAColorDocument: docsMatchCurrentTeams ? teamDocs.teamA : null,
-      teamBColorDocument: docsMatchCurrentTeams ? teamDocs.teamB : null,
+
+      teamAColorDocument: docsMatchCurrentTeams
+        ? teamDocs.teamA
+        : null,
+
+      teamBColorDocument: docsMatchCurrentTeams
+        ? teamDocs.teamB
+        : null,
+
       teamColorsReady: docsMatchCurrentTeams
         ? teamDocs.loadedA && teamDocs.loadedB
         : !(match.teamAId || match.teamBId),
