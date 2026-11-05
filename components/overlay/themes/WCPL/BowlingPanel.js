@@ -1,6 +1,6 @@
 import { useOverlay } from "../../core/OverlayProvider";
 import OverBall from "../../shared/OverBall";
-import { getTeamPanelColor } from "./teamColor";
+import { getTeamPanelColor, getReadableTextColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
@@ -21,6 +21,7 @@ export default function BowlingPanel({ team }) {
       ? match.teamBColorDocument
       : null;
   const panelColor = getTeamPanelColor(teamDocument, DEFAULT_BOWLING_COLOR);
+  const textColor = getReadableTextColor(panelColor);
 
   let logo = DEFAULT_LOGO;
   if (bowlingIsTeamA) logo = match.teamALogoUrl || teamDocument?.logoUrl || DEFAULT_LOGO;
@@ -56,7 +57,8 @@ export default function BowlingPanel({ team }) {
   };
 
   return (
-    <div className={styles.bowlingPanel}>
+    <div className={styles.bowlingPanel} style={{ color: textColor }}>
+      <img className={styles.artworkSource} src="/themes/WCPL/bowling-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
       <div
         className={styles.bowlingArt}
         style={{ backgroundColor: panelColor }}
