@@ -6,7 +6,7 @@ import BowlingPanel from "./BowlingPanel";
 
 export default function MatchOverlay() {
   const match = useOverlay();
-  if (!match || !match.teamColorsReady) return null;
+  if (!match) return null;
 
   return (
     <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", pointerEvents: "none", zIndex: 99999 }}>
