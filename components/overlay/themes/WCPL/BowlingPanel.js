@@ -58,29 +58,15 @@ export default function BowlingPanel({ team }) {
 
   return (
     <div className={styles.bowlingPanel} style={{ color: textColor }}>
-      <svg className={styles.filterDefs} aria-hidden="true" focusable="false">
-        <defs>
-          <filter id="wcpl-bowling-team-tint" colorInterpolationFilters="sRGB" x="-5%" y="-5%" width="110%" height="110%">
-            <feFlood floodColor={panelColor} result="teamColor" />
-            <feComposite in="teamColor" in2="SourceAlpha" operator="in" />
-          </filter>
-        </defs>
-      </svg>
-      <img
+      <img className={styles.artworkSource} src="/themes/WCPL/bowling-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
+      <div
         className={styles.bowlingArt}
-        src="/themes/WCPL/bowling-panel.webp"
-        alt=""
+        style={{ backgroundColor: panelColor }}
         aria-hidden="true"
-        width="3264"
-        height="1836"
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-        style={{ filter: "url(#wcpl-bowling-team-tint)" }}
       />
       <img className={styles.bowlingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.bowlingTeam}>{teamName}</div>
-      <div className={styles.bowlerInfo} key={bowlerName}>
+      <div className={styles.bowlerInfo}>
         <strong>{bowlerName}</strong>
         <span>{bowler.wickets || 0}-{bowler.runs || 0} ({overs})</span>
       </div>
@@ -89,5 +75,4 @@ export default function BowlingPanel({ team }) {
       </div>
     </div>
   );
-          }
-
+}
