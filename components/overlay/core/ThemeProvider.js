@@ -14,6 +14,7 @@ export default function ThemeProvider({ initialTheme }) {
 
   return (
     <>
+      {/* Early browser preload; MatchOverlay separately waits for image decode. */}
       {theme.toLowerCase() === "wcpl" && (
         <Head>
           {WCPL_ARTWORK.map((src) => (
