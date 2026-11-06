@@ -36,22 +36,11 @@ export default function CreateMatch({ initialTournament, initialTeams, id }) {
         collection(db, "tournaments", id, "teams"),
         {
           name: teamName.trim().toUpperCase(),
-          // Keep inline-created teams compatible with WCPL's SSR color reader.
-          colorHex: "#004BA0",
-          color: { r: 0, g: 75, b: 160 },
           createdAt: serverTimestamp()
         }
       );
 
-      setTeams(prev => [
-        ...prev,
-        {
-          id: teamRef.id,
-          name: teamName.trim().toUpperCase(),
-          colorHex: "#004BA0",
-          color: { r: 0, g: 75, b: 160 },
-        },
-      ]);
+      setTeams(prev => [...prev, { id: teamRef.id, name: teamName.trim().toUpperCase() }]);
     } catch (e) {
       console.error(e);
       alert("Error adding team: " + e.message);
@@ -328,5 +317,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-    }
-                      
+                }
