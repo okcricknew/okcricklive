@@ -1,64 +1,90 @@
-// Shared WCPL artwork loader. The overlay is revealed only after all three
-// background images have loaded AND decoded, so text never appears alone.
+// One shared loader for all WCPL artwork.
+// All three files start loading in the same task and the overlay is revealed
+// only after every file has loaded and decoded successfully.
 export const WCPL_ARTWORK = Object.freeze([
   "/themes/WCPL/batting-panel.webp",
   "/themes/WCPL/bowling-panel.webp",
   "/themes/WCPL/match-center.webp",
 ]);
 
+const imageCache = new Map();
 let artworkPromise = null;
 
 function loadAndDecode(src) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
+  const cached = imageCache.get(src);
+  if (cached) return cached;
+
+  const image = new Image();
+  image.decoding = "async";
+  image.loading = "eager";
+
+  // Set priority before src so it applies to the initial request.
+  try {
+    image.fetchPriority = "high";
+  } catch (_) {
+    // fetchPriority is not supported in every browser.
+  }
+
+  const ready = new Promise((resolve, reject) => {
     let settled = false;
-    let decoding = false;
 
     const finish = (error) => {
       if (settled) return;
       settled = true;
       image.onload = null;
       image.onerror = null;
+
       if (error) reject(error);
       else resolve(image);
     };
 
-    const decodeLoadedImage = () => {
-      if (settled || decoding || !image.complete) return;
+    const decodeIfReady = () => {
+      if (!image.complete) return;
+
       if (!image.naturalWidth || !image.naturalHeight) {
-        finish(new Error(`[WCPL] Image failed to load: ${src}`));
+        finish(new Error(`[WCPL] Image has no decoded dimensions: ${src}`));
         return;
       }
-      decoding = true;
-      if (typeof image.decode !== "function") {
+
+      // decode() is preferred. If a browser reports a decode() rejection
+      // despite a successfully loaded image, keep the loaded image usable.
+      if (typeof image.decode === "function") {
+        image.decode().then(
+          () => finish(),
+          () => {
+            if (image.naturalWidth && image.naturalHeight) finish();
+            else finish(new Error(`[WCPL] Could not decode: ${src}`));
+          }
+        );
+      } else {
         finish();
-        return;
       }
-      image.decode().then(
-        () => finish(),
-        (error) => finish(new Error(`[WCPL] Image decode failed: ${src} (${error?.message || "unknown error"})`))
-      );
     };
 
-    image.decoding = "sync";
-    try { image.fetchPriority = "high"; } catch (_) {}
-    image.onload = decodeLoadedImage;
-    image.onerror = () => finish(new Error(`[WCPL] Network error loading ${src}`));
+    image.onload = decodeIfReady;
+    image.onerror = () => finish(new Error(`[WCPL] Failed to load: ${src}`));
     image.src = src;
 
-    // Cached images may already be complete before onload is dispatched.
-    if (image.complete) decodeLoadedImage();
+    // Handles memory-cache hits where load fired before handlers were attached.
+    if (image.complete) decodeIfReady();
   });
+
+  imageCache.set(src, { image, ready });
+  return ready;
 }
 
 export function preloadAndDecodeWcplArtwork() {
   if (typeof window === "undefined") return Promise.resolve([]);
+
   if (!artworkPromise) {
+    // map() starts all three requests immediately; Promise.all gates reveal.
     artworkPromise = Promise.all(WCPL_ARTWORK.map(loadAndDecode)).catch((error) => {
-      // Permit a clean retry if the browser had a temporary network/decode error.
+      // Allow a later render/retry after a transient network failure.
       artworkPromise = null;
+      imageCache.clear();
       throw error;
     });
   }
+
   return artworkPromise;
 }
