@@ -16,8 +16,8 @@
   font-family: Arial, Helvetica, sans-serif;
   color: #171717;
 }
-.battingPanel, .bowlingPanel { z-index: 1; }
-.centerPanel { z-index: 2; }
+.battingPanel, .bowlingPanel { z-index: 2; }
+.centerPanel { z-index: 1; }
 .battingArt, .bowlingArt, .centerArt {
   position: absolute;
   inset: 0;
