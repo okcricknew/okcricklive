@@ -1,5 +1,5 @@
 /**
- * WCPL artwork readiness manager.
+ * WCPL artwork readiness manager..
  *
  * All three same-origin WebP files are requested in parallel and decoded
  * before the WCPL overlay is allowed to mount. The cache stores the Promise
