@@ -32,7 +32,6 @@ export default function BattingPanel({ team }) {
 
   return (
     <div className={styles.battingPanel} style={{ color: textColor }}>
-      <img className={styles.artworkSource} src="/themes/WCPL/batting-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
       <div
         className={styles.battingArt}
         style={{ backgroundColor: panelColor }}
