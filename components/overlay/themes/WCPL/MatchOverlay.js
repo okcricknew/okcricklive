@@ -1,4 +1,3 @@
-\
 import { useEffect, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import LowerThirdLayout from "./LowerThirdLayout";
