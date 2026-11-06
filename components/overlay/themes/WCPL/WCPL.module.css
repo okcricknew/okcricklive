@@ -1,6 +1,4 @@
-/* WCPL artwork is preloaded + decoded before the overlay is revealed. */
-.overlayLoading { visibility: hidden; }
-.overlayReady { visibility: visible; }
+/* WCPL artwork is server-rendered as image elements and preloaded in the document head. */
 .canvas {
   position: absolute;
   left: 0;
@@ -21,21 +19,40 @@
 .battingArt, .bowlingArt, .centerArt {
   position: absolute;
   inset: 0;
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: fill;
-  z-index: 1;
-  pointer-events: none;
 }
-/* SVG filters tint the original white/alpha WebP in one image layer.
-   This avoids a second CSS mask-image resource and its separate compositor load. */
-.filterDefs {
+
+/* Tint is painted only through each WebP's own alpha channel.
+   The source artwork's transparent pixels remain fully transparent. */
+.battingArt, .bowlingArt {
+  z-index: 1;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  mask-mode: alpha;
+}
+.battingArt {
+  -webkit-mask-image: url("/themes/WCPL/batting-panel.webp");
+  mask-image: url("/themes/WCPL/batting-panel.webp");
+}
+.bowlingArt {
+  -webkit-mask-image: url("/themes/WCPL/bowling-panel.webp");
+  mask-image: url("/themes/WCPL/bowling-panel.webp");
+}
+.artworkSource {
   position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
   pointer-events: none;
+  z-index: 0;
 }
 .battingLogo, .bowlingLogo {
   position: absolute;
@@ -61,52 +78,6 @@
 }
 .battingTeam { left: 5.5%; }
 .bowlingTeam { right: 5.5%; text-align: right; }
-
-/* Initial reveal is atomic: do not fade/slide the panels independently.
-   Independent entrance animations caused text/artwork to appear at different times. */
-.battingPanel, .bowlingPanel, .centerPanel {
-  opacity: 1;
-  transform: none;
-  animation: none;
-  will-change: auto;
-}
-.score {
-  animation: wcplScorePop 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.batsmanRow {
-  animation: wcplPlayerReveal 300ms ease-out both;
-}
-.bowlerInfo {
-  animation: wcplPlayerReveal 300ms ease-out both;
-}
-.wicketFlash {
-  position: absolute;
-  inset: 84% 0 0;
-  z-index: 8;
-  pointer-events: none;
-  background: linear-gradient(to top, rgba(220, 38, 38, 0.34), rgba(220, 38, 38, 0));
-  animation: wcplWicketFlash 550ms ease-out both;
-}
-@keyframes wcplScorePop {
-  from { opacity: 0.72; scale: 0.94; }
-  to { opacity: 1; scale: 1; }
-}
-@keyframes wcplPlayerReveal {
-  from { opacity: 0; translate: 0 5px; }
-  to { opacity: 1; translate: 0 0; }
-}
-@keyframes wcplWicketFlash {
-  0% { opacity: 0; }
-  18% { opacity: 1; }
-  100% { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .battingPanel, .bowlingPanel, .centerPanel, .score, .batsmanRow, .bowlerInfo, .wicketFlash {
-    animation: none !important;
-    transition: none !important;
-    will-change: auto;
-  }
-}
 .batsmen {
   position: absolute;
   left: 15%;
