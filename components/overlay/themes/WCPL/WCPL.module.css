@@ -1,4 +1,4 @@
-/* WCPL artwork is preloaded and decoded by the shared WCPL readiness gate. */
+/* WCPL artwork is server-rendered as image elements and preloaded in the document head. */
 .canvas {
   position: absolute;
   left: 0;
@@ -43,6 +43,16 @@
 .bowlingArt {
   -webkit-mask-image: url("/themes/WCPL/bowling-panel.webp");
   mask-image: url("/themes/WCPL/bowling-panel.webp");
+}
+.artworkSource {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
 }
 .battingLogo, .bowlingLogo {
   position: absolute;
@@ -162,4 +172,4 @@
 }
 @media (max-aspect-ratio: 16/9) {
   .canvas { width: 100vw; }
-}
+  }
