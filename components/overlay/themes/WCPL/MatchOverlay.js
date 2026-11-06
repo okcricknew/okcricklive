@@ -9,6 +9,7 @@ import BowlingPanel from "./BowlingPanel";
 export default function MatchOverlay() {
   const match = useOverlay();
   const [artworkReady, setArtworkReady] = useState(false);
+  const wcplReady = artworkReady && match?.teamColorsReady;
 
   useEffect(() => {
     let active = true;
@@ -39,9 +40,9 @@ export default function MatchOverlay() {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 99999,
-        visibility: artworkReady ? "visible" : "hidden",
+        visibility: wcplReady ? "visible" : "hidden",
       }}
-      aria-hidden={!artworkReady}
+      aria-hidden={!wcplReady}
     >
       <LowerThirdLayout>
         <BattingPanel team={match.battingTeam} />
