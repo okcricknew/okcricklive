@@ -16,6 +16,8 @@
   font-family: Arial, Helvetica, sans-serif;
   color: #171717;
 }
+.battingPanel, .bowlingPanel { z-index: 1; }
+.centerPanel { z-index: 2; }
 .battingArt, .bowlingArt, .centerArt {
   position: absolute;
   inset: 0;
@@ -53,6 +55,16 @@
   opacity: 0;
   pointer-events: none;
   z-index: 0;
+}
+.leftIcon, .rightIcon {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 2;
 }
 .battingLogo, .bowlingLogo {
   position: absolute;
@@ -172,4 +184,4 @@
 }
 @media (max-aspect-ratio: 16/9) {
   .canvas { width: 100vw; }
-  }
+}
