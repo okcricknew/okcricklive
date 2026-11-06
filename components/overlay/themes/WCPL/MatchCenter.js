@@ -17,7 +17,7 @@ export default function MatchCenter() {
 
   return (
     <div className={styles.centerPanel}>
-      <img className={styles.centerArt} src="/themes/WCPL/match-center.webp" alt="" decoding="async" fetchPriority="high" />
+      <img className={styles.centerArt} src="/themes/WCPL/match-center.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
       <div className={styles.score}>{runs}-{wickets}</div>
       <div className={styles.teams}>{bowling} <span>v</span> {batting}</div>
       <div className={styles.overs}>OV {displayOver}</div>
