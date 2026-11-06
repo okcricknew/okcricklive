@@ -62,7 +62,7 @@
 }
 .leftIcon,
 .rightIcon {
-  z-index: 3;
+  z-index: 10;
   background-color: #FFC800;
 }
 
