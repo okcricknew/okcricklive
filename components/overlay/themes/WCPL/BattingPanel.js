@@ -32,11 +32,25 @@ export default function BattingPanel({ team }) {
 
   return (
     <div className={styles.battingPanel} style={{ color: textColor }}>
-      <img className={styles.artworkSource} src="/themes/WCPL/batting-panel.webp" alt="" aria-hidden="true" width="3264" height="1836" loading="eager" fetchPriority="high" decoding="async" />
-      <div
+      <svg className={styles.filterDefs} aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="wcpl-batting-team-tint" colorInterpolationFilters="sRGB" x="-5%" y="-5%" width="110%" height="110%">
+            <feFlood floodColor={panelColor} result="teamColor" />
+            <feComposite in="teamColor" in2="SourceAlpha" operator="in" />
+          </filter>
+        </defs>
+      </svg>
+      <img
         className={styles.battingArt}
-        style={{ backgroundColor: panelColor }}
+        src="/themes/WCPL/batting-panel.webp"
+        alt=""
         aria-hidden="true"
+        width="3264"
+        height="1836"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        style={{ filter: "url(#wcpl-batting-team-tint)" }}
       />
       <img className={styles.battingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.battingTeam}>{teamName}</div>
