@@ -1,4 +1,3 @@
-\
 /**
  * WCPL artwork readiness manager.
  *
