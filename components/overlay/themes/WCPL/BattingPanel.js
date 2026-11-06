@@ -3,7 +3,7 @@ import { getTeamPanelColor, getReadableTextColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
-const DEFAULT_BATTING_COLOR = "#2563EB";
+const DEFAULT_BATTING_COLOR = "#2563EC";
 
 export default function BattingPanel({ team }) {
   const match = useOverlay();
