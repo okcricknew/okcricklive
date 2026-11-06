@@ -3,7 +3,7 @@ import { getTeamPanelColor, getReadableTextColor } from "./teamColor";
 import styles from "./WCPL.module.css";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
-const DEFAULT_BATTING_COLOR = "#2563EC";
+const DEFAULT_BATTING_COLOR = "#2563EB";
 
 export default function BattingPanel({ team }) {
   const match = useOverlay();
@@ -32,6 +32,7 @@ export default function BattingPanel({ team }) {
 
   return (
     <div className={styles.battingPanel} style={{ color: textColor }}>
+      <img className={styles.artworkSource} src="/themes/WCPL/batting-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
       <div
         className={styles.battingArt}
         style={{ backgroundColor: panelColor }}
@@ -54,4 +55,4 @@ export default function BattingPanel({ team }) {
       </div>
     </div>
   );
-          }
+}
