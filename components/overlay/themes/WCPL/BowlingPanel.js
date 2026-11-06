@@ -58,6 +58,7 @@ export default function BowlingPanel({ team }) {
 
   return (
     <div className={styles.bowlingPanel} style={{ color: textColor }}>
+      <img className={styles.artworkSource} src="/themes/WCPL/bowling-panel.webp" alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
       <div
         className={styles.bowlingArt}
         style={{ backgroundColor: panelColor }}
@@ -74,5 +75,4 @@ export default function BowlingPanel({ team }) {
       </div>
     </div>
   );
-          }
-
+}
