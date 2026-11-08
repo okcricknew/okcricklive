@@ -1,0 +1,146 @@
+/* WCPL Match Intro — independent artwork styling */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+
+  --team-a-color: #183B8C;
+  --team-b-color: #B52B42;
+}
+
+/* Shared transparent WebP mask layer */
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  mask-mode: alpha;
+  pointer-events: none;
+}
+
+/* Main match intro frame */
+
+.introArt {
+  z-index: 1;
+  background-color: #FFFFFF;
+
+  -webkit-mask-image: url("/themes/WCPL/matchIntro/intro.webp");
+  mask-image: url("/themes/WCPL/matchIntro/intro.webp");
+}
+
+/* Team A panel */
+
+.teamAArt {
+  z-index: 2;
+  background-color: var(--team-a-color);
+
+  -webkit-mask-image: url("/themes/WCPL/matchIntro/teamA-panel.webp");
+  mask-image: url("/themes/WCPL/matchIntro/teamA-panel.webp");
+}
+
+/* Team B panel */
+
+.teamBArt {
+  z-index: 2;
+  background-color: var(--team-b-color);
+
+  -webkit-mask-image: url("/themes/WCPL/matchIntro/teamB-panel.webp");
+  mask-image: url("/themes/WCPL/matchIntro/teamB-panel.webp");
+}
+
+/* Tournament name panel with horizontal team gradient */
+
+.tourNameArt {
+  z-index: 3;
+
+  background: linear-gradient(
+    90deg,
+    var(--team-a-color) 0%,
+    var(--team-b-color) 100%
+  );
+
+  -webkit-mask-image: url("/themes/WCPL/matchIntro/tourName.webp");
+  mask-image: url("/themes/WCPL/matchIntro/tourName.webp");
+}
+
+/* Dynamic team names */
+
+.teamAName,
+.teamBName,
+.tournamentName,
+.eventText {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Team A */
+
+.teamAName {
+  left: 20.15%;
+  top: 92.05%;
+  width: 36%;
+
+  color: #FFFFFF;
+  font-size: clamp(10px, 1.3vw, 25px);
+}
+
+/* Team B */
+
+.teamBName {
+  left: 79.75%;
+  top: 92.05%;
+  width: 36%;
+
+  color: #FFFFFF;
+  font-size: clamp(10px, 1.3vw, 25px);
+}
+
+/* Tournament title */
+
+.tournamentName {
+  left: 50%;
+  top: 82.3%;
+  width: 40%;
+
+  color: #FFFFFF;
+  font-size: clamp(10px, 1.2vw, 23px);
+}
+
+/* Match information displayed on intro artwork */
+
+.eventText {
+  left: 50%;
+  top: 92.1%;
+  width: 30%;
+
+  color: #171717;
+  font-size: clamp(12px, 1.5vw, 29px);
+  letter-spacing: 0.04em;
+}
