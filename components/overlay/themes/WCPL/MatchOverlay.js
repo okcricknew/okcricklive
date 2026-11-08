@@ -5,14 +5,10 @@ import LowerThirdLayout from "./LowerThirdLayout";
 import BattingPanel from "./BattingPanel";
 import MatchCenter from "./MatchCenter";
 import BowlingPanel from "./BowlingPanel";
-import MatchIntro from "./MatchIntro/MatchIntro";
 
 export default function MatchOverlay() {
   const match = useOverlay();
-
   const [artworkReady, setArtworkReady] = useState(false);
-  const [introComplete, setIntroComplete] = useState(false);
-
   const wcplReady = artworkReady && match?.teamColorsReady;
 
   useEffect(() => {
@@ -23,6 +19,8 @@ export default function MatchOverlay() {
         if (active) setArtworkReady(true);
       })
       .catch((error) => {
+        // Keep the composition hidden rather than showing a partially loaded
+        // WCPL graphic. A later mount can retry because the loader resets cache.
         console.error("WCPL artwork preload failed:", error);
       });
 
@@ -30,10 +28,6 @@ export default function MatchOverlay() {
       active = false;
     };
   }, []);
-
-  useEffect(() => {
-    setIntroComplete(false);
-  }, [match?.id]);
 
   if (!match) return null;
 
@@ -50,15 +44,11 @@ export default function MatchOverlay() {
       }}
       aria-hidden={!wcplReady}
     >
-      {!introComplete ? (
-        <MatchIntro onComplete={() => setIntroComplete(true)} />
-      ) : (
-        <LowerThirdLayout>
-          <BattingPanel team={match.battingTeam} />
-          <MatchCenter />
-          <BowlingPanel team={match.bowlingTeam} />
-        </LowerThirdLayout>
-      )}
+      <LowerThirdLayout>
+        <BattingPanel team={match.battingTeam} />
+        <MatchCenter />
+        <BowlingPanel team={match.bowlingTeam} />
+      </LowerThirdLayout>
     </div>
   );
 }
