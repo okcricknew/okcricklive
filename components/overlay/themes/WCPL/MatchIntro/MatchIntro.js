@@ -19,12 +19,15 @@ export default function MatchIntro({ onComplete }) {
   const [artworkReady, setArtworkReady] = useState(false);
   const [eventIndex, setEventIndex] = useState(-1);
 
+  // Load and decode all four WebP artworks together.
   useEffect(() => {
     let active = true;
 
     preloadAndDecodeWcplMatchIntroArtwork()
       .then(() => {
-        if (active) setArtworkReady(true);
+        if (active) {
+          setArtworkReady(true);
+        }
       })
       .catch((error) => {
         console.error("WCPL Match Intro artwork failed:", error);
@@ -48,18 +51,30 @@ export default function MatchIntro({ onComplete }) {
   const teamAName = match?.teamA || "TEAM A";
   const teamBName = match?.teamB || "TEAM B";
 
+  const introReady = Boolean(
+    match && artworkReady && match.teamColorsReady
+  );
+
   const eventList = useMemo(() => {
     if (!match) return [];
 
     const list = [];
 
-    if (match.overs !== undefined && match.overs !== null && match.overs !== "") {
+    if (
+      match.overs !== undefined &&
+      match.overs !== null &&
+      match.overs !== ""
+    ) {
       list.push(`${match.overs} OVERS MATCH`);
     }
 
     const matchNumber = match.matchNo || match.matchNumber;
 
-    if (matchNumber !== undefined && matchNumber !== null && matchNumber !== "") {
+    if (
+      matchNumber !== undefined &&
+      matchNumber !== null &&
+      matchNumber !== ""
+    ) {
       list.push(`MATCH NO: ${matchNumber}`);
     }
 
@@ -80,26 +95,31 @@ export default function MatchIntro({ onComplete }) {
     return list;
   }, [match]);
 
+  // Preserve existing intro timing.
   useEffect(() => {
-    if (!match || !artworkReady || eventList.length === 0) return;
+    if (!introReady || eventList.length === 0) return;
 
-    let timeout;
     let active = true;
 
     setEventIndex(-1);
 
-    timeout = setTimeout(() => {
-      if (active) setEventIndex(0);
+    const timeout = setTimeout(() => {
+      if (active) {
+        setEventIndex(0);
+      }
     }, INTRO_DELAY);
 
     return () => {
       active = false;
       clearTimeout(timeout);
     };
-  }, [match?.id, artworkReady, eventList]);
+  }, [match?.id, introReady, eventList]);
 
+  // Preserve sequential event display timing.
   useEffect(() => {
-    if (eventIndex < 0 || eventIndex >= eventList.length) return;
+    if (!introReady || eventIndex < 0 || eventIndex >= eventList.length) {
+      return;
+    }
 
     const timeout = setTimeout(() => {
       if (eventIndex < eventList.length - 1) {
@@ -110,11 +130,9 @@ export default function MatchIntro({ onComplete }) {
     }, EVENT_DELAY);
 
     return () => clearTimeout(timeout);
-  }, [eventIndex, eventList.length, onComplete]);
+  }, [introReady, eventIndex, eventList.length, onComplete]);
 
-  if (!match || !artworkReady || !match.teamColorsReady) {
-    return null;
-  }
+  if (!match) return null;
 
   const teamAStyle = {
     color: getReadableTextColor(teamAColor),
@@ -130,10 +148,12 @@ export default function MatchIntro({ onComplete }) {
       style={{
         "--team-a-color": teamAColor,
         "--team-b-color": teamBColor,
+        visibility: introReady ? "visible" : "hidden",
       }}
       aria-label="WCPL Match Introduction"
+      aria-hidden={!introReady}
     >
-      {/* All four artwork layers appear together */}
+      {/* All four WebP layers mount together */}
 
       <div className={`${styles.artwork} ${styles.introArt}`} />
 
@@ -168,4 +188,4 @@ export default function MatchIntro({ onComplete }) {
       </div>
     </div>
   );
-        }
+}
