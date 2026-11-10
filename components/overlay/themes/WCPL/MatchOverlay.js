@@ -66,9 +66,18 @@ export default function MatchOverlay() {
         </LowerThirdLayout>
       </div>
 
-      {!introComplete && (
+      {/* MatchIntro ab unmount nahi hoga, balki introComplete hone par hide ho jayega */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: introComplete ? 0 : 1,
+          pointerEvents: introComplete ? "none" : "auto",
+          visibility: introComplete ? "hidden" : "visible",
+        }}
+      >
         <MatchIntro onComplete={() => setIntroComplete(true)} />
-      )}
+      </div>
     </div>
   );
-}
+            }
