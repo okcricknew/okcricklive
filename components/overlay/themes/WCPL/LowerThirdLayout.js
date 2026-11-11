@@ -1,5 +1,13 @@
 import styles from "./WCPL.module.css";
 
-export default function LowerThirdLayout({ children }) {
-  return <div className={styles.canvas}>{children}</div>;
+export default function LowerThirdLayout({ children, animate = false }) {
+  return (
+    <div
+      className={`${styles.canvas} ${
+        animate ? styles.lowerThirdAnimation : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
 }
