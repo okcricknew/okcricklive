@@ -59,7 +59,7 @@ export default function MatchOverlay() {
           pointerEvents: introComplete ? "auto" : "none",
         }}
       >
-        <LowerThirdLayout>
+        <LowerThirdLayout animate={introComplete}>
           <BattingPanel team={match.battingTeam} />
           <MatchCenter />
           <BowlingPanel team={match.bowlingTeam} />
