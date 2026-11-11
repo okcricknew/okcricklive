@@ -213,88 +213,67 @@
                }
 
 /* =========================================
-   WCPL LOWER THIRD - TV BROADCAST ENTRANCE
-   Only transform and opacity are animated.
-   Existing layout and scoring UI stay intact.
+   WCPL PREMIUM BROADCAST REVEAL
+   Smooth TV-style entrance
 ========================================= */
 
 .lowerThirdAnimation {
   isolation: isolate;
 }
 
-/* Batting panel: enters from the left */
+/* Batting panel - smooth upward reveal */
 .lowerThirdAnimation :global([class*="battingPanel"]) {
-  animation: wcplBattingEnter 900ms cubic-bezier(0.2, 1.35, 0.4, 1) both;
+  animation: wcplBattingBroadcast 850ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform, opacity;
 }
 
-/* Bowling panel: enters from the right */
+/* Bowling panel - smooth upward reveal */
 .lowerThirdAnimation :global([class*="bowlingPanel"]) {
-  animation: wcplBowlingEnter 900ms cubic-bezier(0.2, 1.35, 0.4, 1) both;
+  animation: wcplBowlingBroadcast 850ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform, opacity;
 }
 
-/* Match center: zooms in with a broadcast-style settle */
+/* Match center - elegant zoom and reveal */
 .lowerThirdAnimation :global([class*="centerPanel"]) {
-  animation: wcplCenterEnter 750ms cubic-bezier(0.18, 1.25, 0.35, 1) 100ms both;
+  animation: wcplCenterBroadcast 700ms
+    cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
   transform-origin: center bottom;
   will-change: transform, opacity;
 }
 
-/* Left batting panel rubber-band entrance */
-@keyframes wcplBattingEnter {
+/* Batting panel */
+@keyframes wcplBattingBroadcast {
   0% {
     opacity: 0;
-    transform: translate3d(-105%, 0, 0) scaleX(0.88);
-  }
-
-  65% {
-    opacity: 1;
-    transform: translate3d(3%, 0, 0) scaleX(1.025);
-  }
-
-  82% {
-    transform: translate3d(-1.2%, 0, 0) scaleX(0.99);
+    transform: translate3d(0, 28px, 0);
   }
 
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scaleX(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-/* Right bowling panel rubber-band entrance */
-@keyframes wcplBowlingEnter {
+/* Bowling panel */
+@keyframes wcplBowlingBroadcast {
   0% {
     opacity: 0;
-    transform: translate3d(105%, 0, 0) scaleX(0.88);
-  }
-
-  65% {
-    opacity: 1;
-    transform: translate3d(-3%, 0, 0) scaleX(1.025);
-  }
-
-  82% {
-    transform: translate3d(1.2%, 0, 0) scaleX(0.99);
+    transform: translate3d(0, 28px, 0);
   }
 
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scaleX(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-/* Center panel zoom entrance */
-@keyframes wcplCenterEnter {
+/* Center panel */
+@keyframes wcplCenterBroadcast {
   0% {
     opacity: 0;
-    transform: translate3d(0, 12%, 0) scale(0.72);
-  }
-
-  70% {
-    opacity: 1;
-    transform: translate3d(0, -1%, 0) scale(1.035);
+    transform: translate3d(0, 14px, 0) scale(0.94);
   }
 
   100% {
@@ -303,7 +282,7 @@
   }
 }
 
-/* Respect reduced-motion preferences */
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .lowerThirdAnimation :global([class*="battingPanel"]),
   .lowerThirdAnimation :global([class*="bowlingPanel"]),
@@ -314,3 +293,4 @@
     will-change: auto;
   }
 }
+
