@@ -211,3 +211,106 @@
 @media (max-aspect-ratio: 16/9) {
   .canvas { width: 100vw; }
                }
+
+/* =========================================
+   WCPL LOWER THIRD - TV BROADCAST ENTRANCE
+   Only transform and opacity are animated.
+   Existing layout and scoring UI stay intact.
+========================================= */
+
+.lowerThirdAnimation {
+  isolation: isolate;
+}
+
+/* Batting panel: enters from the left */
+.lowerThirdAnimation :global([class*="battingPanel"]) {
+  animation: wcplBattingEnter 900ms cubic-bezier(0.2, 1.35, 0.4, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Bowling panel: enters from the right */
+.lowerThirdAnimation :global([class*="bowlingPanel"]) {
+  animation: wcplBowlingEnter 900ms cubic-bezier(0.2, 1.35, 0.4, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Match center: zooms in with a broadcast-style settle */
+.lowerThirdAnimation :global([class*="centerPanel"]) {
+  animation: wcplCenterEnter 750ms cubic-bezier(0.18, 1.25, 0.35, 1) 100ms both;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+}
+
+/* Left batting panel rubber-band entrance */
+@keyframes wcplBattingEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(-105%, 0, 0) scaleX(0.88);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate3d(3%, 0, 0) scaleX(1.025);
+  }
+
+  82% {
+    transform: translate3d(-1.2%, 0, 0) scaleX(0.99);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scaleX(1);
+  }
+}
+
+/* Right bowling panel rubber-band entrance */
+@keyframes wcplBowlingEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(105%, 0, 0) scaleX(0.88);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate3d(-3%, 0, 0) scaleX(1.025);
+  }
+
+  82% {
+    transform: translate3d(1.2%, 0, 0) scaleX(0.99);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scaleX(1);
+  }
+}
+
+/* Center panel zoom entrance */
+@keyframes wcplCenterEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12%, 0) scale(0.72);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translate3d(0, -1%, 0) scale(1.035);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .lowerThirdAnimation :global([class*="battingPanel"]),
+  .lowerThirdAnimation :global([class*="bowlingPanel"]),
+  .lowerThirdAnimation :global([class*="centerPanel"]) {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
