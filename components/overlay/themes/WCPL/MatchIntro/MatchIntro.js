@@ -145,25 +145,24 @@ export default function MatchIntro({ onComplete }) {
   ]);
 
   // Complete only after the exit animation finishes.
-  const handleAnimationEnd = (event) => {
-    if (event.target !== event.currentTarget) return;
+  
+const handleAnimationEnd = (event) => {
+  // Ignore animations bubbling from child elements.
+  if (event.target !== event.currentTarget) return;
 
-    if (
-      event.animationName === "wcplFlipInY" &&
-      introPhase === "entering"
-    ) {
-      setIntroPhase("entered");
+  // CSS Modules can rename animation keyframes.
+  // Therefore, use lifecycle state instead of animationName.
+  if (introPhase === "exiting") {
+    if (typeof onComplete === "function") {
+      onComplete();
     }
+  }
 
-    if (
-      event.animationName === "wcplFlipOutY" &&
-      introPhase === "exiting"
-    ) {
-      if (typeof onComplete === "function") {
-        onComplete();
-      }
-    }
-  };
+  if (introPhase === "entering") {
+    setIntroPhase("entered");
+  }
+};
+  
 
   if (!match) return null;
 
