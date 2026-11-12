@@ -19,15 +19,16 @@ export default function MatchIntro({ onComplete }) {
   const [artworkReady, setArtworkReady] = useState(false);
   const [eventIndex, setEventIndex] = useState(-1);
 
-  // Load and decode all four WebP artworks together.
+  // Animation lifecycle
+  const [introPhase, setIntroPhase] = useState("waiting");
+
+  // Preload all four artworks together.
   useEffect(() => {
     let active = true;
 
     preloadAndDecodeWcplMatchIntroArtwork()
       .then(() => {
-        if (active) {
-          setArtworkReady(true);
-        }
+        if (active) setArtworkReady(true);
       })
       .catch((error) => {
         console.error("WCPL Match Intro artwork failed:", error);
@@ -95,42 +96,74 @@ export default function MatchIntro({ onComplete }) {
     return list;
   }, [match]);
 
-  // Preserve existing intro timing.
+  // Reset animation for a new match.
+  useEffect(() => {
+    setIntroPhase("waiting");
+    setEventIndex(-1);
+  }, [match?.id]);
+
+  // Start flipInY after artwork becomes ready.
   useEffect(() => {
     if (!introReady || eventList.length === 0) return;
 
-    let active = true;
-
+    setIntroPhase("entering");
     setEventIndex(-1);
 
     const timeout = setTimeout(() => {
-      if (active) {
-        setEventIndex(0);
-      }
+      setEventIndex(0);
     }, INTRO_DELAY);
 
-    return () => {
-      active = false;
-      clearTimeout(timeout);
-    };
+    return () => clearTimeout(timeout);
   }, [match?.id, introReady, eventList]);
 
-  // Preserve sequential event display timing.
+  // Preserve existing sequential event timing.
   useEffect(() => {
-    if (!introReady || eventIndex < 0 || eventIndex >= eventList.length) {
+    if (
+      !introReady ||
+      introPhase === "waiting" ||
+      introPhase === "exiting" ||
+      eventIndex < 0 ||
+      eventIndex >= eventList.length
+    ) {
       return;
     }
 
     const timeout = setTimeout(() => {
       if (eventIndex < eventList.length - 1) {
         setEventIndex((previous) => previous + 1);
-      } else if (typeof onComplete === "function") {
-        onComplete();
+      } else {
+        setIntroPhase("exiting");
       }
     }, EVENT_DELAY);
 
     return () => clearTimeout(timeout);
-  }, [introReady, eventIndex, eventList.length, onComplete]);
+  }, [
+    introReady,
+    introPhase,
+    eventIndex,
+    eventList.length,
+  ]);
+
+  // Complete only after the exit animation finishes.
+  const handleAnimationEnd = (event) => {
+    if (event.target !== event.currentTarget) return;
+
+    if (
+      event.animationName === "wcplFlipInY" &&
+      introPhase === "entering"
+    ) {
+      setIntroPhase("entered");
+    }
+
+    if (
+      event.animationName === "wcplFlipOutY" &&
+      introPhase === "exiting"
+    ) {
+      if (typeof onComplete === "function") {
+        onComplete();
+      }
+    }
+  };
 
   if (!match) return null;
 
@@ -142,9 +175,17 @@ export default function MatchIntro({ onComplete }) {
     color: getReadableTextColor(teamBColor),
   };
 
+  const animationClass =
+    introPhase === "entering"
+      ? styles.flipInY
+      : introPhase === "exiting"
+      ? styles.flipOutY
+      : "";
+
   return (
     <div
-      className={styles.stage}
+      className={`${styles.stage} ${animationClass}`}
+      onAnimationEnd={handleAnimationEnd}
       style={{
         "--team-a-color": teamAColor,
         "--team-b-color": teamBColor,
@@ -163,29 +204,30 @@ export default function MatchIntro({ onComplete }) {
 
       <div className={`${styles.artwork} ${styles.tourNameArt}`} />
 
-      {/* Dynamic Team A name */}
+      {/* Team A */}
 
       <div className={styles.teamAName} style={teamAStyle}>
         {teamAName}
       </div>
 
-      {/* Dynamic Team B name */}
+      {/* Team B */}
 
       <div className={styles.teamBName} style={teamBStyle}>
         {teamBName}
       </div>
 
-      {/* Dynamic tournament name */}
+      {/* Tournament */}
 
       <div className={styles.tournamentName}>
         {match.tournamentName || "WCPL"}
       </div>
 
-      {/* Sequential match information */}
+      {/* Match information */}
 
       <div className={styles.eventText} aria-live="polite">
         {eventIndex >= 0 ? eventList[eventIndex] : ""}
       </div>
     </div>
   );
-}
+    }
+        
