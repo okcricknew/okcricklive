@@ -144,3 +144,73 @@
   font-size: clamp(12px, 1.5vw, 29px);
   letter-spacing: 0.04em;
 }
+
+/* =========================================
+   WCPL MATCH INTRO - TV BROADCAST 3D FLIP
+   ========================================= */
+
+.stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* ENTER ANIMATION */
+
+.flipInY {
+  animation: wcplFlipInY 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* EXIT ANIMATION */
+
+.flipOutY {
+  animation: wcplFlipOutY 700ms cubic-bezier(0.55, 0, 0.8, 0.2) both;
+}
+
+/* Flip In Y */
+
+@keyframes wcplFlipInY {
+  0% {
+    opacity: 0;
+    transform: rotateY(-90deg) scale(0.92);
+  }
+
+  60% {
+    opacity: 1;
+    transform: rotateY(12deg) scale(1.01);
+  }
+
+  80% {
+    transform: rotateY(-5deg) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+/* Flip Out Y */
+
+@keyframes wcplFlipOutY {
+  0% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateY(90deg) scale(0.92);
+  }
+}
+
+/* Performance and accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .flipInY,
+  .flipOutY {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
