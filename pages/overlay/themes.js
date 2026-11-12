@@ -3,6 +3,7 @@ import { useState } from "react";
 import { OverlayProvider } from "../../components/overlay/core/OverlayProvider";
 import ThemeProvider from "../../components/overlay/core/ThemeProvider";
 import { Copy, Check } from "lucide-react";
+import { getNavbarInitialProps } from "../../lib/ssr/auth";
 
 function serializeValue(value) {
   if (value === null || value === undefined) return value;
@@ -219,7 +220,7 @@ export default function ThemePage({
   );
 }
 
-export async function getServerSideProps({ query, res }) {
+export async function getServerSideProps({ query, req, res }) {
   res.setHeader(
     "Cache-Control",
     "private, no-store, max-age=0"
@@ -315,6 +316,20 @@ export async function getServerSideProps({ query, res }) {
     }
   }
 
+  let navbarProps = {
+  initialUser: null,
+  initialUserData: null,
+};
+
+try {
+  navbarProps = await getNavbarInitialProps(req);
+} catch (error) {
+  console.error(
+    "Overlay themes Navbar SSR failed:",
+    error?.code || error?.message
+  );
+}
+
   return {
     props: {
       initialTId: tId,
@@ -323,6 +338,8 @@ export async function getServerSideProps({ query, res }) {
       initialMatch,
       initialTeamDocs,
       initialTeamDocsResolved,
+      initialUser: navbarProps.initialUser,
+    initialUserData: navbarProps.initialUserData,
     },
   };
             }
