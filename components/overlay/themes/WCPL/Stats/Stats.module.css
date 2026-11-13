@@ -1,0 +1,350 @@
+
+/* =========================================
+   WCPL PLAYER STATS
+   Screenshot-based broadcast layout
+   ========================================= */
+
+.overlayContainerrr {
+  display: none;
+}
+
+/* Main stats container */
+.overlayContainer {
+  position: fixed;
+  left: 50%;
+  bottom: 4vh;
+
+  width: min(56vw, 1072px);
+  max-width: calc(100vw - 24px);
+  aspect-ratio: 1072 / 168;
+
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  visibility: hidden;
+
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 2px;
+
+  font-family: Arial, Helvetica, sans-serif;
+  z-index: 99999;
+
+  transition:
+    opacity 500ms ease,
+    transform 500ms ease,
+    visibility 500ms ease;
+}
+
+.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hide {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+}
+
+/* =========================================
+   PURPLE GEOMETRIC BACKGROUND
+   ========================================= */
+
+.purpleBaseFrame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background-color: #7418d0;
+
+  background-image:
+    repeating-conic-gradient(
+      from 30deg at 50% 50%,
+      #8425e5 0deg 60deg,
+      #6512c3 60deg 120deg,
+      #922fe9 120deg 180deg,
+      #7418d0 180deg 240deg,
+      #570aa9 240deg 300deg,
+      #8120dc 300deg 360deg
+    );
+
+  background-size: 74px 74px;
+}
+
+/* Screenshot uses purple artwork across the complete stats area. */
+.whiteBaseFrame {
+  display: none;
+}
+
+/* =========================================
+   TEAM LOGO AREA
+   ========================================= */
+
+.teamLogo {
+  position: absolute;
+
+  left: 2%;
+  top: 6%;
+
+  width: 16%;
+  height: 88%;
+
+  object-fit: contain;
+  object-position: center;
+
+  z-index: 5;
+  pointer-events: none;
+
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* Old flag is not used in WCPL design. */
+.flagBox {
+  display: none;
+}
+
+/* =========================================
+   GREEN PLAYER NAME HEADER
+   ========================================= */
+
+.playerHeaderBar {
+  position: absolute;
+
+  left: 20.2%;
+  right: 0;
+  top: 0;
+
+  height: 40%;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 2%;
+
+  background: #00a943;
+
+  z-index: 4;
+  overflow: hidden;
+}
+
+.playerInfoText {
+  display: flex;
+  align-items: baseline;
+
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.pName {
+  display: block;
+
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(12px, 2.4vw, 46px);
+  font-weight: 700;
+
+  line-height: 1;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+
+  color: #ffffff;
+}
+
+.tName {
+  flex-shrink: 0;
+
+  margin-left: 1.2%;
+
+  font-size: clamp(8px, 1.1vw, 21px);
+  font-weight: 500;
+
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  color: #ffffff;
+}
+
+/* No separate globe/logo on the right. */
+.iccLogoSpace {
+  display: none;
+}
+
+/* =========================================
+   STATS ROW
+   ========================================= */
+
+.statsBar {
+  position: absolute;
+
+  left: 20.2%;
+  right: 0;
+  top: 40%;
+  bottom: 0;
+
+  display: grid;
+
+  /*
+   * Six columns are intentional:
+   * They preserve the exact six data groups
+   * already displayed by the OKCRICK component.
+   */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  align-items: center;
+  justify-items: center;
+
+  padding: 2px 1%;
+
+  background: transparent;
+
+  z-index: 3;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+
+  gap: 3px;
+  overflow: hidden;
+}
+
+.label {
+  display: block;
+
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: clamp(8px, 1.35vw, 26px);
+  font-weight: 500;
+
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+
+  color: #ffffff;
+}
+
+.value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+
+  font-size: clamp(10px, 1.5vw, 29px);
+  font-weight: 800;
+
+  line-height: 1.1;
+  text-align: center;
+
+  color: #ffffff;
+}
+
+/* OKCRICK data values remain the same.
+   Only the old decorative badges are removed. */
+
+.hexagon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  height: auto;
+
+  background: transparent;
+  clip-path: none;
+
+  color: #ffffff;
+
+  font-size: clamp(10px, 1.5vw, 29px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.pinkBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  height: auto;
+
+  background: transparent;
+  clip-path: none;
+
+  color: #ffffff;
+
+  font-size: clamp(10px, 1.5vw, 29px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* =========================================
+   OLD DECORATIVE DOTS NOT USED
+   ========================================= */
+
+.dotsWrapper,
+.dot {
+  display: none;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 700px) {
+  .overlayContainer {
+    width: 90vw;
+  }
+
+  .playerHeaderBar {
+    padding: 0 1.5%;
+  }
+
+  .pName {
+    font-size: clamp(11px, 2.4vw, 18px);
+  }
+
+  .tName {
+    font-size: clamp(7px, 1.3vw, 10px);
+  }
+
+  .label {
+    font-size: clamp(7px, 1.4vw, 10px);
+  }
+
+  .value,
+  .hexagon,
+  .pinkBadge {
+    font-size: clamp(8px, 1.6vw, 12px);
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .overlayContainer {
+    transition: none;
+  }
+  }
