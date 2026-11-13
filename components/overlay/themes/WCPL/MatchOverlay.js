@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
 import { useOverlay } from "../../core/OverlayProvider";
 import { preloadAndDecodeWcplArtwork } from "./wcplArtwork";
+
 import LowerThirdLayout from "./LowerThirdLayout";
 import BattingPanel from "./BattingPanel";
 import MatchCenter from "./MatchCenter";
 import BowlingPanel from "./BowlingPanel";
 import MatchIntro from "./MatchIntro/MatchIntro";
+
+import BatsmanStats from "./Stats/BatsmanStats";
+import BowlerStats from "./Stats/BowlerStats";
 
 export default function MatchOverlay() {
   const match = useOverlay();
@@ -13,8 +18,12 @@ export default function MatchOverlay() {
   const [artworkReady, setArtworkReady] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
 
+  const [showBatsmanStats, setShowBatsmanStats] = useState(false);
+  const [showBowlerStats, setShowBowlerStats] = useState(false);
+
   const wcplReady = artworkReady && match?.teamColorsReady;
 
+  // Preload existing WCPL artwork.
   useEffect(() => {
     let active = true;
 
@@ -31,11 +40,36 @@ export default function MatchOverlay() {
     };
   }, []);
 
+  // Reset intro and stats visibility when the match changes.
   useEffect(() => {
     setIntroComplete(false);
+    setShowBatsmanStats(false);
+    setShowBowlerStats(false);
   }, [match?.id]);
 
+  // Batsman stats have priority over bowler stats.
+  const handleBatsmanShow = useCallback(() => {
+    setShowBowlerStats(false);
+    setShowBatsmanStats(true);
+  }, []);
+
+  const handleBatsmanHide = useCallback(() => {
+    setShowBatsmanStats(false);
+  }, []);
+
+  const handleBowlerShow = useCallback(() => {
+    setShowBowlerStats(true);
+  }, []);
+
+  const handleBowlerHide = useCallback(() => {
+    setShowBowlerStats(false);
+  }, []);
+
   if (!match) return null;
+
+  const showStats = showBatsmanStats || showBowlerStats;
+
+  const showLowerThird = introComplete && !showStats;
 
   return (
     <div
@@ -50,13 +84,14 @@ export default function MatchOverlay() {
       }}
       aria-hidden={!wcplReady}
     >
-      {/* LowerThirdLayout ko background me hamesha render rakhein par hide rakhein jab tak intro chal raha hai */}
+      {/* LOWER THIRD - PERMANENTLY MOUNTED */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          opacity: introComplete ? 1 : 0,
-          pointerEvents: introComplete ? "auto" : "none",
+          opacity: showLowerThird ? 1 : 0,
+          visibility: showLowerThird ? "visible" : "hidden",
+          pointerEvents: showLowerThird ? "auto" : "none",
         }}
       >
         <LowerThirdLayout animate={introComplete}>
@@ -66,18 +101,35 @@ export default function MatchOverlay() {
         </LowerThirdLayout>
       </div>
 
-      {/* MatchIntro ab unmount nahi hoga, balki introComplete hone par hide ho jayega */}
+      {/* MATCH INTRO - PERMANENTLY MOUNTED */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           opacity: introComplete ? 0 : 1,
-          pointerEvents: introComplete ? "none" : "auto",
           visibility: introComplete ? "hidden" : "visible",
+          pointerEvents: introComplete ? "none" : "auto",
         }}
       >
-        <MatchIntro onComplete={() => setIntroComplete(true)} />
+        <MatchIntro
+          onComplete={() => setIntroComplete(true)}
+        />
       </div>
+
+      {/* BATSMAN STATS - PERMANENTLY MOUNTED */}
+      <BatsmanStats
+        match={match}
+        onShow={handleBatsmanShow}
+        onHide={handleBatsmanHide}
+      />
+
+      {/* BOWLER STATS - PERMANENTLY MOUNTED */}
+      <BowlerStats
+        match={match}
+        showBatsmanStats={showBatsmanStats}
+        onShow={handleBowlerShow}
+        onHide={handleBowlerHide}
+      />
     </div>
   );
-        }
+            }
