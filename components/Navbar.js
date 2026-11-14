@@ -267,13 +267,21 @@ export default function Navbar({ initialUser = null, initialUserData = null }) {
         createdAt: new Date().toISOString()
       };
 
-      await addDoc(collection(db, "tournaments"), tournamentData);
+      const createdTournament = await addDoc(
+  collection(db, "tournaments"),
+  tournamentData
+);
       
       setShowTrophyModal(false);
       setTName(''); setTOrganiser(''); setTMobile(''); 
       setTLocation(''); setStartDate(''); setEndDate('');
 
-      router.push('/my-tournaments');
+      router.push({
+  pathname: '/my-tournaments',
+  query: {
+    created: createdTournament.id
+  }
+});
       
     } catch (error) {
       alert("Error: " + error.message);
