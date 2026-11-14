@@ -13,7 +13,10 @@ const DEFAULT_TEAM_B_COLOR = "#B52B42";
 const INTRO_DELAY = 1800;
 const EVENT_DELAY = 3000;
 
-export default function MatchIntro({ onComplete }) {
+export default function MatchIntro({
+  onComplete,
+  canComplete = true,
+}) {
   const match = useOverlay();
 
   const [artworkReady, setArtworkReady] = useState(false);
@@ -116,33 +119,45 @@ export default function MatchIntro({ onComplete }) {
     return () => clearTimeout(timeout);
   }, [match?.id, introReady, eventList]);
 
-  // Preserve existing sequential event timing.
-  useEffect(() => {
-    if (
-      !introReady ||
-      introPhase === "waiting" ||
-      introPhase === "exiting" ||
-      eventIndex < 0 ||
-      eventIndex >= eventList.length
-    ) {
-      return;
-    }
+  // Preserve sequential event timing.
+// Hold the final event until all required players are selected.
+useEffect(() => {
+  if (
+    !introReady ||
+    introPhase === "waiting" ||
+    introPhase === "exiting" ||
+    eventIndex < 0 ||
+    eventIndex >= eventList.length
+  ) {
+    return;
+  }
 
+  // Move to the next event normally.
+  if (eventIndex < eventList.length - 1) {
     const timeout = setTimeout(() => {
-      if (eventIndex < eventList.length - 1) {
-        setEventIndex((previous) => previous + 1);
-      } else {
-        setIntroPhase("exiting");
-      }
+      setEventIndex((previous) => previous + 1);
     }, EVENT_DELAY);
 
     return () => clearTimeout(timeout);
-  }, [
-    introReady,
-    introPhase,
-    eventIndex,
-    eventList.length,
-  ]);
+  }
+
+  // Final event: wait until parent confirms player selection.
+  if (!canComplete) {
+    return;
+  }
+
+  const timeout = setTimeout(() => {
+    setIntroPhase("exiting");
+  }, EVENT_DELAY);
+
+  return () => clearTimeout(timeout);
+}, [
+  introReady,
+  introPhase,
+  eventIndex,
+  eventList.length,
+  canComplete,
+]);
 
   // Complete only after the exit animation finishes.
   
