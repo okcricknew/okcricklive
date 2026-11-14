@@ -233,19 +233,52 @@ export default function MatchList({ initialTournament = null, initialMatches = [
     setIsEditModalOpen(true);
   };
 
-  const handleSetOverlayActive = async (matchId) => {
-    try {
-      for (const m of matches) {
-        if (m.isOverlayActive) {
-          await updateDoc(doc(db, "tournaments", id, "matches", m.id), { isOverlayActive: false });
-        }
-      }
-      await updateDoc(doc(db, "tournaments", id, "matches", matchId), { isOverlayActive: true });
-      alert("Match Overlay Activated! ✅");
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  
+const handleSetOverlayActive = async (matchId) => {
+  const previousMatches = matches;
+
+  // 1. Immediately update UI without page refresh
+  setMatches((prevMatches) =>
+    prevMatches.map((match) => ({
+      ...match,
+      isOverlayActive: match.id === matchId
+    }))
+  );
+
+  try {
+    // 2. Prepare Firebase updates
+    const updates = matches
+      .filter((match) => match.isOverlayActive && match.id !== matchId)
+      .map((match) =>
+        updateDoc(
+          doc(db, "tournaments", id, "matches", match.id),
+          { isOverlayActive: false }
+        )
+      );
+
+    // 3. Activate selected match
+    updates.push(
+      updateDoc(
+        doc(db, "tournaments", id, "matches", matchId),
+        { isOverlayActive: true }
+      )
+    );
+
+    // 4. Save all updates
+    await Promise.all(updates);
+
+    alert("Match Overlay Activated! ✅");
+
+  } catch (error) {
+    console.error("Overlay activation failed:", error);
+
+    // 5. Restore previous UI if Firebase update fails
+    setMatches(previousMatches);
+
+    alert("Failed to activate overlay. Please try again.");
+  }
+};
+  
   
   if (loading) return (
     <div className="fixed inset-0 bg-[#F4F4F4] flex flex-col items-center justify-center">
