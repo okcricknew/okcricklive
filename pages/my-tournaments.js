@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import {
   collection,
@@ -245,6 +245,9 @@ export default function MyTournaments({
   initialLoadError = false,
 }) {
   const [tournaments, setTournaments] = useState(initialTournaments);
+  useEffect(() => {
+  setTournaments(initialTournaments);
+}, [initialTournaments]);
   const [currentPage, setCurrentPage] = useState(1);
   const tournamentsPerPage = 10;
   
