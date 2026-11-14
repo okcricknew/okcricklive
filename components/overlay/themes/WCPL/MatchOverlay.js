@@ -12,16 +12,53 @@ import MatchIntro from "./MatchIntro/MatchIntro";
 import BatsmanStats from "./Stats/BatsmanStats";
 import BowlerStats from "./Stats/BowlerStats";
 
+// WCPL-specific persistent intro state.
+// Does not modify OverlayProvider or any other theme.
+const getIntroStorageKey = (matchId) =>
+  `wcpl_intro_completed_${matchId}`;
+
+const hasSelectedPlayer = (value) => {
+  if (typeof value !== "string") return false;
+
+  const name = value.trim().toLowerCase();
+
+  return Boolean(
+    name &&
+    name !== "selecting..." &&
+    name !== "selecting" &&
+    name !== "unknown" &&
+    name !== "none"
+  );
+};
+
 export default function MatchOverlay() {
   const match = useOverlay();
 
   const [artworkReady, setArtworkReady] = useState(false);
-  const [introComplete, setIntroComplete] = useState(false);
+
+  // null means match-specific storage is still being checked.
+  const [introState, setIntroState] = useState({
+    matchId: null,
+    ready: false,
+    complete: false,
+  });
 
   const [showBatsmanStats, setShowBatsmanStats] = useState(false);
   const [showBowlerStats, setShowBowlerStats] = useState(false);
 
   const wcplReady = artworkReady && match?.teamColorsReady;
+
+  // Required player selection.
+  const hasAllPlayers = Boolean(
+    hasSelectedPlayer(match?.striker) &&
+    hasSelectedPlayer(match?.nonStriker) &&
+    hasSelectedPlayer(match?.bowler)
+  );
+
+  // First innings only.
+  const inningsNumber = Number(match?.innings || 1);
+  const isFirstInnings = inningsNumber === 1;
+  const isSecondInnings = inningsNumber >= 2;
 
   // Preload existing WCPL artwork.
   useEffect(() => {
@@ -33,6 +70,8 @@ export default function MatchOverlay() {
       })
       .catch((error) => {
         console.error("WCPL artwork preload failed:", error);
+
+        // Keep the existing failure behavior.
       });
 
     return () => {
@@ -40,11 +79,83 @@ export default function MatchOverlay() {
     };
   }, []);
 
-  // Reset intro and stats visibility when the match changes.
+  // Resolve intro state for the current match.
+  // A completed intro remains completed after page refresh.
   useEffect(() => {
-    setIntroComplete(false);
+    if (!match?.id) return;
+
+    const matchId = String(match.id);
+    const storageKey = getIntroStorageKey(matchId);
+
+    let alreadyCompleted = false;
+
+    try {
+      alreadyCompleted =
+        window.localStorage.getItem(storageKey) === "true";
+    } catch (error) {
+      console.warn(
+        "WCPL intro persistence unavailable:",
+        error
+      );
+    }
+
+    const shouldComplete =
+      alreadyCompleted ||
+      isSecondInnings ||
+      hasAllPlayers;
+
+    if (shouldComplete && !alreadyCompleted) {
+      try {
+        window.localStorage.setItem(storageKey, "true");
+      } catch (error) {
+        console.warn(
+          "WCPL intro state could not be saved:",
+          error
+        );
+      }
+    }
+
+    setIntroState({
+      matchId,
+      ready: true,
+      complete: shouldComplete,
+    });
+  }, [
+    match?.id,
+    isSecondInnings,
+    hasAllPlayers,
+  ]);
+
+  // Reset only stats when the match changes.
+  // Do not reset a previously completed intro.
+  useEffect(() => {
     setShowBatsmanStats(false);
     setShowBowlerStats(false);
+  }, [match?.id]);
+
+  // Persist completion after the MatchIntro exit animation.
+  const handleIntroComplete = useCallback(() => {
+    if (!match?.id) return;
+
+    const matchId = String(match.id);
+
+    try {
+      window.localStorage.setItem(
+        getIntroStorageKey(matchId),
+        "true"
+      );
+    } catch (error) {
+      console.warn(
+        "WCPL intro completion could not be saved:",
+        error
+      );
+    }
+
+    setIntroState({
+      matchId,
+      ready: true,
+      complete: true,
+    });
   }, [match?.id]);
 
   // Batsman stats have priority over bowler stats.
@@ -67,9 +178,30 @@ export default function MatchOverlay() {
 
   if (!match) return null;
 
-  const showStats = showBatsmanStats || showBowlerStats;
+  // Prevent intro/lower-third flash while checking saved state.
+  const introStateReady =
+    introState.ready &&
+    introState.matchId === String(match.id);
 
-  const showLowerThird = introComplete && !showStats;
+  const introComplete =
+    introStateReady &&
+    (
+      introState.complete ||
+      isSecondInnings ||
+      !isFirstInnings
+    );
+
+  // Intro can only run in the first innings.
+  const showMatchIntro =
+    introStateReady &&
+    isFirstInnings &&
+    !introComplete;
+
+  const showStats =
+    showBatsmanStats || showBowlerStats;
+
+  const showLowerThird =
+    introComplete && !showStats;
 
   return (
     <div
@@ -106,13 +238,14 @@ export default function MatchOverlay() {
         style={{
           position: "absolute",
           inset: 0,
-          opacity: introComplete ? 0 : 1,
-          visibility: introComplete ? "hidden" : "visible",
-          pointerEvents: introComplete ? "none" : "auto",
+          opacity: showMatchIntro ? 1 : 0,
+          visibility: showMatchIntro ? "visible" : "hidden",
+          pointerEvents: "none",
         }}
       >
         <MatchIntro
-          onComplete={() => setIntroComplete(true)}
+          canComplete={hasAllPlayers}
+          onComplete={handleIntroComplete}
         />
       </div>
 
@@ -132,4 +265,4 @@ export default function MatchOverlay() {
       />
     </div>
   );
-            }
+}
