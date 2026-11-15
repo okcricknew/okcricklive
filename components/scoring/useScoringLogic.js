@@ -191,22 +191,34 @@ updates.totalRuns = currentTotal + totalRunValue;
       updates.totalWickets = increment(1);
       updates.currentPartnership = { runs: 0, balls: 0 };
 
-      // Out hone wale ka naam pakdein
-      const outPlayerName = wicketData?.batsmanName 
-  ? wicketData.batsmanName 
-  : match.striker;
-      
-      // Safety: Direct match.totalWickets par depend na rahein
-      const totalWicketsAbhi = Number(match.totalWickets || 0);
+      // ==========================================
+// DISMISSED BATSMAN SLOT IDENTIFICATION
+// ==========================================
 
-      // AGAR 10th wicket nahi hai, toh hi khali karo (Warna innings khatam ho jayegi)
-      if (totalWicketsAbhi < 9) { 
-        if (outPlayerName === match.nonStriker) {
-          updates.nonStriker = ""; 
-        } else {
-          updates.striker = ""; 
-        }
-      }
+const outPlayerName =
+  wicketData?.batsmanName || match.striker;
+
+// OutModal se exact batting position milegi
+const dismissedSlot =
+  wicketData?.isStriker === false
+    ? "nonStriker"
+    : wicketData?.isStriker === true
+      ? "striker"
+      : outPlayerName === match.nonStriker
+        ? "nonStriker"
+        : "striker";
+
+// 10th wicket par innings finish hogi
+const totalWicketsAbhi = Number(match.totalWickets || 0);
+
+if (totalWicketsAbhi < 9) {
+  // Sirf dismissed batsman ka slot empty hoga
+  updates[dismissedSlot] = "";
+}
+
+// ==========================================
+// DISMISSED BATSMAN STATS
+// ==========================================
 
       if (wicketData) {
         updates[`battingStats.${outPlayerName}.isOut`] = true;
