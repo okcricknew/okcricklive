@@ -4,7 +4,15 @@ import { UserPlus, Plus, Loader2, X, User, ChevronRight, Target } from 'lucide-r
 import { db } from '../lib/firebase'; 
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 
-export default function NewBatsmanModal({ isOpen, onSelect, currentStriker, currentNonStriker, tId, match }) {
+export default function NewBatsmanModal({
+  isOpen,
+  onSelect,
+  currentStriker,
+  currentNonStriker,
+  replacementSlot,
+  tId,
+  match
+}) {
   const [isAdding, setIsAdding] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,33 +63,61 @@ export default function NewBatsmanModal({ isOpen, onSelect, currentStriker, curr
     }
   }; */}
 
-    // --- AUTO SLOT SELECTION LOGIC ---
-  const handlePlayerClick = async (playerName) => {
-    const formattedName = playerName.trim().toUpperCase();
+    // ==========================================
+// EXACT BATTING SLOT SELECTION
+// ==========================================
 
-    try {
-      // Agar tournament ID aur match ID dono hain, toh pehle sequence array update karo
-      if (tId && match?.id) {
-        const matchRef = doc(db, 'tournaments', tId, 'matches', match.id);
-        await updateDoc(matchRef, {
-          battingPlayers: arrayUnion(formattedName)
-        });
-      }
-    } catch (error) {
-      console.error("Error updating sequence list:", error);
+const handlePlayerClick = async (playerName) => {
+  const formattedName = playerName.trim().toUpperCase();
+
+  // Prefer exact replacement slot
+  // Fallback: identify the empty slot
+  const targetSlot =
+    replacementSlot ||
+    (!currentStriker
+      ? "striker"
+      : !currentNonStriker
+        ? "nonStriker"
+        : null);
+
+  // Never overwrite an occupied slot
+  if (!["striker", "nonStriker"].includes(targetSlot)) {
+    console.error("Invalid batting replacement slot:", targetSlot);
+    return;
+  }
+
+  const slotOccupied =
+    targetSlot === "striker"
+      ? currentStriker
+      : currentNonStriker;
+
+  if (slotOccupied) {
+    console.error("Batting slot is already occupied:", targetSlot);
+    return;
+  }
+
+  try {
+    if (tId && match?.id) {
+      const matchRef = doc(
+        db,
+        "tournaments",
+        tId,
+        "matches",
+        match.id
+      );
+
+      await updateDoc(matchRef, {
+        battingPlayers: arrayUnion(formattedName)
+      });
     }
 
-    // Aapka purana onSelect logic jise humne bilkul nahi chheda (Taaki baki app safe rahe)
-    if (!currentStriker || currentStriker === "") {
-      onSelect(playerName, 'striker');
-    } 
-    else if (!currentNonStriker || currentNonStriker === "") {
-      onSelect(playerName, 'nonStriker');
-    }
-    else {
-      onSelect(playerName, 'striker');
-    }
-  };
+    // Pass exact slot to ScoringPanel
+    onSelect(playerName, targetSlot);
+
+  } catch (error) {
+    console.error("New batsman selection error:", error);
+  }
+};
   
 
   const displayPlayers = liveSquad
