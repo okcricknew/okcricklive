@@ -553,17 +553,22 @@ className={`w-8 h-8 rounded-full border flex items-center justify-center text-[1
     try {
       const matchRef = doc(db, 'tournaments', tId, 'matches', match.id);
       
-      // 2. AUTO-FIX LOGIC: Check karo kaunsa slot sach mein khali hai
-      // Agar striker khali hai toh striker update karo, varna nonStriker
-      let targetField = "";
-      if (!match.striker || match.striker === "") {
-        targetField = 'striker';
-      } else if (!match.nonStriker || match.nonStriker === "") {
-        targetField = 'nonStriker';
-      } else {
-        // Agar dono bhare hain (rare case), toh jo position modal se aayi wo use karo
-        targetField = position === 'striker' ? 'striker' : 'nonStriker';
-      }
+      // ==========================================
+// EXACT DISMISSED BATSMAN SLOT
+// ==========================================
+
+const targetField = position;
+
+if (!['striker', 'nonStriker'].includes(targetField)) {
+  console.error("Invalid batsman slot:", targetField);
+  return;
+}
+
+// Selected slot empty hona compulsory hai
+if (match[targetField]) {
+  console.error("Selected batting slot is already occupied:", targetField);
+  return;
+}
       
       // 3. Payload mein sirf ek hi field rakhein
       let updatePayload = { 
