@@ -44,6 +44,7 @@ export default function ScoringPanel({ match, tId }) {
   const [showBowlerModal, setShowBowlerModal] = useState(false);
   const [isOutModalOpen, setIsOutModalOpen] = useState(false);
   const [isNewBatsmanModalOpen, setIsNewBatsmanModalOpen] = useState(false);
+  const [replacementSlot, setReplacementSlot] = useState(null);
   const [isInningsModalOpen, setIsInningsModalOpen] = useState(false);
   const [isExtraModalOpen, setIsExtraModalOpen] = useState(false);
   const [selectedExtraType, setSelectedExtraType] = useState('WD');
@@ -541,7 +542,8 @@ className={`w-8 h-8 rounded-full border flex items-center justify-center text-[1
   tId={tId} 
   match={match} 
   currentStriker={match?.striker} 
-  currentNonStriker={match?.nonStriker} 
+  currentNonStriker={match?.nonStriker}
+replacementSlot={replacementSlot}
   onSelect={async (name, position) => {
 
     // 1. Agar cancel kiya toh function yahi rok do
@@ -553,27 +555,22 @@ className={`w-8 h-8 rounded-full border flex items-center justify-center text-[1
     try {
       const matchRef = doc(db, 'tournaments', tId, 'matches', match.id);
       
-      // ==========================================
-// EXACT DISMISSED BATSMAN SLOT
-// ==========================================
+      // Exact dismissed batsman slot only
+const targetField = replacementSlot;
 
-const targetField = position;
-
-if (!['striker', 'nonStriker'].includes(targetField)) {
-  console.error("Invalid batsman slot:", targetField);
+if (!["striker", "nonStriker"].includes(targetField)) {
+  console.error("Invalid replacement slot:", targetField);
   return;
 }
 
-// Selected slot empty hona compulsory hai
 if (match[targetField]) {
-  console.error("Selected batting slot is already occupied:", targetField);
+  console.error("Replacement slot is occupied:", targetField);
   return;
 }
-      
-      // 3. Payload mein sirf ek hi field rakhein
-      let updatePayload = { 
-        [targetField]: name 
-      };
+
+const updatePayload = {
+  [targetField]: name
+};
 
       // 4. Stats initialize karein (Reset se bachne ke liye)
       if (!match.battingStats?.[name]) {
@@ -584,6 +581,7 @@ if (match[targetField]) {
 
       // 5. Database Update
       await updateDoc(matchRef, updatePayload);
+      setReplacementSlot(null);
       setIsNewBatsmanModalOpen(false);
       setIsBatsmanSelectionPending(false);
       
@@ -603,6 +601,10 @@ if (match[targetField]) {
   match={match} // Match object pass karna zaroori hai
   fieldingSquad={fieldingTeamPlayers} 
   onConfirm={async (data) => {
+    // Capture exact dismissed batsman's batting slot
+setReplacementSlot(
+  data.isStriker ? "striker" : "nonStriker"
+);
     try {
       // 1. Delivery ka asali type (NORMAL, WD, NB)
       const deliveryType = data.ballType; 
