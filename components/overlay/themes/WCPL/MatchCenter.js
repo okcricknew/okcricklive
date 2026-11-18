@@ -3,27 +3,52 @@ import styles from "./WCPL.module.css";
 
 export default function MatchCenter() {
   const match = useOverlay();
+
   if (!match) return null;
 
-  const runs = match.totalRuns || 0;
-  const wickets = match.totalWickets || 0;
+  const runs = Number(match.totalRuns || 0);
+  const wickets = Number(match.totalWickets || 0);
+
   const over = Number(match.currentOver || 0);
   const balls = Number(match.ballsInOver || 0);
-  const displayOver = balls === 6 ? `${over + 1}.0` : `${over}.${balls}`;
-  const batting = String(match.battingTeam || "").toUpperCase().slice(0, 3);
+
+  const displayOver =
+    balls === 6
+      ? `${over + 1}.0`
+      : `${over}.${balls}`;
+
+  const batting = String(
+    match.battingTeam || ""
+  ).toUpperCase().slice(0, 3);
+
   const bowling = String(
-    match.bowlingTeam || (match.battingTeam === match.teamA ? match.teamB : match.teamA) || ""
+    match.bowlingTeam ||
+    (
+      match.battingTeam === match.teamA
+        ? match.teamB
+        : match.teamA
+    ) ||
+    ""
   ).toUpperCase().slice(0, 3);
 
   return (
     <div className={styles.centerPanel}>
       <div
-  className={styles.centerArt}
-  aria-hidden="true"
-/>
-      <div className={styles.score}>{runs}-{wickets}</div>
-      <div className={styles.teams}>{bowling} <span>v</span> {batting}</div>
-      <div className={styles.overs}>OV {displayOver}</div>
+        className={styles.centerArt}
+        aria-hidden="true"
+      />
+
+      <div className={styles.teams}>
+        {batting} <span>v</span> {bowling}
+      </div>
+
+      <div className={styles.score}>
+        {runs}-{wickets}
+      </div>
+
+      <div className={styles.overs}>
+        {displayOver} OVERS
+      </div>
     </div>
   );
 }
