@@ -11,6 +11,7 @@ import MatchIntro from "./MatchIntro/MatchIntro";
 
 import BatsmanStats from "./Stats/BatsmanStats";
 import BowlerStats from "./Stats/BowlerStats";
+import MatchStats from "./MatchStats";
 
 // WCPL-specific persistent intro state.
 // Does not modify OverlayProvider or any other theme.
@@ -229,6 +230,7 @@ export default function MatchOverlay() {
         <LowerThirdLayout animate={introComplete}>
           <BattingPanel team={match.battingTeam} />
           <MatchCenter />
+        <MatchStats />
           <BowlingPanel team={match.bowlingTeam} />
         </LowerThirdLayout>
       </div>
