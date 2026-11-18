@@ -116,57 +116,57 @@
 }
 .battingTeam { left: 5.5%; }
 .bowlingTeam { right: 5.5%; text-align: right; }
+/* WCPL batting rows: fixed name / runs / balls columns.
+   The columns are anchored to each row so values never drift with viewport size. */
 .batsmen {
   position: absolute;
-  left: 15%;
+  left: 13.6%;
   top: 88.2%;
-  width: 25%;
+  width: 25.8%;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 0.35vw;
-}
-/* BATSMAN RUNS — OKCRICK pattern */
-.batsmanRuns {
-  position: absolute;
-  right: 84%;
-  top: 18.8%;
-  width: 100%;
-  text-align: right;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  z-index: 219;
-  line-height: 1;
-  font-size: 19px;
+  gap: 0.55vw;
 }
 
-/* BATSMAN BALLS — OKCRICK pattern */
-.batsmanBalls {
-  position: absolute;
-  right: 81%;
-  top: 21%;
-  width: 100%;
-  text-align: right;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  z-index: 219;
-  line-height: 1;
-  font-size: 16px;
-}
 .batsmanRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 0.8em minmax(0, 1fr) 2.35em 2.5em;
   align-items: center;
-  gap: 0.45vw;
+  column-gap: 0.3vw;
   min-width: 0;
   white-space: nowrap;
-  font-size: clamp(8px, 0.9vw, 17px);
-  line-height: 1.25;
+  font-size: clamp(8px, 1.05vw, 20px);
+  line-height: 1.15;
 }
-.strikerMark { width: 0.8em; color: #16843b; }
-.batsmanName { overflow: hidden; text-overflow: ellipsis; flex: 1; font-weight: 700; text-transform: uppercase; }
-.batsmanRow strong { min-width: 1.5em; text-align: right; }
+
+.strikerMark {
+  width: 0.8em;
+  color: #16843b;
+  text-align: center;
+}
+
+.batsmanName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.batsmanRuns {
+  min-width: 0;
+  text-align: right;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.batsmanBalls {
+  min-width: 0;
+  text-align: right;
+  font-weight: 700;
+  line-height: 1;
+}
 .bowlerInfo {
   position: absolute;
   right: 15%;
@@ -323,3 +323,4 @@
   }
 }
 
+                               
