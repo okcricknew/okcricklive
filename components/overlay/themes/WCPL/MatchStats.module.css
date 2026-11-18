@@ -1,0 +1,124 @@
+
+.statsContainer {
+  position: absolute;
+  left: 50%;
+  top: 95.2%;
+
+  transform: translate(-50%, -50%);
+
+  width: 19%;
+  height: 4.2%;
+
+  min-width: 130px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  white-space: nowrap;
+
+  z-index: 10;
+
+  color: #111111;
+  font-family: Arial, Helvetica, sans-serif;
+
+  pointer-events: none;
+}
+
+.statItem {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  animation: statAppear 350ms ease-out both;
+}
+
+.statText {
+  display: inline-block;
+  max-width: 100%;
+
+  font-size: clamp(8px, 0.85vw, 16px);
+  font-weight: 800;
+
+  line-height: 1;
+  text-align: center;
+
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.statLabel {
+  font-weight: 700;
+}
+
+.statValue {
+  font-weight: 900;
+}
+
+/* Long text moves from RIGHT to LEFT */
+.marqueeViewport {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+.marqueeText {
+  display: inline-block;
+
+  width: max-content;
+  min-width: max-content;
+
+  padding-left: 100%;
+
+  font-size: clamp(8px, 0.85vw, 16px);
+  font-weight: 900;
+
+  white-space: nowrap;
+  text-transform: uppercase;
+
+  animation: wcplMarquee 12s linear infinite;
+}
+
+@keyframes wcplMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes statAppear {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marqueeText {
+    animation: none;
+    padding-left: 0;
+    white-space: normal;
+  }
+
+  .statItem {
+    animation: none;
+  }
+}
