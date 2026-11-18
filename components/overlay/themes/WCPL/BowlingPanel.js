@@ -69,11 +69,19 @@ export default function BowlingPanel({ team }) {
         aria-hidden="true"
       />
       <img className={styles.bowlingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
-      <div className={styles.bowlingTeam}>{teamName}</div>
       <div className={styles.bowlerInfo}>
-        <strong>{bowlerName}</strong>
-        <span>{bowler.wickets || 0}-{bowler.runs || 0} ({overs})</span>
-      </div>
+  <strong className={styles.bowlerName}>
+    {bowlerName}
+  </strong>
+
+  <span className={styles.bowlerFigures}>
+    {bowler.wickets || 0}-{bowler.runs || 0}
+  </span>
+
+  <span className={styles.bowlerOvers}>
+    {overs}
+  </span>
+</div>
       <div className={styles.ballHistory}>
         {display.slice(-8).map((value, index) => <OverBall key={index} value={value} styles={ballStyles} />)}
       </div>
