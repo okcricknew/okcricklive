@@ -248,7 +248,7 @@
 .teams {
   position: absolute;
   left: 41.5%;
-  top: 91.2%;
+  top: 89.2%;
   transform: translate(-50%, -50%);
   z-index: 7;
 
@@ -265,7 +265,7 @@
 .overs {
   position: absolute;
   left: 57%;
-  top: 91.2%;
+  top: 89.2%;
   transform: translate(-50%, -50%);
   z-index: 7;
 
