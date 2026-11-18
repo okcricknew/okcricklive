@@ -169,18 +169,16 @@
 }
 .bowlerInfo {
   position: absolute;
-  right: 14.5%;
+  right: 15%;
   top: 88.2%;
   z-index: 5;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
-  column-gap: 0.6vw;
-  max-width: 26%;
+  gap: 0.7vw;
+  max-width: 25%;
   white-space: nowrap;
   font-size: clamp(8px, 0.9vw, 17px);
 }
-
 .bowlerInfo strong { overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
 .ballHistory {
   position: absolute;
@@ -190,25 +188,6 @@
   display: flex;
   gap: 0.25vw;
 }
-.bowlerName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  font-weight: 800;
-  text-align: right;
-}
-
-.bowlerStats {
-  font-weight: 900;
-  text-align: right;
-}
-
-.bowlerOvers {
-  font-weight: 700;
-  opacity: 0.9;
-  text-align: right;
-}
-
 .ball {
   width: clamp(14px, 1.65vw, 30px);
   height: clamp(14px, 1.65vw, 30px);
@@ -343,5 +322,3 @@
     will-change: auto;
   }
 }
-
-                               
