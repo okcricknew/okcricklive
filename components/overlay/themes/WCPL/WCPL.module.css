@@ -232,37 +232,48 @@
 .four { background: #00d7e8; color: #111; }
 .six { background: #22c55e; color: #111; }
 .extraBall { font-size: clamp(6px, 0.55vw, 10px); }
+
 .score {
   position: absolute;
-  left: 50%;
-  top: 88.9%;
+  left: 48.5%;
+  top: 89.2%;
   transform: translate(-50%, -50%);
   z-index: 7;
+
   font-size: clamp(14px, 2vw, 38px);
   font-weight: 900;
   white-space: nowrap;
 }
+
 .teams {
   position: absolute;
-  left: 50%;
-  top: 92.1%;
+  left: 41.5%;
+  top: 91.2%;
   transform: translate(-50%, -50%);
   z-index: 7;
+
   font-size: clamp(8px, 0.9vw, 17px);
   font-weight: 800;
   white-space: nowrap;
 }
-.teams span { margin: 0 0.35em; opacity: 0.65; }
+
+.teams span {
+  margin: 0 0.35em;
+  opacity: 0.65;
+}
+
 .overs {
   position: absolute;
-  left: 50%;
-  top: 95%;
+  left: 57%;
+  top: 91.2%;
   transform: translate(-50%, -50%);
   z-index: 7;
+
   font-size: clamp(8px, 0.8vw, 15px);
   font-weight: 700;
   white-space: nowrap;
 }
+
 @media (max-aspect-ratio: 16/9) {
   .canvas { width: 100vw; }
                }
