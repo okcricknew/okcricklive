@@ -126,6 +126,35 @@
   flex-direction: column;
   gap: 0.35vw;
 }
+/* BATSMAN RUNS — OKCRICK pattern */
+.batsmanRuns {
+  position: absolute;
+  right: 84%;
+  top: 18.8%;
+  width: 100%;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 219;
+  line-height: 1;
+  font-size: 19px;
+}
+
+/* BATSMAN BALLS — OKCRICK pattern */
+.batsmanBalls {
+  position: absolute;
+  right: 81%;
+  top: 21%;
+  width: 100%;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 219;
+  line-height: 1;
+  font-size: 16px;
+}
 .batsmanRow {
   display: flex;
   align-items: center;
