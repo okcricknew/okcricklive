@@ -51,8 +51,8 @@ export default function BattingPanel({ team }) {
             <div className={styles.batsmanRow} key={name}>
               <span className={styles.strikerMark}>{match.striker === name ? "★" : ""}</span>
               <span className={styles.batsmanName}>{name}</span>
-              <strong>{data.runs || 0}</strong>
-              <span>({data.balls || 0})</span>
+              <span className={styles.BatsmanRuns}>{data.runs || 0}</span>
+              <span className={styles.BatsmanBalls}>({data.balls || 0})</span>
             </div>
           );
         })}
