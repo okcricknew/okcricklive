@@ -169,20 +169,46 @@
 }
 .bowlerInfo {
   position: absolute;
-  right: 15%;
-  top: 88.2%;
+  left: 66.35%;
+  top: 88.65%;
+  width: 20.4%;
   z-index: 5;
-  display: flex;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 0.7vw;
-  max-width: 25%;
+  column-gap: 1.15vw;
+
   white-space: nowrap;
-  font-size: clamp(8px, 0.9vw, 17px);
+  font-size: clamp(10px, 1.08vw, 20px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .bowlerInfo strong { overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+.bowlerName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.bowlerFigures {
+  font-weight: 900;
+  text-align: right;
+}
+
+.bowlerOvers {
+  font-weight: 700;
+  text-align: right;
+}
+
+.bowlingTeam {
+  display: none;
+}
 .ballHistory {
   position: absolute;
-  right: 3.2%;
+  right: 66.4%;
   top: 92.2%;
   z-index: 6;
   display: flex;
