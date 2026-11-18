@@ -59,10 +59,7 @@ export default function BowlingPanel({ team }) {
   return (
     <div className={styles.bowlingPanel} style={{ color: textColor }}>
       <img className={styles.artworkSource} src="/themes/WCPL/bowling-panel.webp" alt="" aria-hidden="true" fetchPriority="high" loading="eager" decoding="async" />
-      <div
-  className={styles.rightIcon}
-  aria-hidden="true"
-/>
+      <div className={styles.rightIcon} aria-hidden="true" />
       <div
         className={styles.bowlingArt}
         style={{ backgroundColor: panelColor }}
@@ -70,14 +67,19 @@ export default function BowlingPanel({ team }) {
       />
       <img className={styles.bowlingLogo} src={logo} alt="" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }} />
       <div className={styles.bowlingTeam}>{teamName}</div>
+      
+      {/* Bowler Name, Figures & Overs - Screenshot Exact Placement */}
       <div className={styles.bowlerInfo}>
-        <strong>{bowlerName}</strong>
-        <span>{bowler.wickets || 0}-{bowler.runs || 0} ({overs})</span>
+        <span className={styles.bowlerName}>{bowlerName}</span>
+        <span className={styles.bowlerStats}>{bowler.wickets || 0}-{bowler.runs || 0}</span>
+        <span className={styles.bowlerOvers}>{overs}</span>
       </div>
+
+      {/* Ball History Circles */}
       <div className={styles.ballHistory}>
         {display.slice(-8).map((value, index) => <OverBall key={index} value={value} styles={ballStyles} />)}
       </div>
     </div>
   );
-  }
-          
+          }
+        
