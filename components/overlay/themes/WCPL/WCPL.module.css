@@ -1,4 +1,11 @@
 /* WCPL artwork is server-rendered as image elements and preloaded in the document head. */
+@font-face {
+  font-family: "Michroma";
+  src: url("/fonts/wcpl/Michroma-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 .canvas {
   position: absolute;
   left: 0;
