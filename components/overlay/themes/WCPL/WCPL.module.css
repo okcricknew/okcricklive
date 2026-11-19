@@ -139,7 +139,7 @@
 .batsmanRow {
   display: grid;
   grid-template-columns: 0.8em minmax(0, 1fr) 2.35em 2.5em;
-  align-items: center;
+  align-items: baseline;
   column-gap: 0.3vw;
   min-width: 0;
   white-space: nowrap;
