@@ -302,7 +302,7 @@ is line ko comment kiya hai */
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.45vw;
+  gap: 15px;
   white-space: nowrap;
 }
 
