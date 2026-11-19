@@ -81,6 +81,12 @@ export default function MatchStats() {
       });
     }
 
+    list.push({
+  id: "scoring-partner",
+  label: "SCORING PARTNER",
+  value: "OKCRICK.IN",
+});
+
     // FIRST INNINGS RUN RATE
     if (innings === 1) {
       const runRate =
@@ -93,6 +99,18 @@ export default function MatchStats() {
         label: "RUN RATE",
         value: runRate,
       });
+    }
+
+    if (innings === 1 && totalBalls > 0 && maxOvers > 0) {
+  const projectedScore = Math.round(
+    (totalRuns / totalBalls) * 6 * maxOvers
+  );
+
+  list.push({
+    id: "projected-score",
+    label: "PROJECTED SCORE",
+    value: String(projectedScore),
+  });
     }
 
     // TOSS WINNER: FIRST 4 OVERS
