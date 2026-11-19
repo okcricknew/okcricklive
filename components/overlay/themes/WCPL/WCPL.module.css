@@ -133,7 +133,7 @@
   display: grid;
   grid-template-columns: 0.8em minmax(0, 1fr) 2.35em 2.5em;
   align-items: center;
-  column-gap: 0.3vw;
+  column-gap: 5vw;
   min-width: 0;
   white-space: nowrap;
   font-size: clamp(8px, 1.05vw, 20px);
@@ -159,7 +159,7 @@
   text-align: right;
   font-weight: 900;
   line-height: 1;
-  transform: translateX(-2vw);
+  transform: translateX(-5vw);
 }
 
 .batsmanBalls {
@@ -167,7 +167,7 @@
   text-align: right;
   font-weight: 700;
   line-height: 1;
-  transform: translateX(-2vw);
+  transform: translateX(-5vw);
 }
 .bowlerInfo {
   position: absolute;
