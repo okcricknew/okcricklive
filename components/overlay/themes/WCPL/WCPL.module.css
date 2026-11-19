@@ -206,17 +206,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
-  font-weight: 800;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
 }
 
 .bowlerFigures {
-  font-weight: 900;
   text-align: right;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 700;
+  font-size: 20px;
 }
 
 .bowlerOvers {
-  font-weight: 700;
   text-align: right;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
 }
 
 .bowlingTeam {
