@@ -269,6 +269,7 @@
   gap: 0.25em;
   min-width: 0;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .battingTeamName {
