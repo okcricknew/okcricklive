@@ -212,7 +212,7 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: baseline;
   column-gap: 1.15vw;
-  row-gap: 0.55vw;
+  row-gap: 1vw;
 
   white-space: nowrap;
   font-size: clamp(10px, 1.08vw, 20px);
@@ -258,10 +258,13 @@
 } */
 
 .ballHistory {
-  position: static;
   grid-column: 1 / -1;
   display: flex;
   gap: 0.25vw;
+  position: absolute;
+  left: 66.4%;
+  top: 92.2%;
+  z-index: 6;
 }
 
 .ball {
