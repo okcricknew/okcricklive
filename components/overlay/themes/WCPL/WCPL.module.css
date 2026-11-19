@@ -159,6 +159,7 @@
   text-align: right;
   font-weight: 900;
   line-height: 1;
+  transform: translateX(-0.8vw);
 }
 
 .batsmanBalls {
@@ -166,6 +167,7 @@
   text-align: right;
   font-weight: 700;
   line-height: 1;
+  transform: translateX(-0.8vw);
 }
 .bowlerInfo {
   position: absolute;
