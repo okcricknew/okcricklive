@@ -249,6 +249,7 @@
 .six { background: #22c55e; color: #111; }
 .extraBall { font-size: clamp(6px, 0.55vw, 10px); }
 
+/* comments karke rakha hai
 .score {
   position: absolute;
   left: 48.5%;
@@ -287,6 +288,60 @@
 
   font-size: clamp(8px, 0.8vw, 15px);
   font-weight: 700;
+  white-space: nowrap;
+} 
+is line ko comment kiya hai */
+
+.centerInfo {
+  position: absolute;
+  left: 40.5%;
+  top: 89.2%;
+  width: 19%;
+  transform: translateY(-50%);
+  z-index: 7;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.45vw;
+  white-space: nowrap;
+}
+
+.teams {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.battingTeamName {
+  font-size: clamp(11px, 1.15vw, 22px);
+  font-weight: 800;
+}
+
+.bowlingTeamName {
+  font-size: clamp(8px, 0.82vw, 16px);
+  font-weight: 600;
+}
+
+.vs {
+  font-size: clamp(8px, 0.72vw, 14px);
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.score {
+  font-size: clamp(14px, 2vw, 38px);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.overs {
+  font-size: clamp(8px, 0.8vw, 15px);
+  font-weight: 700;
+  line-height: 1;
   white-space: nowrap;
 }
 
