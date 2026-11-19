@@ -309,7 +309,7 @@ is line ko comment kiya hai */
 .teams {
   display: inline-flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 15px;
   min-width: 0;
   white-space: nowrap;
 }
