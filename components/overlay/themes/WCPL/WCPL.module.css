@@ -133,7 +133,7 @@
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 2vw;
+  gap: 1.5vw;
 }
 
 .batsmanRow {
@@ -176,7 +176,7 @@
   text-align: right;
   line-height: 1;
   transform: translateX(-5vw);
-  font-family: "Michroma", sans-serif;
+  font-family: "Oxanium", sans-serif;
   font-weight: 400;
 }
 .bowlerInfo {
