@@ -38,17 +38,21 @@ export default function MatchCenter() {
         aria-hidden="true"
       />
 
-      <div className={styles.teams}>
-        {batting} <span>v</span> {bowling}
-      </div>
+      <div className={styles.centerInfo}>
+  <div className={styles.teams}>
+    <span className={styles.battingTeamName}>{batting}</span>
+    <span className={styles.vs}>v</span>
+    <span className={styles.bowlingTeamName}>{bowling}</span>
+  </div>
 
-      <div className={styles.score}>
-        {runs}-{wickets}
-      </div>
+  <div className={styles.score}>
+    {runs}-{wickets}
+  </div>
 
-      <div className={styles.overs}>
-        {displayOver} OVERS
-      </div>
+  <div className={styles.overs}>
+    {displayOver} OVERS
+  </div>
+</div>
     </div>
   );
 }
