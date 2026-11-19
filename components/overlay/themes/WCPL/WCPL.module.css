@@ -249,49 +249,6 @@
 .six { background: #22c55e; color: #111; }
 .extraBall { font-size: clamp(6px, 0.55vw, 10px); }
 
-/* comments karke rakha hai
-.score {
-  position: absolute;
-  left: 48.5%;
-  top: 89.2%;
-  transform: translate(-50%, -50%);
-  z-index: 7;
-
-  font-size: clamp(14px, 2vw, 38px);
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.teams {
-  position: absolute;
-  left: 41.5%;
-  top: 89.2%;
-  transform: translate(-50%, -50%);
-  z-index: 7;
-
-  font-size: clamp(8px, 0.9vw, 17px);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.teams span {
-  margin: 0 0.35em;
-  opacity: 0.65;
-}
-
-.overs {
-  position: absolute;
-  left: 57%;
-  top: 89.2%;
-  transform: translate(-50%, -50%);
-  z-index: 7;
-
-  font-size: clamp(8px, 0.8vw, 15px);
-  font-weight: 700;
-  white-space: nowrap;
-} 
-is line ko comment kiya hai */
-
 .centerInfo {
   position: absolute;
   left: 40.5%;
@@ -335,7 +292,7 @@ is line ko comment kiya hai */
 }
 
 .score {
-  font-size: clamp(20px, 2vw, 38px);
+  font-size: clamp(24px, 2vw, 38px);
   font-weight: 700;
   font-family: "Oxanium", sans-serif;
   line-height: 1;
