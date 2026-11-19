@@ -315,32 +315,38 @@ is line ko comment kiya hai */
 }
 
 .battingTeamName {
-  font-size: clamp(11px, 1.15vw, 22px);
-  font-weight: 800;
+  font-size: clamp(16px, 1.15vw, 22px);
+  font-weight: 700;
+  font-family: "Oxanium", sans-serif;
 }
 
 .bowlingTeamName {
-  font-size: clamp(8px, 0.82vw, 16px);
+  font-size: clamp(14px, 0.82vw, 16px);
   font-weight: 600;
+  font-family: "Oxanium", sans-serif;
 }
 
 .vs {
-  font-size: clamp(8px, 0.72vw, 14px);
-  font-weight: 600;
+  font-size: clamp(12px, 0.72vw, 14px);
+  font-weight: 400;
   opacity: 0.65;
+  font-family: "Oxanium", sans-serif;
+  color: #004BA0;
 }
 
 .score {
-  font-size: clamp(14px, 2vw, 38px);
-  font-weight: 900;
+  font-size: clamp(18px, 2vw, 38px);
+  font-weight: 700;
+  font-family: "Oxanium", sans-serif;
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .overs {
-  font-size: clamp(8px, 0.8vw, 15px);
-  font-weight: 700;
+  font-size: clamp(14px, 0.8vw, 15px);
+  font-weight: 400;
+  font-family: "Oxanium", sans-serif;
   line-height: 1;
   white-space: nowrap;
 }
