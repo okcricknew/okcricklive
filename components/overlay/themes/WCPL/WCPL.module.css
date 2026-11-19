@@ -302,14 +302,14 @@ is line ko comment kiya hai */
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.45vw;
   white-space: nowrap;
 }
 
 .teams {
   display: inline-flex;
   align-items: baseline;
-  gap: 15px;
+  gap: 0.25em;
   min-width: 0;
   white-space: nowrap;
 }
