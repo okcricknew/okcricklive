@@ -249,7 +249,7 @@
 .six { background: #22c55e; color: #111; }
 .extraBall { font-size: clamp(6px, 0.55vw, 10px); }
 
-.centerInfo {
+/* .centerInfo {
   position: absolute;
   left: 37.5%;
   top: 89.2%;
@@ -261,6 +261,21 @@
   justify-content: flex-start;
   gap: 15px;
   white-space: nowrap;
+} */
+
+.centerInfo {
+  position: absolute;
+  left: 50%;
+  top: 89.2%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: max-content;
+  white-space: nowrap;
+  gap: 15px;
 }
 
 .teams {
