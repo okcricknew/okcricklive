@@ -1,8 +1,8 @@
 /* WCPL artwork is server-rendered as image elements and preloaded in the document head. */
 @font-face {
-  font-family: "Michroma";
-  src: url("/fonts/wcpl/Michroma-Regular.ttf") format("truetype");
-  font-weight: 400;
+  font-family: "Oxanium";
+  src: url("/fonts/wcpl/Oxanium-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
@@ -158,8 +158,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
-  font-family: "Michroma", sans-serif;
-  font-weight: 400;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 600;
 }
 
 .batsmanRuns {
@@ -167,8 +167,8 @@
   text-align: right;
   line-height: 1;
   transform: translateX(-4.5vw);
-  font-family: "Michroma", sans-serif;
-  font-weight: 400;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 600;
 }
 
 .batsmanBalls {
@@ -178,7 +178,6 @@
   transform: translateX(-5vw);
   font-family: "Michroma", sans-serif;
   font-weight: 400;
-  -webkit-text-stroke: -0.8px;
 }
 .bowlerInfo {
   position: absolute;
