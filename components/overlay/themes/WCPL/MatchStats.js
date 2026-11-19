@@ -183,7 +183,7 @@ export default function MatchStats() {
     ? `${currentStat.label}: ${currentStat.value}`
     : "";
 
-  const isLongText = displayText.length > 35;
+  const isLongText = displayText.length > 17;
 
   // =====================================
   // 3. RESET WHEN MATCH CHANGES
