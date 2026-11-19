@@ -52,7 +52,7 @@ export default function BattingPanel({ team }) {
               <span className={styles.strikerMark}>{match.striker === name ? "★" : ""}</span>
               <span className={styles.batsmanName}>{name}</span>
               <span className={styles.batsmanRuns}>{data.runs || 0}</span>
-              <span className={styles.batsmanBalls}>({data.balls || 0})</span>
+              <span className={styles.batsmanBalls}>{data.balls || 0}</span>
             </div>
           );
         })}
