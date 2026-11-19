@@ -160,6 +160,7 @@
   text-transform: uppercase;
   font-family: "Oxanium", sans-serif;
   font-weight: 600;
+  font-size: 28px;
 }
 
 .batsmanRuns {
@@ -169,6 +170,7 @@
   transform: translateX(-4.5vw);
   font-family: "Oxanium", sans-serif;
   font-weight: 600;
+  font-size: 32px;
 }
 
 .batsmanBalls {
@@ -178,6 +180,7 @@
   transform: translateX(-5vw);
   font-family: "Oxanium", sans-serif;
   font-weight: 400;
+  font-size: 22px;
 }
 .bowlerInfo {
   position: absolute;
