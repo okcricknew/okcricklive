@@ -133,7 +133,7 @@
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 1.5vw;
+  gap: 1.2vw;
 }
 
 .batsmanRow {
@@ -151,6 +151,7 @@
   width: 0.8em;
   color: #16843b;
   text-align: center;
+  font-size: 18px;
 }
 
 .batsmanName {
