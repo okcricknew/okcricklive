@@ -335,13 +335,12 @@ is line ko comment kiya hai */
 }
 
 .score {
-  font-size: clamp(18px, 2vw, 38px);
+  font-size: clamp(20px, 2vw, 38px);
   font-weight: 700;
   font-family: "Oxanium", sans-serif;
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
 }
 
 .overs {
@@ -350,7 +349,6 @@ is line ko comment kiya hai */
   font-family: "Oxanium", sans-serif;
   line-height: 1;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 @media (max-aspect-ratio: 16/9) {
