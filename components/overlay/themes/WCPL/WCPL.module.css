@@ -183,7 +183,7 @@
   font-weight: 400;
   font-size: 16px;
 }
-.bowlerInfo {
+/* .bowlerInfo {
   position: absolute;
   left: 66.35%;
   top: 88.65%;
@@ -199,7 +199,27 @@
   font-size: clamp(10px, 1.08vw, 20px);
   line-height: 1;
   font-variant-numeric: tabular-nums;
+} */
+
+.bowlerInfo {
+  position: absolute;
+  left: 66.35%;
+  top: 88.65%;
+  width: 20.4%;
+  z-index: 5;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  column-gap: 1.15vw;
+  row-gap: 0.55vw;
+
+  white-space: nowrap;
+  font-size: clamp(10px, 1.08vw, 20px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+
 .bowlerInfo strong { overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
 .bowlerName {
   min-width: 0;
@@ -228,14 +248,22 @@
 .bowlingTeam {
   display: none;
 }
-.ballHistory {
+/* .ballHistory {
   position: absolute;
   left: 66.4%;
   top: 92.2%;
   z-index: 6;
   display: flex;
   gap: 0.25vw;
+} */
+
+.ballHistory {
+  position: static;
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.25vw;
 }
+
 .ball {
   width: clamp(14px, 1.65vw, 30px);
   height: clamp(14px, 1.65vw, 30px);
