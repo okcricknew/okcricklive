@@ -157,24 +157,28 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 800;
   text-transform: uppercase;
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
 }
 
 .batsmanRuns {
   min-width: 0;
   text-align: right;
-  font-weight: 900;
   line-height: 1;
   transform: translateX(-4.5vw);
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
 }
 
 .batsmanBalls {
   min-width: 0;
   text-align: right;
-  font-weight: 700;
   line-height: 1;
   transform: translateX(-5vw);
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  -webkit-text-stroke: -0.8px;
 }
 .bowlerInfo {
   position: absolute;
