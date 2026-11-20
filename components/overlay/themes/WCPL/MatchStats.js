@@ -22,7 +22,7 @@ const formatMatchType = (value) => {
   return types[normalized] || normalized.toUpperCase();
 };
 
-export default function MatchStats() {
+export default function MatchStats({ eventActive = false }) {
   const match = useOverlay();
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -243,10 +243,16 @@ export default function MatchStats() {
 
   return (
     <div
-      className={styles.statsContainer}
-      aria-live="polite"
-      aria-atomic="true"
-    >
+  className={styles.statsContainer}
+  style={{
+    opacity: eventActive ? 0 : 1,
+    visibility: eventActive ? "hidden" : "visible",
+    pointerEvents: "none",
+  }}
+  aria-live="polite"
+  aria-atomic="true"
+  aria-hidden={eventActive}
+>
       <div
         key={currentStat.id}
         className={`${styles.statItem} ${
