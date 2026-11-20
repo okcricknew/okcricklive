@@ -46,6 +46,7 @@ export default function MatchOverlay() {
 
   const [showBatsmanStats, setShowBatsmanStats] = useState(false);
   const [showBowlerStats, setShowBowlerStats] = useState(false);
+  const [eventActive, setEventActive] = useState(false);
 
   const wcplReady = artworkReady && match?.teamColorsReady;
 
@@ -130,9 +131,10 @@ export default function MatchOverlay() {
   // Reset only stats when the match changes.
   // Do not reset a previously completed intro.
   useEffect(() => {
-    setShowBatsmanStats(false);
-    setShowBowlerStats(false);
-  }, [match?.id]);
+  setShowBatsmanStats(false);
+  setShowBowlerStats(false);
+  setEventActive(false);
+}, [match?.id]);
 
   // Persist completion after the MatchIntro exit animation.
   const handleIntroComplete = useCallback(() => {
@@ -228,11 +230,17 @@ export default function MatchOverlay() {
         }}
       >
         <LowerThirdLayout animate={introComplete}>
-          <BattingPanel team={match.battingTeam} />
-          <MatchCenter />
-        <MatchStats />
-          <BowlingPanel team={match.bowlingTeam} />
-        </LowerThirdLayout>
+  <BattingPanel team={match.battingTeam} />
+
+  <MatchCenter
+    eventActive={eventActive}
+    onEventActiveChange={setEventActive}
+  />
+
+  <MatchStats eventActive={eventActive} />
+
+  <BowlingPanel team={match.bowlingTeam} />
+</LowerThirdLayout>
       </div>
 
       {/* MATCH INTRO - PERMANENTLY MOUNTED */}
