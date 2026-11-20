@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import styles from "./WCPL.module.css";
 import MatchEventAnimation from "./MatchEventAnimation";
 
-export default function MatchCenter() {
+export default function MatchCenter({
+  eventActive,
+  onEventActiveChange,
+}) {
   const match = useOverlay();
-
-  const [eventActive, setEventActive] = useState(false);
 
   if (!match) return null;
 
@@ -43,13 +43,15 @@ export default function MatchCenter() {
       />
 
       <MatchEventAnimation
-        onActiveChange={setEventActive}
+        onActiveChange={onEventActiveChange}
       />
 
       <div
         className={styles.centerInfo}
         style={{
-          display: eventActive ? "none" : "flex",
+          opacity: eventActive ? 0 : 1,
+          visibility: eventActive ? "hidden" : "visible",
+          pointerEvents: "none",
         }}
       >
         <div className={styles.teams}>
@@ -57,7 +59,9 @@ export default function MatchCenter() {
             {batting}
           </span>
 
-          <span className={styles.vs}>v</span>
+          <span className={styles.vs}>
+            v
+          </span>
 
           <span className={styles.bowlingTeamName}>
             {bowling}
