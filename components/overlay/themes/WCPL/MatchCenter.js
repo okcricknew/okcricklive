@@ -1,5 +1,6 @@
 import { useOverlay } from "../../core/OverlayProvider";
 import styles from "./WCPL.module.css";
+import MatchEventAnimation from "./MatchEventAnimation";
 
 export default function MatchCenter() {
   const match = useOverlay();
@@ -38,21 +39,29 @@ export default function MatchCenter() {
         aria-hidden="true"
       />
 
+      <MatchEventAnimation />
+
       <div className={styles.centerInfo}>
-  <div className={styles.teams}>
-    <span className={styles.battingTeamName}>{batting}</span>
-    <span className={styles.vs}>v</span>
-    <span className={styles.bowlingTeamName}>{bowling}</span>
-  </div>
+        <div className={styles.teams}>
+          <span className={styles.battingTeamName}>
+            {batting}
+          </span>
 
-  <div className={styles.score}>
-    {runs}-{wickets}
-  </div>
+          <span className={styles.vs}>v</span>
 
-  <div className={styles.overs}>
-    {displayOver} OVERS
-  </div>
-</div>
+          <span className={styles.bowlingTeamName}>
+            {bowling}
+          </span>
+        </div>
+
+        <div className={styles.score}>
+          {runs}-{wickets}
+        </div>
+
+        <div className={styles.overs}>
+          {displayOver} OVERS
+        </div>
+      </div>
     </div>
   );
 }
