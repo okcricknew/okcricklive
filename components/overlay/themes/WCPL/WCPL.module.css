@@ -205,7 +205,8 @@ transform: translateY(-50%);
 .bowlerInfo {
   position: absolute;
   left: 66.35%;
-  top: 87.6%;
+  top: 92.07%;
+transform: translateY(-50%);
   width: 20.4%;
   z-index: 5;
 
