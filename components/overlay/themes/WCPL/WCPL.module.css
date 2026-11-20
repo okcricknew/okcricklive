@@ -128,7 +128,8 @@
 .batsmen {
   position: absolute;
   left: 13.6%;
-  top: 87.6%;
+  top: 92.07%;
+transform: translateY(-50%);
   width: 25.8%;
   z-index: 5;
   display: flex;
