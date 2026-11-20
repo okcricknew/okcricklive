@@ -204,7 +204,7 @@
 .bowlerInfo {
   position: absolute;
   left: 66.35%;
-  top: 88.65%;
+  top: 87.6%;
   width: 20.4%;
   z-index: 5;
 
@@ -212,7 +212,7 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: baseline;
   column-gap: 1.15vw;
-  row-gap: 2vw;
+  row-gap: 1vw;
 
   white-space: nowrap;
   font-size: clamp(10px, 1.08vw, 20px);
