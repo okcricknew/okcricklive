@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { useOverlay } from "../../core/OverlayProvider";
 import styles from "./MatchEventAnimation.module.css";
@@ -7,11 +6,13 @@ const EVENT_DURATION = 4500;
 
 function getEventType(ball) {
   if (!ball) return null;
+
   if (ball.type === "OUT" || ball.wicketInfo) return "WICKET";
   if (ball.type === "NB") return "FREE HIT";
 
   if (ball.type === "NORMAL") {
     const runs = Number(ball.runs);
+
     if (runs === 4) return "FOUR";
     if (runs === 6) return "SIX";
   }
@@ -31,7 +32,7 @@ function getBallKey(ball, historyLength) {
   ].join("|");
 }
 
-export default function MatchEventAnimation() {
+export default function MatchEventAnimation({ onActiveChange }) {
   const match = useOverlay();
 
   const [activeEvent, setActiveEvent] = useState(null);
@@ -39,6 +40,11 @@ export default function MatchEventAnimation() {
   const lastBallKeyRef = useRef(null);
   const timeoutRef = useRef(null);
   const eventSequenceRef = useRef(0);
+
+  // Parent ko batayega ki event active hai ya nahi.
+  useEffect(() => {
+    onActiveChange(Boolean(activeEvent));
+  }, [activeEvent, onActiveChange]);
 
   useEffect(() => {
     lastBallKeyRef.current = null;
@@ -60,7 +66,7 @@ export default function MatchEventAnimation() {
     const lastBall = history[history.length - 1];
     const nextBallKey = getBallKey(lastBall, history.length);
 
-    // First render par purani ball ki animation nahi chalegi.
+    // First render par purani ball replay nahi hogi.
     if (lastBallKeyRef.current === null) {
       lastBallKeyRef.current = nextBallKey;
       return;
@@ -148,4 +154,4 @@ export default function MatchEventAnimation() {
       )}
     </div>
   );
-                  }
+          }
