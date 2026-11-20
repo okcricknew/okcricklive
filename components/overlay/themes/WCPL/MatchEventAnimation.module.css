@@ -1,0 +1,317 @@
+
+/* Match-center WebP ke andar animation clip hogi. */
+
+.eventViewport {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+
+  -webkit-mask-image: url("/themes/WCPL/match-center.webp");
+  mask-image: url("/themes/WCPL/match-center.webp");
+
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  mask-mode: alpha;
+}
+
+.eventStage {
+  --event-color: #35eaff;
+  --event-glow: rgba(53, 234, 255, .9);
+
+  position: absolute;
+  left: 50%;
+  top: 91.9%;
+
+  width: min(32%, 520px);
+  height: clamp(42px, 5.4vw, 92px);
+
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  isolation: isolate;
+  color: #fff;
+
+  filter: drop-shadow(0 0 10px var(--event-glow));
+
+  animation: eventStageIn 450ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.four {
+  --event-color: #35eaff;
+  --event-glow: rgba(53, 234, 255, .9);
+}
+
+.six {
+  --event-color: #ffe45c;
+  --event-glow: rgba(255, 177, 35, .95);
+}
+
+.wicket {
+  --event-color: #ff3157;
+  --event-glow: rgba(255, 30, 70, .95);
+}
+
+.freeHit {
+  --event-color: #c47bff;
+  --event-glow: rgba(170, 70, 255, .95);
+}
+
+.mainEventText {
+  position: relative;
+  z-index: 5;
+
+  color: #fff;
+
+  font-family: "Oxanium", "Arial Black", sans-serif;
+  font-size: clamp(24px, 3.25vw, 58px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .12em;
+
+  text-align: center;
+  white-space: nowrap;
+
+  -webkit-text-stroke: 1px var(--event-color);
+
+  text-shadow:
+    0 0 5px #fff,
+    0 0 13px var(--event-color),
+    0 0 28px var(--event-color);
+
+  animation: eventTextImpact 900ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.ghostText {
+  position: absolute;
+  z-index: 1;
+
+  color: var(--event-color);
+  opacity: 0;
+
+  font-family: "Oxanium", sans-serif;
+  font-size: clamp(38px, 5vw, 88px);
+  font-weight: 800;
+  letter-spacing: .1em;
+  white-space: nowrap;
+
+  animation: ghostShockwave 1800ms ease-out both;
+}
+
+.energyRing,
+.energyRingSecondary {
+  position: absolute;
+  z-index: 2;
+
+  width: 34%;
+  aspect-ratio: 1;
+
+  border: 2px solid var(--event-color);
+  border-radius: 50%;
+
+  opacity: 0;
+
+  box-shadow:
+    0 0 12px var(--event-glow),
+    inset 0 0 12px var(--event-glow);
+
+  animation: ringBurst 1250ms cubic-bezier(.1, .7, .2, 1) both;
+}
+
+.energyRingSecondary {
+  animation-delay: 120ms;
+  animation-duration: 1500ms;
+}
+
+.particleField {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  width: clamp(2px, .28vw, 5px);
+  height: clamp(5px, .65vw, 11px);
+
+  border-radius: 3px;
+
+  background: var(--event-color);
+  box-shadow: 0 0 8px var(--event-glow);
+
+  opacity: 0;
+
+  transform:
+    rotate(calc(var(--particle-index) * 30deg))
+    translateY(0);
+
+  animation: particleBlast 1050ms cubic-bezier(.12, .7, .25, 1) both;
+
+  animation-delay: calc(var(--particle-index) * 18ms);
+}
+
+.eventUnderline {
+  position: absolute;
+  z-index: 4;
+
+  bottom: 8%;
+  left: 50%;
+
+  width: 0;
+  height: 2px;
+
+  transform: translateX(-50%);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #fff,
+    var(--event-color),
+    #fff,
+    transparent
+  );
+
+  box-shadow: 0 0 12px var(--event-glow);
+
+  animation: underlineSweep 700ms 100ms ease-out both;
+}
+
+@keyframes eventStageIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.72) skewX(-8deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) skewX(0);
+  }
+}
+
+@keyframes eventTextImpact {
+  0% {
+    opacity: 0;
+    transform: perspective(500px) rotateX(65deg) scale(.55);
+    filter: blur(8px);
+  }
+
+  55% {
+    opacity: 1;
+    transform: perspective(500px) rotateX(-8deg) scale(1.12);
+    filter: blur(0);
+  }
+
+  75% {
+    transform: perspective(500px) rotateX(3deg) scale(.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: perspective(500px) rotateX(0) scale(1);
+  }
+}
+
+@keyframes ghostShockwave {
+  0% {
+    opacity: 0;
+    transform: scale(.45);
+  }
+
+  18% {
+    opacity: .24;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@keyframes ringBurst {
+  0% {
+    opacity: 0;
+    transform: scale(.2);
+  }
+
+  22% {
+    opacity: .95;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(3.1);
+  }
+}
+
+@keyframes particleBlast {
+  0% {
+    opacity: 0;
+    transform:
+      rotate(calc(var(--particle-index) * 30deg))
+      translateY(0)
+      scale(.5);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      rotate(calc(var(--particle-index) * 30deg))
+      translateY(-42px)
+      scale(0);
+  }
+}
+
+@keyframes underlineSweep {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+
+  35% {
+    width: 78%;
+    opacity: 1;
+  }
+
+  100% {
+    width: 96%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eventStage,
+  .mainEventText,
+  .ghostText,
+  .energyRing,
+  .energyRingSecondary,
+  .particle,
+  .eventUnderline {
+    animation: none !important;
+  }
+
+  .eventStage {
+    opacity: 1;
+  }
+
+  .mainEventText {
+    transform: none;
+  }
+}
