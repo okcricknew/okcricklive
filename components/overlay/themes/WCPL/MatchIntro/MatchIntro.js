@@ -105,7 +105,8 @@ export default function MatchIntro({
     setEventIndex(-1);
   }, [match?.id]);
 
-  // Start flipInY after artwork becomes ready.
+  // Start animation when the match artwork is ready.
+  // Toss/Firebase updates must not restart the intro animation.
   useEffect(() => {
     if (!introReady || eventList.length === 0) return;
 
@@ -117,67 +118,65 @@ export default function MatchIntro({
     }, INTRO_DELAY);
 
     return () => clearTimeout(timeout);
-  }, [match?.id, introReady, eventList]);
+  }, [match?.id, introReady]);
 
   // Preserve sequential event timing.
-// Hold the final event until all required players are selected.
-useEffect(() => {
-  if (
-    !introReady ||
-    introPhase === "waiting" ||
-    introPhase === "exiting" ||
-    eventIndex < 0 ||
-    eventIndex >= eventList.length
-  ) {
-    return;
-  }
+  // Hold the final event until all required players are selected.
+  useEffect(() => {
+    if (
+      !introReady ||
+      introPhase === "waiting" ||
+      introPhase === "exiting" ||
+      eventIndex < 0 ||
+      eventIndex >= eventList.length
+    ) {
+      return;
+    }
 
-  // Move to the next event normally.
-  if (eventIndex < eventList.length - 1) {
+    // Move to the next event normally.
+    if (eventIndex < eventList.length - 1) {
+      const timeout = setTimeout(() => {
+        setEventIndex((previous) => previous + 1);
+      }, EVENT_DELAY);
+
+      return () => clearTimeout(timeout);
+    }
+
+    // Final event: wait until parent confirms player selection.
+    if (!canComplete) {
+      return;
+    }
+
     const timeout = setTimeout(() => {
-      setEventIndex((previous) => previous + 1);
+      setIntroPhase("exiting");
     }, EVENT_DELAY);
 
     return () => clearTimeout(timeout);
-  }
-
-  // Final event: wait until parent confirms player selection.
-  if (!canComplete) {
-    return;
-  }
-
-  const timeout = setTimeout(() => {
-    setIntroPhase("exiting");
-  }, EVENT_DELAY);
-
-  return () => clearTimeout(timeout);
-}, [
-  introReady,
-  introPhase,
-  eventIndex,
-  eventList.length,
-  canComplete,
-]);
+  }, [
+    introReady,
+    introPhase,
+    eventIndex,
+    eventList.length,
+    canComplete,
+  ]);
 
   // Complete only after the exit animation finishes.
-  
-const handleAnimationEnd = (event) => {
-  // Ignore animations bubbling from child elements.
-  if (event.target !== event.currentTarget) return;
+  const handleAnimationEnd = (event) => {
+    // Ignore animations bubbling from child elements.
+    if (event.target !== event.currentTarget) return;
 
-  // CSS Modules can rename animation keyframes.
-  // Therefore, use lifecycle state instead of animationName.
-  if (introPhase === "exiting") {
-    if (typeof onComplete === "function") {
-      onComplete();
+    // CSS Modules can rename animation keyframes.
+    // Therefore, use lifecycle state instead of animationName.
+    if (introPhase === "exiting") {
+      if (typeof onComplete === "function") {
+        onComplete();
+      }
     }
-  }
 
-  if (introPhase === "entering") {
-    setIntroPhase("entered");
-  }
-};
-  
+    if (introPhase === "entering") {
+      setIntroPhase("entered");
+    }
+  };
 
   if (!match) return null;
 
@@ -219,29 +218,24 @@ const handleAnimationEnd = (event) => {
       <div className={`${styles.artwork} ${styles.tourNameArt}`} />
 
       {/* Team A */}
-
       <div className={styles.teamAName} style={teamAStyle}>
         {teamAName}
       </div>
 
       {/* Team B */}
-
       <div className={styles.teamBName} style={teamBStyle}>
         {teamBName}
       </div>
 
       {/* Tournament */}
-
       <div className={styles.tournamentName}>
         {match.tournamentName || "WCPL"}
       </div>
 
       {/* Match information */}
-
       <div className={styles.eventText} aria-live="polite">
         {eventIndex >= 0 ? eventList[eventIndex] : ""}
       </div>
     </div>
   );
-    }
-        
+}
