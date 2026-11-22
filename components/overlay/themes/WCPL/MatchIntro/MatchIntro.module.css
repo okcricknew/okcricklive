@@ -1,4 +1,5 @@
 /* WCPL Match Intro — independent artwork styling */
+
 @font-face {
   font-family: "Oxanium";
   src: url("/fonts/wcpl/Oxanium-VariableFont_wght.ttf") format("truetype");
@@ -140,16 +141,53 @@
   font-size: clamp(10px, 1.2vw, 23px);
 }
 
-/* Match information displayed on intro artwork */
+/* Match information inside center WebP strip */
 
 .eventText {
   left: 50%;
   top: 92.1%;
   width: 30%;
+  height: 8%;
+
+  box-sizing: border-box;
+  padding: 0 0.5%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 
   color: #171717;
-  font-size: clamp(12px, 1.5vw, 29px);
-  letter-spacing: 0.04em;
+
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(9px, 1.1vw, 21px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0.025em;
+
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* Toss result — first and second lines */
+
+.eventLine {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+
+  text-align: center;
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.12;
+}
+
+.eventLine + .eventLine {
+  font-size: 0.88em;
 }
 
 /* =========================================
