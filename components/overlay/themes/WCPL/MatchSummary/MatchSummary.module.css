@@ -1,4 +1,3 @@
-
 /* =========================================
    WCPL MATCH SUMMARY
    TV BROADCAST SCORECARD
@@ -19,16 +18,19 @@
   padding: 3vh 3vw;
 
   pointer-events: none;
+
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Main summary card */
+/* =========================================
+   MAIN SUMMARY CARD
+========================================= */
 
 .summaryCard {
   position: relative;
   isolation: isolate;
 
-  width: min(64vw, 1100px);
+  width: min(80vw, 1224px);
   max-width: 94vw;
 
   aspect-ratio: 2.07 / 1;
@@ -46,7 +48,8 @@
 }
 
 /* =========================================
-   PURPLE GEOMETRIC BACKGROUND
+   EXISTING PURPLE BACKGROUND
+   KEEP SAME
 ========================================= */
 
 .summaryBackground {
@@ -80,10 +83,12 @@
   flex: 0 0 18%;
   min-height: 0;
 
+  box-sizing: border-box;
+
   display: flex;
   align-items: center;
 
-  padding: 0 2% 0 22%;
+  padding: 1.5% 2% 0 22%;
 
   z-index: 2;
 }
@@ -113,7 +118,9 @@
   flex-direction: column;
   justify-content: center;
 
-  gap: 5px;
+  gap: 9px;
+
+  transform: translateY(2px);
 }
 
 .summaryTitle {
@@ -133,11 +140,12 @@
 
 .tournamentBar {
   width: 100%;
-  min-height: 25%;
+  min-height: 28px;
 
   display: flex;
   align-items: center;
 
+  box-sizing: border-box;
   padding: 4px 9px;
 
   overflow: hidden;
@@ -166,14 +174,16 @@
   display: flex;
   flex-direction: column;
 
-  padding-left: 0;
-  padding-right: 0;
+  /* Dedicated gap between both innings */
+  gap: 5.5%;
+
+  padding: 0;
 }
 
 .inningsSection {
   position: relative;
 
-  flex: 1 1 50%;
+  flex: 1 1 0;
   min-height: 0;
 
   display: grid;
@@ -182,7 +192,9 @@
   overflow: hidden;
 }
 
-/* Team logo */
+/* =========================================
+   TEAM LOGO
+========================================= */
 
 .teamLogoArea {
   min-width: 0;
@@ -208,7 +220,7 @@
 }
 
 /* =========================================
-   TEAM SCORE HEADER
+   INNINGS CONTENT
 ========================================= */
 
 .inningsContent {
@@ -220,6 +232,10 @@
 
   padding-right: 0;
 }
+
+/* =========================================
+   TEAM SCORE HEADER
+========================================= */
 
 .firstInningsHeader,
 .secondInningsHeader {
@@ -234,6 +250,7 @@
   column-gap: 2%;
 
   padding: 0 1.5%;
+
   overflow: hidden;
 }
 
@@ -324,7 +341,9 @@
   min-height: 0;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+
+  /* Screenshot-like name and figures proportions */
+  grid-template-columns: minmax(0, 1fr) 34%;
 
   align-items: center;
 
@@ -340,6 +359,7 @@
   display: flex;
   align-items: center;
 
+  box-sizing: border-box;
   padding: 0 3%;
 
   overflow: hidden;
@@ -358,6 +378,7 @@
 }
 
 .playerFigures {
+  width: 100%;
   height: 100%;
   min-width: 0;
 
@@ -368,6 +389,8 @@
   gap: 5px;
 
   padding: 0 8px;
+
+  box-sizing: border-box;
 
   background: rgba(112, 19, 204, 0.95);
 
@@ -403,6 +426,7 @@
   align-items: center;
   justify-content: center;
 
+  box-sizing: border-box;
   padding: 0 2%;
 
   overflow: hidden;
@@ -447,7 +471,12 @@
   }
 
   .tournamentBar {
+    min-height: 0;
     padding: 2px 4px;
+  }
+
+  .inningsList {
+    gap: 4%;
   }
 
   .inningsSection {
@@ -463,6 +492,10 @@
   .secondInningsHeader {
     column-gap: 1%;
     padding: 0 1%;
+  }
+
+  .playerRow {
+    grid-template-columns: minmax(0, 1fr) 34%;
   }
 
   .playerFigures {
@@ -483,4 +516,58 @@
   .summaryCard {
     transition: none;
   }
-    }
+}
+
+
+/* =========================================
+   MATCH SUMMARY - FINAL SPACING OVERRIDES
+========================================= */
+
+/* Main card dimensions */
+.summaryCard {
+  width: min(80vw, 1224px);
+  max-width: 94vw;
+  aspect-ratio: 2.07 / 1;
+}
+
+/* Heading slightly lower */
+.summaryHeader {
+  box-sizing: border-box;
+  flex: 0 0 18%;
+  padding: 1.5% 2% 0 22%;
+}
+
+/* Heading and tournament details gap */
+.headerContent {
+  gap: 9px;
+  transform: translateY(2px);
+}
+
+/* Tournament information bar */
+.tournamentBar {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: auto;
+}
+
+/* Space between first and second innings */
+.inningsList {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 5%;
+}
+
+/* Both innings receive equal available height */
+.inningsSection {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* Keep result at the bottom */
+.resultBanner {
+  flex: 0 0 8%;
+  min-height: 0;
+}
+
