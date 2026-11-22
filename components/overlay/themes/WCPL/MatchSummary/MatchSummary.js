@@ -41,9 +41,7 @@ function padPlayers(players) {
 
   return [
     ...list,
-    ...Array(
-      Math.max(0, 4 - list.length)
-    ).fill(emptyPlayer),
+    ...Array(Math.max(0, 4 - list.length)).fill(emptyPlayer),
   ].slice(0, 4);
 }
 
@@ -85,10 +83,7 @@ function InningsSummary({
 }) {
   if (!innings) return null;
 
-  const teamLogo = getTeamLogo(
-    match,
-    innings.team
-  );
+  const teamLogo = getTeamLogo(match, innings.team);
 
   return (
     <section className={styles.inningsSection}>
@@ -169,13 +164,16 @@ export default function MatchSummary({ match }) {
     metadata.tournamentName,
     metadata.matchName,
     metadata.venue,
-  ].filter(Boolean);
+  ].filter((item) => String(item || "").trim());
 
   return (
     <div className={styles.summaryOverlay}>
       <div className={styles.summaryCard}>
+
+        {/* Existing background */}
         <div className={styles.summaryBackground} />
 
+        {/* Heading and tournament information */}
         <header className={styles.summaryHeader}>
           {tournamentLogo ? (
             <img
@@ -196,11 +194,17 @@ export default function MatchSummary({ match }) {
             </div>
 
             <div className={styles.tournamentBar}>
-              {headerItems.join(" | ")}
+              {headerItems.map((item, index) => (
+                <span key={`${item}-${index}`}>
+                  {index > 0 && " | "}
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </header>
 
+        {/* First and second innings */}
         <div className={styles.inningsList}>
           <InningsSummary
             match={match}
@@ -215,11 +219,13 @@ export default function MatchSummary({ match }) {
           />
         </div>
 
+        {/* Match result */}
         <footer className={styles.resultBanner}>
           {bannerText}
         </footer>
+
       </div>
     </div>
   );
     }
-                
+    
