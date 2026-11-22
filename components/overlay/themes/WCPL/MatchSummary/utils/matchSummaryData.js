@@ -1,31 +1,50 @@
-const getLegalBalls = (match, inningsNum, playerName, playerStats = {}) => {
-  const history = Array.isArray(match?.ballHistory)
-    ? match.ballHistory
-    : [];
+const DEFAULT_INNINGS = 1;
+const PLAYER_LIMIT = 4;
 
-  return history.filter((ball) => {
-    const ballInnings = Number(ball.innings || 1);
+const normalizeName = (value) =>
+  String(value || "").trim().toLowerCase();
 
-    const sameInnings = ballInnings === Number(inningsNum);
-
-    const sameBowler =
-      (ball.bowlerId &&
-        playerStats.playerId &&
-        ball.bowlerId === playerStats.playerId) ||
-      (String(ball.bowler || "").trim().toLowerCase() ===
-        String(playerName || "").trim().toLowerCase());
-
-    const isLegal = !["WD", "NB", "PENALTY", "MANUAL_SCORE_OVERRIDE"].includes(
-      ball.type
-    );
-
-    return sameInnings && sameBowler && isLegal;
-  }).length;
+const toNumber = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
 };
 
-const formatOvers = (legalBalls) => {
-  const balls = Number(legalBalls || 0);
-  return `${Math.floor(balls / 6)}.${balls % 6}`;
+const formatOvers = (over, balls) => {
+  let completedOvers = toNumber(over);
+  let completedBalls = toNumber(balls);
+
+  if (completedBalls >= 6) {
+    completedOvers += Math.floor(completedBalls / 6);
+    completedBalls %= 6;
+  }
+
+  return `${completedOvers}.${completedBalls}`;
+};
+
+// Same team-selection logic as the existing OkCrick helper.
+const getFirstBattingTeam = (match) => {
+  if (match.firstInningsBattingTeam) {
+    return match.firstInningsBattingTeam;
+  }
+
+  if (String(match.tossDecision || "").toLowerCase() === "bat") {
+    return match.tossWinner || match.teamA || "";
+  }
+
+  if (match.tossWinner) {
+    return match.tossWinner === match.teamA
+      ? match.teamB || ""
+      : match.teamA || "";
+  }
+
+  // Existing match data fallback.
+  if (Number(match.innings || DEFAULT_INNINGS) >= 2) {
+    return match.battingTeam === match.teamA
+      ? match.teamB || ""
+      : match.teamA || "";
+  }
+
+  return match.battingTeam || match.teamA || "";
 };
 
 const getTopBatters = (battingStats = {}) => {
@@ -33,133 +52,231 @@ const getTopBatters = (battingStats = {}) => {
     .filter(([, stats]) => stats && typeof stats === "object")
     .sort(
       (a, b) =>
-        Number(b[1].runs || 0) - Number(a[1].runs || 0)
+        toNumber(b[1].runs) - toNumber(a[1].runs)
     )
-    .slice(0, 5)
+    .slice(0, PLAYER_LIMIT)
     .map(([name, stats]) => ({
       name,
-      runs: Number(stats.runs || 0),
-      balls: Number(stats.balls || 0),
+      runs: toNumber(stats.runs),
+      balls: toNumber(stats.balls),
     }));
 };
 
-const getTopBowlers = (bowlingStats = {}, match = {}, inningsNum = 1) => {
+// ballHistory records are retained when innings changes.
+// Therefore, filter by innings and bowler before counting legal balls.
+const getBowlerLegalBalls = (
+  match,
+  inningsNumber,
+  bowlerName
+) => {
+  const history = Array.isArray(match.ballHistory)
+    ? match.ballHistory
+    : [];
+
+  const targetBowler = normalizeName(bowlerName);
+
+  return history.filter((ball) => {
+    const ballInnings = toNumber(ball.innings || DEFAULT_INNINGS);
+
+    const sameInnings = ballInnings === inningsNumber;
+
+    const sameBowler =
+      normalizeName(ball.bowler) === targetBowler;
+
+    const isLegalDelivery = !["WD", "NB", "PENALTY"].includes(
+      String(ball.type || "").toUpperCase()
+    );
+
+    return sameInnings && sameBowler && isLegalDelivery;
+  }).length;
+};
+
+const formatLegalBalls = (legalBalls) => {
+  const balls = toNumber(legalBalls);
+
+  return `${Math.floor(balls / 6)}.${balls % 6}`;
+};
+
+const getTopBowlers = (
+  bowlingStats = {},
+  match,
+  inningsNumber
+) => {
   return Object.entries(bowlingStats || {})
     .filter(([, stats]) => stats && typeof stats === "object")
     .filter(([, stats]) =>
-      Number(stats.wickets || 0) > 0 ||
-      Number(stats.runs || 0) > 0 ||
-      Number(stats.balls || 0) > 0 ||
-      Number(stats.overs || 0) > 0
+      toNumber(stats.wickets) > 0 ||
+      toNumber(stats.runs) > 0 ||
+      toNumber(stats.balls) > 0 ||
+      toNumber(stats.overs) > 0
     )
     .sort(
       (a, b) =>
-        Number(b[1].wickets || 0) - Number(a[1].wickets || 0) ||
-        Number(a[1].runs || 0) - Number(b[1].runs || 0)
+        toNumber(b[1].wickets) - toNumber(a[1].wickets) ||
+        toNumber(a[1].runs) - toNumber(b[1].runs)
     )
-    .slice(0, 5)
+    .slice(0, PLAYER_LIMIT)
     .map(([name, stats]) => {
-      const legalBalls = getLegalBalls(
+      const legalBalls = getBowlerLegalBalls(
         match,
-        inningsNum,
-        name,
-        stats
+        inningsNumber,
+        name
       );
 
       return {
         name,
-        wickets: Number(stats.wickets || 0),
-        runs: Number(stats.runs || 0),
-        overs: formatOvers(legalBalls),
+        wickets: toNumber(stats.wickets),
+        runs: toNumber(stats.runs),
+        overs: formatLegalBalls(legalBalls),
       };
     });
 };
 
-const getInningsData = (match, inningsNum) => {
-  const currentInnings = Number(match?.innings || 1);
-  const requestedInnings = Number(inningsNum);
+const getInningsData = (match, inningsNumber) => {
+  const currentInnings = toNumber(
+    match.innings || DEFAULT_INNINGS
+  );
 
-  const firstInningsBackup = match?.firstInningsStatsBackup || {};
-  const isFirstInnings = requestedInnings === 1;
-  const isCurrentInnings = requestedInnings === currentInnings;
+  const firstInnings = inningsNumber === 1;
+  const firstInningsBackup =
+    match.firstInningsStatsBackup || {};
 
-  const firstBattingTeam =
-    match?.firstInningsBattingTeam ||
-    (currentInnings === 1
-      ? match?.battingTeam
-      : match?.battingTeam === match?.teamA
-        ? match?.teamB
-        : match?.teamA) ||
-    match?.teamA ||
-    "";
+  const firstBattingTeam = getFirstBattingTeam(match);
 
   const secondBattingTeam =
-    firstBattingTeam === match?.teamA
-      ? match?.teamB
-      : match?.teamA;
+    firstBattingTeam === match.teamA
+      ? match.teamB || ""
+      : match.teamA || "";
 
-  const stats = isFirstInnings
-    ? currentInnings === 1
-      ? {
-          batting: match?.battingStats || {},
-          bowling: match?.bowlingStats || {},
-        }
-      : {
-          batting: firstInningsBackup.batting || {},
-          bowling: firstInningsBackup.bowling || {},
-        }
-    : currentInnings >= 2
-      ? {
-          batting: match?.battingStats || {},
-          bowling: match?.bowlingStats || {},
-        }
-      : {
-          batting: {},
-          bowling: {},
-        };
-
+  let battingStats = {};
+  let bowlingStats = {};
   let runs = 0;
   let wickets = 0;
   let overs = "0.0";
 
-  if (isFirstInnings) {
+  if (firstInnings) {
     if (currentInnings === 1) {
-      runs = Number(match?.totalRuns || 0);
-      wickets = Number(match?.totalWickets || 0);
-      overs = `${Number(match?.currentOver || 0)}.${Number(
-        match?.ballsInOver || 0
-      )}`;
+      battingStats = match.battingStats || {};
+      bowlingStats = match.bowlingStats || {};
+
+      runs = toNumber(match.totalRuns);
+      wickets = toNumber(match.totalWickets);
+
+      overs = formatOvers(
+        match.currentOver,
+        match.ballsInOver
+      );
     } else {
-      runs = Number(
-        firstInningsBackup.totalRuns ?? match?.firstInningsScore ?? 0
+      battingStats = firstInningsBackup.batting || {};
+      bowlingStats = firstInningsBackup.bowling || {};
+
+      runs = toNumber(
+        firstInningsBackup.totalRuns ??
+        match.firstInningsScore
       );
-      wickets = Number(
-        firstInningsBackup.totalWickets ?? match?.firstInningsWickets ?? 0
+
+      wickets = toNumber(
+        firstInningsBackup.totalWickets ??
+        match.firstInningsWickets
       );
-      overs = firstInningsBackup.overs || "0.0";
+
+      overs =
+        firstInningsBackup.overs ||
+        formatOvers(
+          firstInningsBackup.currentOver,
+          firstInningsBackup.ballsInOver
+        );
     }
   } else if (currentInnings >= 2) {
-    runs = Number(match?.totalRuns || 0);
-    wickets = Number(match?.totalWickets || 0);
-    overs = `${Number(match?.currentOver || 0)}.${Number(
-      match?.ballsInOver || 0
-    )}`;
+    battingStats = match.battingStats || {};
+    bowlingStats = match.bowlingStats || {};
+
+    runs = toNumber(match.totalRuns);
+    wickets = toNumber(match.totalWickets);
+
+    overs = formatOvers(
+      match.currentOver,
+      match.ballsInOver
+    );
   }
 
-  const team = isFirstInnings ? firstBattingTeam : secondBattingTeam;
-
   return {
-    team,
+    team: firstInnings
+      ? firstBattingTeam
+      : secondBattingTeam,
+
     runs,
     wickets,
     overs,
-    battingPlayers: getTopBatters(stats.batting),
+
+    battingPlayers: getTopBatters(battingStats),
+
     bowlingPlayers: getTopBowlers(
-      stats.bowling,
+      bowlingStats,
       match,
-      requestedInnings
+      inningsNumber
     ),
   };
+};
+
+const getResultBanner = (
+  match,
+  firstInnings,
+  secondInnings
+) => {
+  if (match.status === "completed") {
+    return (
+      match.resultSummary ||
+      "MATCH COMPLETED"
+    );
+  }
+
+  if (Number(match.innings || DEFAULT_INNINGS) === 1) {
+    if (!match.tossWinner) {
+      return "MATCH IN PROGRESS";
+    }
+
+    const decision = String(
+      match.tossDecision || "bat"
+    ).toUpperCase();
+
+    return (
+      `${match.tossWinner} WON THE TOSS ` +
+      `& ELECTED TO ${decision} FIRST`
+    );
+  }
+
+  if (Number(match.innings) === 2) {
+    const target = toNumber(
+      match.target || firstInnings.runs + 1
+    );
+
+    const runsNeeded = Math.max(
+      0,
+      target - secondInnings.runs
+    );
+
+    const [overs, balls] = String(
+      secondInnings.overs || "0.0"
+    )
+      .split(".")
+      .map(toNumber);
+
+    const ballsPlayed = overs * 6 + balls;
+    const totalBalls = toNumber(match.overs) * 6;
+
+    const ballsLeft = Math.max(
+      0,
+      totalBalls - ballsPlayed
+    );
+
+    return (
+      `${secondInnings.team} NEED ${runsNeeded} ` +
+      `RUNS FROM ${ballsLeft} BALLS`
+    );
+  }
+
+  return "MATCH IN PROGRESS";
 };
 
 export const getMatchSummaryData = (match) => {
@@ -168,55 +285,43 @@ export const getMatchSummaryData = (match) => {
       firstInnings: null,
       secondInnings: null,
       bannerText: "",
-      metadata: {},
+      metadata: {
+        tournamentName: "",
+        matchName: "",
+        venue: "",
+        logoUrl: "",
+      },
     };
   }
 
   const firstInnings = getInningsData(match, 1);
   const secondInnings = getInningsData(match, 2);
 
-  let bannerText = "";
-
-  if (match.status === "completed" || match.matchStatus === "completed") {
-    bannerText =
-      match.resultSummary ||
-      match.result ||
-      match.winner ||
-      "MATCH COMPLETED";
-  } else if (Number(match.innings || 1) === 1) {
-    const decision = String(match.tossDecision || "bat").toUpperCase();
-    bannerText = match.tossWinner
-      ? `${match.tossWinner} WON THE TOSS & ELECTED TO ${decision} FIRST`
-      : "MATCH IN PROGRESS";
-  } else {
-    const target = Number(
-      match.target || firstInnings.runs + 1
-    );
-    const runsNeeded = Math.max(0, target - secondInnings.runs);
-
-    const [overs, balls] = String(secondInnings.overs || "0.0")
-      .split(".")
-      .map(Number);
-
-    const ballsPlayed = (overs || 0) * 6 + (balls || 0);
-    const totalBalls = Number(match.overs || 0) * 6;
-    const ballsLeft = Math.max(0, totalBalls - ballsPlayed);
-
-    bannerText = `${secondInnings.team} NEED ${runsNeeded} RUNS FROM ${ballsLeft} BALLS`;
-  }
-
   return {
     firstInnings,
     secondInnings,
-    bannerText,
+
+    bannerText: getResultBanner(
+      match,
+      firstInnings,
+      secondInnings
+    ),
+
     metadata: {
-      tournamentName: match.tournamentName || match.tournament || "",
+      tournamentName:
+        match.tournamentName ||
+        match.tournament ||
+        "",
+
       matchName:
         match.matchOrderSummary ||
-        `MATCH ${match.matchNo || 1}`,
+        (match.matchNo
+          ? `MATCH ${match.matchNo}`
+          : ""),
+
       venue: match.venue || "",
+
       logoUrl: match.logoUrl || "",
     },
   };
 };
-                                                    
