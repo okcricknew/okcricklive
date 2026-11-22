@@ -5,9 +5,8 @@ import { getMatchSummaryData } from "./utils/matchSummaryData";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
 
-function normalize(value) {
-  return String(value || "").trim().toLowerCase();
-}
+const normalize = (value) =>
+  String(value || "").trim().toLowerCase();
 
 function getTeamLogo(match, teamName) {
   if (normalize(teamName) === normalize(match.teamA)) {
@@ -30,6 +29,8 @@ function getTeamLogo(match, teamName) {
 }
 
 function padPlayers(players) {
+  const list = Array.isArray(players) ? players : [];
+
   const emptyPlayer = {
     name: "",
     runs: "",
@@ -39,10 +40,10 @@ function padPlayers(players) {
   };
 
   return [
-    ...(players || []),
-    ...Array(Math.max(0, 4 - (players || []).length)).fill(
-      emptyPlayer
-    ),
+    ...list,
+    ...Array(
+      Math.max(0, 4 - list.length)
+    ).fill(emptyPlayer),
   ].slice(0, 4);
 }
 
@@ -77,14 +78,23 @@ function PlayerRows({ players, type }) {
   );
 }
 
-function InningsSummary({ match, innings, inningsNumber }) {
+function InningsSummary({
+  match,
+  innings,
+  inningsNumber,
+}) {
   if (!innings) return null;
+
+  const teamLogo = getTeamLogo(
+    match,
+    innings.team
+  );
 
   return (
     <section className={styles.inningsSection}>
       <div className={styles.teamLogoArea}>
         <img
-          src={getTeamLogo(match, innings.team)}
+          src={teamLogo}
           alt={`${innings.team || "Team"} logo`}
           className={styles.teamLogo}
           loading="eager"
@@ -147,8 +157,19 @@ export default function MatchSummary({ match }) {
     firstInnings,
     secondInnings,
     bannerText,
-    metadata,
+    metadata = {},
   } = summary;
+
+  const tournamentLogo =
+    metadata.logoUrl ||
+    match.logoUrl ||
+    "";
+
+  const headerItems = [
+    metadata.tournamentName,
+    metadata.matchName,
+    metadata.venue,
+  ].filter(Boolean);
 
   return (
     <div className={styles.summaryOverlay}>
@@ -156,14 +177,18 @@ export default function MatchSummary({ match }) {
         <div className={styles.summaryBackground} />
 
         <header className={styles.summaryHeader}>
-          {match.logoUrl && (
+          {tournamentLogo ? (
             <img
-              src={match.logoUrl}
+              src={tournamentLogo}
               alt="Tournament logo"
               className={styles.tournamentLogo}
               loading="eager"
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.style.display = "none";
+              }}
             />
-          )}
+          ) : null}
 
           <div className={styles.headerContent}>
             <div className={styles.summaryTitle}>
@@ -171,7 +196,7 @@ export default function MatchSummary({ match }) {
             </div>
 
             <div className={styles.tournamentBar}>
-              {metadata.join(" | ")}
+              {headerItems.join(" | ")}
             </div>
           </div>
         </header>
@@ -196,4 +221,5 @@ export default function MatchSummary({ match }) {
       </div>
     </div>
   );
-}
+    }
+                
