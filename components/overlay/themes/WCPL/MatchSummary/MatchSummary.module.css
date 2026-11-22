@@ -1,0 +1,486 @@
+
+/* =========================================
+   WCPL MATCH SUMMARY
+   TV BROADCAST SCORECARD
+========================================= */
+
+.summaryOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100010;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  padding: 3vh 3vw;
+
+  pointer-events: none;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Main summary card */
+
+.summaryCard {
+  position: relative;
+  isolation: isolate;
+
+  width: min(64vw, 1100px);
+  max-width: 94vw;
+
+  aspect-ratio: 2.07 / 1;
+  max-height: 88vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  color: #ffffff;
+  background: #7418d0;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================
+   PURPLE GEOMETRIC BACKGROUND
+========================================= */
+
+.summaryBackground {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+
+  background-color: #7418d0;
+
+  background-image:
+    repeating-conic-gradient(
+      from 30deg at 50% 50%,
+      #8425e5 0deg 60deg,
+      #6512c3 60deg 120deg,
+      #922fe9 120deg 180deg,
+      #7418d0 180deg 240deg,
+      #570aa9 240deg 300deg,
+      #8120dc 300deg 360deg
+    );
+
+  background-size: 110px 110px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.summaryHeader {
+  position: relative;
+
+  flex: 0 0 18%;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 2% 0 22%;
+
+  z-index: 2;
+}
+
+.tournamentLogo {
+  position: absolute;
+
+  left: 14%;
+  top: 50%;
+
+  width: 8%;
+  height: 90%;
+
+  object-fit: contain;
+  object-position: center;
+
+  transform: translateY(-50%);
+
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+.headerContent {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 5px;
+}
+
+.summaryTitle {
+  overflow: hidden;
+  white-space: nowrap;
+
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(16px, 2.05vw, 35px);
+  font-weight: 700;
+
+  line-height: 1;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+
+  color: #ffffff;
+}
+
+.tournamentBar {
+  width: 100%;
+  min-height: 25%;
+
+  display: flex;
+  align-items: center;
+
+  padding: 4px 9px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  background: rgba(76, 10, 153, 0.55);
+
+  font-size: clamp(8px, 1.05vw, 17px);
+  font-weight: 700;
+
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* =========================================
+   INNINGS AREA
+========================================= */
+
+.inningsList {
+  position: relative;
+
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.inningsSection {
+  position: relative;
+
+  flex: 1 1 50%;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: 22.5% minmax(0, 1fr);
+
+  overflow: hidden;
+}
+
+/* Team logo */
+
+.teamLogoArea {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5%;
+}
+
+.teamLogo {
+  display: block;
+
+  width: 78%;
+  height: 82%;
+
+  object-fit: contain;
+  object-position: center;
+
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* =========================================
+   TEAM SCORE HEADER
+========================================= */
+
+.inningsContent {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-right: 0;
+}
+
+.firstInningsHeader,
+.secondInningsHeader {
+  flex: 0 0 22%;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+
+  align-items: center;
+
+  column-gap: 2%;
+
+  padding: 0 1.5%;
+  overflow: hidden;
+}
+
+.firstInningsHeader {
+  background: #00a943;
+  color: #ffffff;
+}
+
+.secondInningsHeader {
+  background: #f3b51b;
+  color: #171717;
+}
+
+.teamName {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(12px, 1.55vw, 25px);
+  font-weight: 800;
+
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.inningsOvers {
+  flex-shrink: 0;
+
+  white-space: nowrap;
+
+  font-size: clamp(8px, 0.95vw, 15px);
+  font-weight: 600;
+
+  text-transform: uppercase;
+}
+
+.inningsScore {
+  flex-shrink: 0;
+
+  white-space: nowrap;
+
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(15px, 1.8vw, 29px);
+  font-weight: 800;
+
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================
+   BATTING + BOWLING COLUMNS
+========================================= */
+
+.playerColumns {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  overflow: hidden;
+}
+
+.playerColumn {
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+.playerColumn + .playerColumn {
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.playerRows {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.playerRow {
+  flex: 1 1 25%;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  align-items: center;
+
+  overflow: hidden;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.playerName {
+  min-width: 0;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 3%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  background: #f3b51b;
+
+  color: #171717;
+
+  font-size: clamp(9px, 1.05vw, 17px);
+  font-weight: 800;
+
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.playerFigures {
+  height: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  padding: 0 8px;
+
+  background: rgba(112, 19, 204, 0.95);
+
+  color: #ffffff;
+
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.playerFigures strong {
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(10px, 1.05vw, 17px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.playerFigures small {
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(7px, 0.65vw, 11px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* =========================================
+   RESULT BANNER
+========================================= */
+
+.resultBanner {
+  flex: 0 0 8%;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 2%;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  background: rgba(102, 20, 190, 0.96);
+
+  color: #ffffff;
+
+  font-family: "Oxanium", Arial, sans-serif;
+  font-size: clamp(12px, 1.55vw, 25px);
+  font-weight: 700;
+
+  line-height: 1;
+  letter-spacing: 0.025em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+  .summaryOverlay {
+    padding: 2vw;
+  }
+
+  .summaryCard {
+    width: 96vw;
+    max-width: 96vw;
+    aspect-ratio: 2.07 / 1;
+  }
+
+  .summaryHeader {
+    padding-left: 22%;
+  }
+
+  .headerContent {
+    gap: 2px;
+  }
+
+  .tournamentBar {
+    padding: 2px 4px;
+  }
+
+  .inningsSection {
+    grid-template-columns: 19% minmax(0, 1fr);
+  }
+
+  .teamLogo {
+    width: 90%;
+    height: 75%;
+  }
+
+  .firstInningsHeader,
+  .secondInningsHeader {
+    column-gap: 1%;
+    padding: 0 1%;
+  }
+
+  .playerFigures {
+    gap: 2px;
+    padding: 0 3px;
+  }
+
+  .playerName {
+    padding: 0 4%;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .summaryCard {
+    transition: none;
+  }
+    }
