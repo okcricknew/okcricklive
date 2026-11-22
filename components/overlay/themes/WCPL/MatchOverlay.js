@@ -1,4 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
+
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../lib/firebase";
 
 import { useOverlay } from "../../core/OverlayProvider";
 import { preloadAndDecodeWcplArtwork } from "./wcplArtwork";
@@ -13,8 +21,8 @@ import BatsmanStats from "./Stats/BatsmanStats";
 import BowlerStats from "./Stats/BowlerStats";
 import MatchStats from "./MatchStats";
 
-// WCPL-specific persistent intro state.
-// Does not modify OverlayProvider or any other theme.
+import MatchSummary from "./MatchSummary/MatchSummary";
+
 const getIntroStorageKey = (matchId) =>
   `wcpl_intro_completed_${matchId}`;
 
@@ -37,7 +45,6 @@ export default function MatchOverlay() {
 
   const [artworkReady, setArtworkReady] = useState(false);
 
-  // null means match-specific storage is still being checked.
   const [introState, setIntroState] = useState({
     matchId: null,
     ready: false,
@@ -48,19 +55,25 @@ export default function MatchOverlay() {
   const [showBowlerStats, setShowBowlerStats] = useState(false);
   const [eventActive, setEventActive] = useState(false);
 
-  const wcplReady = artworkReady && match?.teamColorsReady;
+  // Prevent duplicate automatic summary for the same over.
+  const lastSummaryKeyRef = useRef(null);
 
-  // Required player selection.
+  const inningsNumber = Number(match?.innings || 1);
+
+  const isFirstInnings = inningsNumber === 1;
+  const isSecondInnings = inningsNumber >= 2;
+
+  const isSummaryActive =
+    match?.overlayType === "matchSummary";
+
+  const wcplReady =
+    artworkReady && match?.teamColorsReady;
+
   const hasAllPlayers = Boolean(
     hasSelectedPlayer(match?.striker) &&
     hasSelectedPlayer(match?.nonStriker) &&
     hasSelectedPlayer(match?.bowler)
   );
-
-  // First innings only.
-  const inningsNumber = Number(match?.innings || 1);
-  const isFirstInnings = inningsNumber === 1;
-  const isSecondInnings = inningsNumber >= 2;
 
   // Preload existing WCPL artwork.
   useEffect(() => {
@@ -71,9 +84,10 @@ export default function MatchOverlay() {
         if (active) setArtworkReady(true);
       })
       .catch((error) => {
-        console.error("WCPL artwork preload failed:", error);
-
-        // Keep the existing failure behavior.
+        console.error(
+          "WCPL artwork preload failed:",
+          error
+        );
       });
 
     return () => {
@@ -82,7 +96,6 @@ export default function MatchOverlay() {
   }, []);
 
   // Resolve intro state for the current match.
-  // A completed intro remains completed after page refresh.
   useEffect(() => {
     if (!match?.id) return;
 
@@ -128,15 +141,16 @@ export default function MatchOverlay() {
     hasAllPlayers,
   ]);
 
-  // Reset only stats when the match changes.
-  // Do not reset a previously completed intro.
+  // Reset match-specific UI state when match changes.
   useEffect(() => {
-  setShowBatsmanStats(false);
-  setShowBowlerStats(false);
-  setEventActive(false);
-}, [match?.id]);
+    setShowBatsmanStats(false);
+    setShowBowlerStats(false);
+    setEventActive(false);
 
-  // Persist completion after the MatchIntro exit animation.
+    lastSummaryKeyRef.current = null;
+  }, [match?.id]);
+
+  // Persist intro completion.
   const handleIntroComplete = useCallback(() => {
     if (!match?.id) return;
 
@@ -179,9 +193,113 @@ export default function MatchOverlay() {
     setShowBowlerStats(false);
   }, []);
 
+  // AUTOMATIC SUMMARY:
+  // Only after 3, 6, 9, 12... completed overs.
+  
+useEffect(() => {
+  if (!match?.tournamentId || !match?.id) return;
+
+  const currentOver = Number(match.currentOver || 0);
+  const ballsInOver = Number(match.ballsInOver || 0);
+
+  // WCPL MatchCenter logic:
+  // When ballsInOver is 6, the displayed completed over is currentOver + 1.
+  const completedOver =
+    ballsInOver === 6
+      ? currentOver + 1
+      : currentOver;
+
+  const isThreeOverMilestone =
+    ballsInOver === 6 &&
+    completedOver > 0 &&
+    completedOver % 3 === 0;
+
+  if (
+    !isThreeOverMilestone ||
+    match.overlayType !== "main" ||
+    match.status === "completed"
+  ) {
+    return;
+  }
+
+  const summaryKey = [
+    match.id,
+    match.innings || 1,
+    completedOver,
+  ].join("-");
+
+  if (lastSummaryKeyRef.current === summaryKey) return;
+
+  lastSummaryKeyRef.current = summaryKey;
+
+  const matchRef = doc(
+    db,
+    "tournaments",
+    match.tournamentId,
+    "matches",
+    match.id
+  );
+
+  updateDoc(matchRef, {
+    overlayType: "matchSummary",
+  }).catch((error) => {
+    lastSummaryKeyRef.current = null;
+
+    console.error(
+      "WCPL automatic Match Summary update failed:",
+      error
+    );
+  });
+}, [
+  match?.tournamentId,
+  match?.id,
+  match?.innings,
+  match?.currentOver,
+  match?.ballsInOver,
+  match?.overlayType,
+  match?.status,
+]);
+  
+
+  // MANUAL + AUTOMATIC SUMMARY:
+  // Return to main after 10 seconds.
+  useEffect(() => {
+    if (
+      !match?.tournamentId ||
+      !match?.id ||
+      !isSummaryActive
+    ) {
+      return;
+    }
+
+    const matchRef = doc(
+      db,
+      "tournaments",
+      match.tournamentId,
+      "matches",
+      match.id
+    );
+
+    const timer = setTimeout(() => {
+      updateDoc(matchRef, {
+        overlayType: "main",
+      }).catch((error) => {
+        console.error(
+          "WCPL Match Summary reset failed:",
+          error
+        );
+      });
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [
+    isSummaryActive,
+    match?.tournamentId,
+    match?.id,
+  ]);
+
   if (!match) return null;
 
-  // Prevent intro/lower-third flash while checking saved state.
   const introStateReady =
     introState.ready &&
     introState.matchId === String(match.id);
@@ -194,17 +312,27 @@ export default function MatchOverlay() {
       !isFirstInnings
     );
 
-  // Intro can only run in the first innings.
   const showMatchIntro =
     introStateReady &&
     isFirstInnings &&
     !introComplete;
 
-  const showStats =
-    showBatsmanStats || showBowlerStats;
-
   const showLowerThird =
-    introComplete && !showStats;
+    introComplete &&
+    !showBatsmanStats &&
+    !showBowlerStats &&
+    !isSummaryActive;
+
+  const showIntroLayer =
+    showMatchIntro && !isSummaryActive;
+
+  const showBatsmanLayer =
+    showBatsmanStats && !isSummaryActive;
+
+  const showBowlerLayer =
+    showBowlerStats &&
+    !showBatsmanStats &&
+    !isSummaryActive;
 
   return (
     <div
@@ -230,17 +358,17 @@ export default function MatchOverlay() {
         }}
       >
         <LowerThirdLayout animate={introComplete}>
-  <BattingPanel team={match.battingTeam} />
+          <BattingPanel team={match.battingTeam} />
 
-  <MatchCenter
-    eventActive={eventActive}
-    onEventActiveChange={setEventActive}
-  />
+          <MatchCenter
+            eventActive={eventActive}
+            onEventActiveChange={setEventActive}
+          />
 
-  <MatchStats eventActive={eventActive} />
+          <MatchStats eventActive={eventActive} />
 
-  <BowlingPanel team={match.bowlingTeam} />
-</LowerThirdLayout>
+          <BowlingPanel team={match.bowlingTeam} />
+        </LowerThirdLayout>
       </div>
 
       {/* MATCH INTRO - PERMANENTLY MOUNTED */}
@@ -248,8 +376,8 @@ export default function MatchOverlay() {
         style={{
           position: "absolute",
           inset: 0,
-          opacity: showMatchIntro ? 1 : 0,
-          visibility: showMatchIntro ? "visible" : "hidden",
+          opacity: showIntroLayer ? 1 : 0,
+          visibility: showIntroLayer ? "visible" : "hidden",
           pointerEvents: "none",
         }}
       >
@@ -260,19 +388,53 @@ export default function MatchOverlay() {
       </div>
 
       {/* BATSMAN STATS - PERMANENTLY MOUNTED */}
-      <BatsmanStats
-        match={match}
-        onShow={handleBatsmanShow}
-        onHide={handleBatsmanHide}
-      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: showBatsmanLayer ? 1 : 0,
+          visibility: showBatsmanLayer ? "visible" : "hidden",
+          pointerEvents: showBatsmanLayer ? "auto" : "none",
+        }}
+      >
+        <BatsmanStats
+          match={match}
+          onShow={handleBatsmanShow}
+          onHide={handleBatsmanHide}
+        />
+      </div>
 
       {/* BOWLER STATS - PERMANENTLY MOUNTED */}
-      <BowlerStats
-        match={match}
-        showBatsmanStats={showBatsmanStats}
-        onShow={handleBowlerShow}
-        onHide={handleBowlerHide}
-      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: showBowlerLayer ? 1 : 0,
+          visibility: showBowlerLayer ? "visible" : "hidden",
+          pointerEvents: showBowlerLayer ? "auto" : "none",
+        }}
+      >
+        <BowlerStats
+          match={match}
+          showBatsmanStats={showBatsmanStats}
+          onShow={handleBowlerShow}
+          onHide={handleBowlerHide}
+        />
+      </div>
+
+      {/* MATCH SUMMARY - PERMANENTLY MOUNTED */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: isSummaryActive ? 1 : 0,
+          visibility: isSummaryActive ? "visible" : "hidden",
+          pointerEvents: isSummaryActive ? "auto" : "none",
+          zIndex: 100000,
+        }}
+      >
+        <MatchSummary match={match} />
+      </div>
     </div>
   );
-          }
+        }
