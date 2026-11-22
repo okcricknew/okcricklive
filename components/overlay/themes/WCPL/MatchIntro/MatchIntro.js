@@ -13,6 +13,26 @@ const DEFAULT_TEAM_B_COLOR = "#B52B42";
 const INTRO_DELAY = 1800;
 const EVENT_DELAY = 3000;
 
+const formatMatchType = (value) => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+  const types = {
+    league: "LEAGUE MATCH",
+    "league match": "LEAGUE MATCH",
+    "quarter final": "QUARTER FINAL",
+    quarterfinal: "QUARTER FINAL",
+    "semi final": "SEMI FINAL",
+    semifinal: "SEMI FINAL",
+    final: "FINAL",
+  };
+
+  return types[normalized] || normalized.toUpperCase();
+};
+
 export default function MatchIntro({
   onComplete,
   canComplete = true,
@@ -21,8 +41,6 @@ export default function MatchIntro({
 
   const [artworkReady, setArtworkReady] = useState(false);
   const [eventIndex, setEventIndex] = useState(-1);
-
-  // Animation lifecycle
   const [introPhase, setIntroPhase] = useState("waiting");
 
   // Preload all four artworks together.
@@ -34,7 +52,10 @@ export default function MatchIntro({
         if (active) setArtworkReady(true);
       })
       .catch((error) => {
-        console.error("WCPL Match Intro artwork failed:", error);
+        console.error(
+          "WCPL Match Intro artwork failed:",
+          error
+        );
       });
 
     return () => {
@@ -59,56 +80,108 @@ export default function MatchIntro({
     match && artworkReady && match.teamColorsReady
   );
 
+  // Prepare match information and toss information.
   const eventList = useMemo(() => {
     if (!match) return [];
 
     const list = [];
 
+    // 1. Tournament name
+    if (match.tournamentName) {
+      list.push({
+        id: "tournament",
+        type: "normal",
+        text: String(match.tournamentName).toUpperCase(),
+      });
+    }
+
+    // 2. Match type
+    if (match.matchType) {
+      list.push({
+        id: "match-type",
+        type: "normal",
+        text: formatMatchType(match.matchType),
+      });
+    }
+
+    // 3. Match number
+    const matchNumber =
+      match.matchNo ?? match.matchNumber;
+
+    if (
+      matchNumber !== undefined &&
+      matchNumber !== null &&
+      String(matchNumber).trim() !== ""
+    ) {
+      list.push({
+        id: "match-number",
+        type: "normal",
+        text: `MATCH NO: ${matchNumber}`,
+      });
+    }
+
+    // 4. Overs
     if (
       match.overs !== undefined &&
       match.overs !== null &&
       match.overs !== ""
     ) {
-      list.push(`${match.overs} OVERS MATCH`);
+      list.push({
+        id: "overs",
+        type: "normal",
+        text: `${match.overs} OVERS MATCH`,
+      });
     }
 
-    const matchNumber = match.matchNo || match.matchNumber;
-
-    if (
-      matchNumber !== undefined &&
-      matchNumber !== null &&
-      matchNumber !== ""
-    ) {
-      list.push(`MATCH NO: ${matchNumber}`);
-    }
-
+    // 5. Toss information
     if (match.tossCompleted && match.tossWinner) {
-      const decision = (
+      const decision = String(
         match.tossDecision ||
         match.tossChoice ||
         "BAT"
       ).toUpperCase();
 
-      list.push(
-        `${String(match.tossWinner).toUpperCase()} WON THE TOSS — ELECTED TO ${decision}`
-      );
+      list.push({
+        id: "toss",
+        type: "toss",
+        line1: `${String(
+          match.tossWinner
+        ).toUpperCase()} WON THE TOSS`,
+        line2: `& ELECTED TO ${decision}`,
+      });
     } else {
-      list.push("TOSS PENDING");
+      list.push({
+        id: "toss-pending",
+        type: "normal",
+        text: "TOSS PENDING",
+      });
     }
 
     return list;
-  }, [match]);
+  }, [
+    match?.tournamentName,
+    match?.matchType,
+    match?.matchNo,
+    match?.matchNumber,
+    match?.overs,
+    match?.tossCompleted,
+    match?.tossWinner,
+    match?.tossDecision,
+    match?.tossChoice,
+  ]);
 
-  // Reset animation for a new match.
+  // Reset only for a new match.
   useEffect(() => {
     setIntroPhase("waiting");
     setEventIndex(-1);
   }, [match?.id]);
 
-  // Start animation when the match artwork is ready.
-  // Toss/Firebase updates must not restart the intro animation.
+  // Start animation when artwork is ready.
+  // Toss/Firebase updates must not restart this animation.
   useEffect(() => {
-    if (!introReady || eventList.length === 0) return;
+    if (!introReady || eventList.length === 0) {
+      return;
+    }
 
     setIntroPhase("entering");
     setEventIndex(-1);
@@ -120,8 +193,17 @@ export default function MatchIntro({
     return () => clearTimeout(timeout);
   }, [match?.id, introReady]);
 
-  // Preserve sequential event timing.
-  // Hold the final event until all required players are selected.
+  // Keep the active index valid when information changes.
+  useEffect(() => {
+    if (eventList.length === 0) return;
+
+    if (eventIndex >= eventList.length) {
+      setEventIndex(0);
+    }
+  }, [eventIndex, eventList.length]);
+
+  // Repeat information until player selection is complete.
+  // Once canComplete is true, finish after the final item.
   useEffect(() => {
     if (
       !introReady ||
@@ -133,22 +215,18 @@ export default function MatchIntro({
       return;
     }
 
-    // Move to the next event normally.
-    if (eventIndex < eventList.length - 1) {
-      const timeout = setTimeout(() => {
-        setEventIndex((previous) => previous + 1);
-      }, EVENT_DELAY);
-
-      return () => clearTimeout(timeout);
-    }
-
-    // Final event: wait until parent confirms player selection.
-    if (!canComplete) {
-      return;
-    }
+    const isLastEvent =
+      eventIndex === eventList.length - 1;
 
     const timeout = setTimeout(() => {
-      setIntroPhase("exiting");
+      if (isLastEvent && canComplete) {
+        setIntroPhase("exiting");
+        return;
+      }
+
+      setEventIndex((previous) =>
+        (previous + 1) % eventList.length
+      );
     }, EVENT_DELAY);
 
     return () => clearTimeout(timeout);
@@ -160,13 +238,12 @@ export default function MatchIntro({
     canComplete,
   ]);
 
-  // Complete only after the exit animation finishes.
+  // Complete only after exit animation finishes.
   const handleAnimationEnd = (event) => {
-    // Ignore animations bubbling from child elements.
-    if (event.target !== event.currentTarget) return;
+    if (event.target !== event.currentTarget) {
+      return;
+    }
 
-    // CSS Modules can rename animation keyframes.
-    // Therefore, use lifecycle state instead of animationName.
     if (introPhase === "exiting") {
       if (typeof onComplete === "function") {
         onComplete();
@@ -195,6 +272,11 @@ export default function MatchIntro({
       ? styles.flipOutY
       : "";
 
+  const currentEvent =
+    eventIndex >= 0
+      ? eventList[eventIndex]
+      : null;
+
   return (
     <div
       className={`${styles.stage} ${animationClass}`}
@@ -207,23 +289,37 @@ export default function MatchIntro({
       aria-label="WCPL Match Introduction"
       aria-hidden={!introReady}
     >
-      {/* All four WebP layers mount together */}
+      {/* All four WebP layers remain mounted */}
 
-      <div className={`${styles.artwork} ${styles.introArt}`} />
+      <div
+        className={`${styles.artwork} ${styles.introArt}`}
+      />
 
-      <div className={`${styles.artwork} ${styles.teamAArt}`} />
+      <div
+        className={`${styles.artwork} ${styles.teamAArt}`}
+      />
 
-      <div className={`${styles.artwork} ${styles.teamBArt}`} />
+      <div
+        className={`${styles.artwork} ${styles.teamBArt}`}
+      />
 
-      <div className={`${styles.artwork} ${styles.tourNameArt}`} />
+      <div
+        className={`${styles.artwork} ${styles.tourNameArt}`}
+      />
 
       {/* Team A */}
-      <div className={styles.teamAName} style={teamAStyle}>
+      <div
+        className={styles.teamAName}
+        style={teamAStyle}
+      >
         {teamAName}
       </div>
 
       {/* Team B */}
-      <div className={styles.teamBName} style={teamBStyle}>
+      <div
+        className={styles.teamBName}
+        style={teamBStyle}
+      >
         {teamBName}
       </div>
 
@@ -232,10 +328,27 @@ export default function MatchIntro({
         {match.tournamentName || "WCPL"}
       </div>
 
-      {/* Match information */}
-      <div className={styles.eventText} aria-live="polite">
-        {eventIndex >= 0 ? eventList[eventIndex] : ""}
+      {/* Match information and toss result */}
+      <div
+        className={styles.eventText}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {currentEvent?.type === "toss" ? (
+          <>
+            <span className={styles.eventLine}>
+              {currentEvent.line1}
+            </span>
+
+            <span className={styles.eventLine}>
+              {currentEvent.line2}
+            </span>
+          </>
+        ) : (
+          currentEvent?.text || ""
+        )}
       </div>
     </div>
   );
-}
+    }
+        
