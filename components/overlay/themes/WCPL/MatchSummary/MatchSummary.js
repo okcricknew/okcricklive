@@ -1,12 +1,7 @@
-
 "use client";
 
 import styles from "./MatchSummary.module.css";
-
-import {
-  getInningsData,
-  getTopBatters,
-} from "../../../utils/matchSummaryHelpers";
+import { getMatchSummaryData } from "./utils/matchSummaryData";
 
 const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
 
@@ -15,10 +10,7 @@ function normalize(value) {
 }
 
 function getTeamLogo(match, teamName) {
-  const isTeamA = normalize(teamName) === normalize(match.teamA);
-  const isTeamB = normalize(teamName) === normalize(match.teamB);
-
-  if (isTeamA) {
+  if (normalize(teamName) === normalize(match.teamA)) {
     return (
       match.teamALogoUrl ||
       match.teamAColorDocument?.logoUrl ||
@@ -26,7 +18,7 @@ function getTeamLogo(match, teamName) {
     );
   }
 
-  if (isTeamB) {
+  if (normalize(teamName) === normalize(match.teamB)) {
     return (
       match.teamBLogoUrl ||
       match.teamBColorDocument?.logoUrl ||
@@ -35,44 +27,6 @@ function getTeamLogo(match, teamName) {
   }
 
   return DEFAULT_LOGO;
-}
-
-function getTopBowlersForInnings(match, bowlingStats, inningsNumber) {
-  return Object.entries(bowlingStats || {})
-    .filter(([, stats]) =>
-      Number(stats.wickets || 0) > 0 ||
-      Number(stats.runs || 0) > 0 ||
-      Number(stats.balls || 0) > 0 ||
-      Number(stats.overs || 0) > 0
-    )
-    .sort((a, b) =>
-      Number(b[1].wickets || 0) - Number(a[1].wickets || 0) ||
-      Number(a[1].runs || 0) - Number(b[1].runs || 0)
-    )
-    .slice(0, 4)
-    .map(([name, stats]) => {
-      const legalBalls = (match.ballHistory || []).filter((ball) => {
-        const sameBowler =
-          normalize(ball.bowler) === normalize(name);
-
-        const sameInnings =
-          Number(ball.innings) === Number(inningsNumber);
-
-        const legalDelivery =
-          !["WD", "NB"].includes(String(ball.type || "").toUpperCase());
-
-        return sameBowler && sameInnings && legalDelivery;
-      }).length;
-
-      const overs = `${Math.floor(legalBalls / 6)}.${legalBalls % 6}`;
-
-      return {
-        name,
-        wickets: stats.wickets || 0,
-        runs: stats.runs || 0,
-        overs,
-      };
-    });
 }
 
 function padPlayers(players) {
@@ -85,8 +39,10 @@ function padPlayers(players) {
   };
 
   return [
-    ...players,
-    ...Array(Math.max(0, 4 - players.length)).fill(emptyPlayer),
+    ...(players || []),
+    ...Array(Math.max(0, 4 - (players || []).length)).fill(
+      emptyPlayer
+    ),
   ].slice(0, 4);
 }
 
@@ -122,22 +78,14 @@ function PlayerRows({ players, type }) {
 }
 
 function InningsSummary({ match, innings, inningsNumber }) {
-  const battingPlayers = getTopBatters(innings.batting);
-
-  const bowlingPlayers = getTopBowlersForInnings(
-    match,
-    innings.bowling,
-    inningsNumber
-  );
-
-  const logo = getTeamLogo(match, innings.team);
+  if (!innings) return null;
 
   return (
     <section className={styles.inningsSection}>
       <div className={styles.teamLogoArea}>
         <img
-          src={logo}
-          alt={`${innings.team} logo`}
+          src={getTeamLogo(match, innings.team)}
+          alt={`${innings.team || "Team"} logo`}
           className={styles.teamLogo}
           loading="eager"
           onError={(event) => {
@@ -171,14 +119,14 @@ function InningsSummary({ match, innings, inningsNumber }) {
         <div className={styles.playerColumns}>
           <div className={styles.playerColumn}>
             <PlayerRows
-              players={battingPlayers}
+              players={innings.battingPlayers}
               type="batting"
             />
           </div>
 
           <div className={styles.playerColumn}>
             <PlayerRows
-              players={bowlingPlayers}
+              players={innings.bowlingPlayers}
               type="bowling"
             />
           </div>
@@ -188,59 +136,19 @@ function InningsSummary({ match, innings, inningsNumber }) {
   );
 }
 
-function getResultBanner(match, secondInnings) {
-  if (match.status === "completed") {
-    return match.resultSummary || "MATCH COMPLETED";
-  }
-
-  if (Number(match.innings || 1) === 1) {
-    if (match.tossWinner && match.tossDecision) {
-      return (
-        `${match.tossWinner} WON THE TOSS & ELECTED TO ` +
-        `${String(match.tossDecision).toUpperCase()} FIRST`
-      );
-    }
-
-    return "MATCH IN PROGRESS";
-  }
-
-  const runsNeeded = Math.max(
-    0,
-    Number(match.target || 0) - Number(secondInnings.runs || 0)
-  );
-
-  const oversText = String(secondInnings.overs || "0.0");
-  const [over, ball] = oversText.split(".");
-
-  const ballsPlayed =
-    Number.parseInt(over || "0", 10) * 6 +
-    Number.parseInt(ball || "0", 10);
-
-  const totalBalls = Number(match.overs || 0) * 6;
-  const ballsLeft = Math.max(0, totalBalls - ballsPlayed);
-
-  return (
-    `${secondInnings.team} NEED ${runsNeeded} RUNS FROM ${ballsLeft} BALLS`
-  );
-}
-
 export default function MatchSummary({ match }) {
   if (!match) return null;
 
-  const firstInnings = getInningsData(match, 1);
-  const secondInnings = getInningsData(match, 2);
+  const summary = getMatchSummaryData(match);
 
-  const matchNumber = match.matchNo ?? match.matchNumber;
+  if (!summary) return null;
 
-  const metadata = [
-    match.tournamentName,
-    matchNumber !== undefined && matchNumber !== null
-      ? `MATCH ${matchNumber}`
-      : null,
-    match.venue,
-  ].filter(Boolean);
-
-  const resultBanner = getResultBanner(match, secondInnings);
+  const {
+    firstInnings,
+    secondInnings,
+    bannerText,
+    metadata,
+  } = summary;
 
   return (
     <div className={styles.summaryOverlay}>
@@ -248,14 +156,14 @@ export default function MatchSummary({ match }) {
         <div className={styles.summaryBackground} />
 
         <header className={styles.summaryHeader}>
-          {match.logoUrl ? (
+          {match.logoUrl && (
             <img
               src={match.logoUrl}
               alt="Tournament logo"
               className={styles.tournamentLogo}
               loading="eager"
             />
-          ) : null}
+          )}
 
           <div className={styles.headerContent}>
             <div className={styles.summaryTitle}>
@@ -263,7 +171,7 @@ export default function MatchSummary({ match }) {
             </div>
 
             <div className={styles.tournamentBar}>
-              {metadata.join(" - ")}
+              {metadata.join(" | ")}
             </div>
           </div>
         </header>
@@ -283,10 +191,9 @@ export default function MatchSummary({ match }) {
         </div>
 
         <footer className={styles.resultBanner}>
-          {resultBanner}
+          {bannerText}
         </footer>
       </div>
     </div>
   );
-            }
-            
+}
