@@ -8,10 +8,7 @@ const DEFAULT_LOGO = "/themes/OkCrick/default-team.png";
 const normalize = (value) =>
   String(value || "").trim().toLowerCase();
 
-/* =========================================
-   TEAM LOGO
-========================================= */
-
+/* Get the correct team logo from the existing match data */
 function getTeamLogo(match, teamName) {
   if (normalize(teamName) === normalize(match.teamA)) {
     return (
@@ -32,10 +29,7 @@ function getTeamLogo(match, teamName) {
   return DEFAULT_LOGO;
 }
 
-/* =========================================
-   PLAYER ROW DATA
-========================================= */
-
+/* Always render four player rows */
 function padPlayers(players) {
   const list = Array.isArray(players) ? players : [];
 
@@ -49,18 +43,15 @@ function padPlayers(players) {
 
   return [
     ...list,
-    ...Array(Math.max(0, 4 - list.length)).fill(emptyPlayer),
+    ...Array.from(
+      { length: Math.max(0, 4 - list.length) },
+      () => ({ ...emptyPlayer })
+    ),
   ].slice(0, 4);
 }
 
-/* =========================================
-   BATTING + BOWLING SCORECARD
-========================================= */
-
-function PlayerStatRows({
-  battingPlayers,
-  bowlingPlayers,
-}) {
+/* Batting and bowling player rows */
+function PlayerStatRows({ battingPlayers, bowlingPlayers }) {
   const batsmen = padPlayers(battingPlayers);
   const bowlers = padPlayers(bowlingPlayers);
 
@@ -70,46 +61,54 @@ function PlayerStatRows({
         const bat = batsmen[index] || {};
         const bowl = bowlers[index] || {};
 
+        const hasBattingRuns =
+          bat.runs !== "" && bat.runs !== undefined && bat.runs !== null;
+
+        const hasBattingBalls =
+          bat.balls !== "" && bat.balls !== undefined && bat.balls !== null;
+
         const hasBowlingFigures =
-          bowl.wickets !== "" ||
-          bowl.runs !== "";
+          (bowl.wickets !== "" &&
+            bowl.wickets !== undefined &&
+            bowl.wickets !== null) ||
+          (bowl.runs !== "" &&
+            bowl.runs !== undefined &&
+            bowl.runs !== null);
+
+        const hasBowlingOvers =
+          bowl.overs !== "" &&
+          bowl.overs !== undefined &&
+          bowl.overs !== null;
 
         return (
-          <div
-            className={styles.statRow}
-            key={`stat-row-${index}`}
-          >
-            {/* BATTING */}
-
+          <div className={styles.statRow} key={`stat-row-${index}`}>
+            {/* Batting side */}
             <div className={styles.batCell}>
               <span className={styles.playerName}>
-                {bat.name}
+                {bat.name || ""}
               </span>
 
               <span className={styles.batScore}>
-                {bat.runs}
+                {hasBattingRuns ? bat.runs : ""}
 
-                {bat.balls !== "" &&
-                bat.balls !== undefined ? (
+                {hasBattingBalls ? (
                   <small>{bat.balls}</small>
                 ) : null}
               </span>
             </div>
 
-            {/* BOWLING */}
-
+            {/* Bowling side */}
             <div className={styles.bowlCell}>
               <span className={styles.playerName}>
-                {bowl.name}
+                {bowl.name || ""}
               </span>
 
               <span className={styles.bowlFigs}>
                 {hasBowlingFigures
-                  ? `${bowl.wickets}-${bowl.runs}`
+                  ? `${bowl.wickets ?? ""}-${bowl.runs ?? ""}`
                   : ""}
 
-                {bowl.overs !== "" &&
-                bowl.overs !== undefined ? (
+                {hasBowlingOvers ? (
                   <small>{bowl.overs}</small>
                 ) : null}
               </span>
@@ -121,10 +120,7 @@ function PlayerStatRows({
   );
 }
 
-/* =========================================
-   SINGLE INNINGS SUMMARY
-========================================= */
-
+/* One innings scorecard */
 function InningsSummary({
   match,
   innings,
@@ -132,23 +128,29 @@ function InningsSummary({
 }) {
   if (!innings) return null;
 
-  const teamLogo = getTeamLogo(
-    match,
-    innings.team
-  );
+  const teamLogo = getTeamLogo(match, innings.team);
 
   const headerBarClass =
     inningsNumber === 1
       ? styles.barGreen
       : styles.barGold;
 
-  return (
-    <section
-      className={styles.inningsBlock}
-      aria-label={`${innings.team} innings summary`}
-    >
-      {/* TEAM LOGO */}
+  const hasOvers =
+    innings.overs !== "" &&
+    innings.overs !== undefined &&
+    innings.overs !== null;
 
+  const hasScore =
+    innings.runs !== "" &&
+    innings.runs !== undefined &&
+    innings.runs !== null &&
+    innings.wickets !== "" &&
+    innings.wickets !== undefined &&
+    innings.wickets !== null;
+
+  return (
+    <section className={styles.inningsBlock}>
+      {/* Team logo */}
       <div className={styles.teamLogoCol}>
         <img
           src={teamLogo}
@@ -162,38 +164,27 @@ function InningsSummary({
         />
       </div>
 
-      {/* SCORE PANEL */}
-
+      {/* Score and player details */}
       <div className={styles.scorePanel}>
-        {/* TEAM HEADER */}
-
         <div
           className={`${styles.teamHeader} ${headerBarClass}`}
         >
           <span className={styles.teamName}>
-            {innings.team}
+            {innings.team || ""}
           </span>
 
           <div className={styles.teamTotalWrap}>
             <span className={styles.oversLabel}>
-              {innings.overs !== "" &&
-              innings.overs !== undefined
-                ? `OVERS ${innings.overs}`
-                : ""}
+              {hasOvers ? `OVERS ${innings.overs}` : ""}
             </span>
 
             <span className={styles.teamScore}>
-              {innings.runs !== "" &&
-              innings.runs !== undefined &&
-              innings.wickets !== "" &&
-              innings.wickets !== undefined
+              {hasScore
                 ? `${innings.runs}-${innings.wickets}`
                 : ""}
             </span>
           </div>
         </div>
-
-        {/* PLAYER STATISTICS */}
 
         <PlayerStatRows
           battingPlayers={innings.battingPlayers}
@@ -204,14 +195,9 @@ function InningsSummary({
   );
 }
 
-/* =========================================
-   MAIN WCPL MATCH SUMMARY
-========================================= */
-
+/* Main WCPL Match Summary */
 export default function MatchSummary({ match }) {
   if (!match) return null;
-
-  /* EXISTING DATA CALCULATION */
 
   const summary = getMatchSummaryData(match);
 
@@ -224,15 +210,6 @@ export default function MatchSummary({ match }) {
     metadata = {},
   } = summary;
 
-  /* TOURNAMENT LOGO */
-
-  const tournamentLogo =
-    metadata.logoUrl ||
-    match.logoUrl ||
-    "";
-
-  /* TOURNAMENT NAME */
-
   const tournamentName = String(
     metadata.tournamentName ||
     match.tournamentName ||
@@ -240,23 +217,16 @@ export default function MatchSummary({ match }) {
     "LIMACOL WCPL 2026"
   ).trim();
 
-  /* MATCH NUMBER */
-
-  const matchNumber =
-    match.matchNo ?? match.matchNumber;
+  const matchNumber = match.matchNo ?? match.matchNumber;
 
   const matchLabel = String(
     metadata.matchName ||
-    (
-      matchNumber !== undefined &&
-      matchNumber !== null &&
-      String(matchNumber).trim()
-        ? `MATCH ${matchNumber}`
-        : "MATCH"
-    )
+    (matchNumber !== undefined &&
+    matchNumber !== null &&
+    String(matchNumber).trim()
+      ? `MATCH ${matchNumber}`
+      : "MATCH")
   ).trim();
-
-  /* VENUE */
 
   const venue = String(
     metadata.venue ||
@@ -270,49 +240,24 @@ export default function MatchSummary({ match }) {
   const headerLine =
     `${tournamentName} - ${matchLabel}, ${venue}`;
 
-  /* =====================================
-     BROADCAST UI
-  ===================================== */
-
   return (
     <div className={styles.broadcastCanvas}>
       <div className={styles.summaryBoard}>
+        {/* Purple geometric background */}
+        <div className={styles.bgChevrons} />
 
-        {/* PURPLE GEOMETRIC BACKGROUND */}
-
-        <div
-          className={styles.bgChevrons}
-          aria-hidden="true"
-        />
-
-        {/* =================================
-            TOP HEADER
-        ================================= */}
-
+        {/* Header */}
         <header className={styles.boardHeader}>
+          {/* Reference design uses this badge in the header */}
+          <div className={styles.brandBadge}>
+            <span className={styles.badgeSmall}>
+              SHE&apos;S
+            </span>
 
-          {tournamentLogo ? (
-            <img
-              src={tournamentLogo}
-              alt="Tournament logo"
-              className={styles.tournamentLogo}
-              loading="eager"
-              onError={(event) => {
-                event.currentTarget.onerror = null;
-                event.currentTarget.style.display = "none";
-              }}
-            />
-          ) : (
-            <div className={styles.brandBadge}>
-              <span className={styles.badgeSmall}>
-                SHE&apos;S
-              </span>
-
-              <span className={styles.badgeLarge}>
-                IN
-              </span>
-            </div>
-          )}
+            <span className={styles.badgeLarge}>
+              IN
+            </span>
+          </div>
 
           <div className={styles.headerTitles}>
             <h1 className={styles.mainTitle}>
@@ -325,42 +270,28 @@ export default function MatchSummary({ match }) {
           </div>
         </header>
 
-        {/* =================================
-            BOTH INNINGS SCORECARDS
-        ================================= */}
-
+        {/* Innings scorecards */}
         <main className={styles.inningsContainer}>
-
-          {/* FIRST INNINGS */}
-
           <InningsSummary
             match={match}
             innings={firstInnings}
             inningsNumber={1}
           />
 
-          {/* SECOND INNINGS */}
-
           <InningsSummary
             match={match}
             innings={secondInnings}
             inningsNumber={2}
           />
-
         </main>
 
-        {/* =================================
-            FINAL RESULT BANNER
-        ================================= */}
-
+        {/* Match result footer */}
         <footer className={styles.resultFooter}>
           <p className={styles.resultText}>
-            {bannerText}
+            {bannerText || ""}
           </p>
         </footer>
-
       </div>
     </div>
   );
-        }
-  
+}
