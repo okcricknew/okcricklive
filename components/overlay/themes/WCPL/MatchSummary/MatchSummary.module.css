@@ -1,6 +1,6 @@
 /* =========================================
    WCPL MATCH SUMMARY
-   TV BROADCAST SCORECARD
+   BROADCAST SCORECARD
 ========================================= */
 
 .summaryOverlay {
@@ -8,14 +8,15 @@
   inset: 0;
   z-index: 100010;
 
+  width: 100vw;
+  height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: 100vw;
-  height: 100vh;
-
   padding: 3vh 3vw;
+  box-sizing: border-box;
 
   pointer-events: none;
 
@@ -23,7 +24,7 @@
 }
 
 /* =========================================
-   MAIN SUMMARY CARD
+   MAIN CARD
 ========================================= */
 
 .summaryCard {
@@ -49,7 +50,7 @@
 
 /* =========================================
    EXISTING PURPLE BACKGROUND
-   KEEP SAME
+   PRESERVED - DO NOT CHANGE
 ========================================= */
 
 .summaryBackground {
@@ -74,23 +75,22 @@
 }
 
 /* =========================================
-   HEADER
+   TOP HEADER
 ========================================= */
 
 .summaryHeader {
   position: relative;
+  z-index: 2;
 
   flex: 0 0 18%;
   min-height: 0;
 
-  box-sizing: border-box;
-
   display: flex;
   align-items: center;
 
-  padding: 1.5% 2% 0 22%;
+  box-sizing: border-box;
 
-  z-index: 2;
+  padding: 1.5% 2% 0 22%;
 }
 
 .tournamentLogo {
@@ -133,8 +133,8 @@
 
   line-height: 1;
   letter-spacing: 0.035em;
-  text-transform: uppercase;
 
+  text-transform: uppercase;
   color: #ffffff;
 }
 
@@ -150,7 +150,6 @@
 
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 
   background: rgba(76, 10, 153, 0.55);
 
@@ -162,7 +161,7 @@
 }
 
 /* =========================================
-   INNINGS AREA
+   TWO INNINGS CONTAINER
 ========================================= */
 
 .inningsList {
@@ -174,11 +173,14 @@
   display: flex;
   flex-direction: column;
 
-  /* Dedicated gap between both innings */
   gap: 5.5%;
 
   padding: 0;
 }
+
+/* =========================================
+   INDIVIDUAL INNINGS
+========================================= */
 
 .inningsSection {
   position: relative;
@@ -205,6 +207,8 @@
   justify-content: center;
 
   padding: 5%;
+
+  box-sizing: border-box;
 }
 
 .teamLogo {
@@ -230,11 +234,11 @@
   display: flex;
   flex-direction: column;
 
-  padding-right: 0;
+  padding: 0;
 }
 
 /* =========================================
-   TEAM SCORE HEADER
+   TEAM NAME + OVERS + SCORE
 ========================================= */
 
 .firstInningsHeader,
@@ -250,6 +254,7 @@
   column-gap: 2%;
 
   padding: 0 1.5%;
+  box-sizing: border-box;
 
   overflow: hidden;
 }
@@ -304,7 +309,7 @@
 }
 
 /* =========================================
-   BATTING + BOWLING COLUMNS
+   BATTING AND BOWLING COLUMNS
 ========================================= */
 
 .playerColumns {
@@ -328,6 +333,10 @@
   border-left: 1px solid rgba(255, 255, 255, 0.4);
 }
 
+/* =========================================
+   PLAYER ROWS
+========================================= */
+
 .playerRows {
   width: 100%;
   height: 100%;
@@ -341,8 +350,6 @@
   min-height: 0;
 
   display: grid;
-
-  /* Screenshot-like name and figures proportions */
   grid-template-columns: minmax(0, 1fr) 34%;
 
   align-items: center;
@@ -351,6 +358,8 @@
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.35);
 }
+
+/* Player name */
 
 .playerName {
   min-width: 0;
@@ -377,6 +386,8 @@
   text-transform: uppercase;
 }
 
+/* Runs / Balls / Wickets */
+
 .playerFigures {
   width: 100%;
   height: 100%;
@@ -389,7 +400,6 @@
   gap: 5px;
 
   padding: 0 8px;
-
   box-sizing: border-box;
 
   background: rgba(112, 19, 204, 0.95);
@@ -404,6 +414,7 @@
   font-family: "Oxanium", Arial, sans-serif;
   font-size: clamp(10px, 1.05vw, 17px);
   font-weight: 800;
+
   line-height: 1;
 }
 
@@ -411,11 +422,12 @@
   font-family: "Oxanium", Arial, sans-serif;
   font-size: clamp(7px, 0.65vw, 11px);
   font-weight: 500;
+
   line-height: 1;
 }
 
 /* =========================================
-   RESULT BANNER
+   BOTTOM STATUS / RESULT BANNER
 ========================================= */
 
 .resultBanner {
@@ -443,6 +455,7 @@
 
   line-height: 1;
   letter-spacing: 0.025em;
+
   text-align: center;
   text-transform: uppercase;
 }
@@ -517,57 +530,3 @@
     transition: none;
   }
 }
-
-
-/* =========================================
-   MATCH SUMMARY - FINAL SPACING OVERRIDES
-========================================= */
-
-/* Main card dimensions */
-.summaryCard {
-  width: min(80vw, 1224px);
-  max-width: 94vw;
-  aspect-ratio: 2.07 / 1;
-}
-
-/* Heading slightly lower */
-.summaryHeader {
-  box-sizing: border-box;
-  flex: 0 0 18%;
-  padding: 1.5% 2% 0 22%;
-}
-
-/* Heading and tournament details gap */
-.headerContent {
-  gap: 9px;
-  transform: translateY(2px);
-}
-
-/* Tournament information bar */
-.tournamentBar {
-  box-sizing: border-box;
-  min-height: 28px;
-  height: auto;
-}
-
-/* Space between first and second innings */
-.inningsList {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 5%;
-}
-
-/* Both innings receive equal available height */
-.inningsSection {
-  flex: 1 1 0;
-  min-height: 0;
-}
-
-/* Keep result at the bottom */
-.resultBanner {
-  flex: 0 0 8%;
-  min-height: 0;
-}
-
