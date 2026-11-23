@@ -37,8 +37,8 @@
   aspect-ratio: 2.07 / 1;
   max-height: 88vh;
 
-  display: grid;
-  grid-template-rows: 18% minmax(0, 1fr) 8%;
+  display: flex;
+  flex-direction: column;
 
   overflow: hidden;
 
@@ -82,7 +82,7 @@
   position: relative;
   z-index: 2;
 
-  min-width: 0;
+  flex: 0 0 18%;
   min-height: 0;
 
   display: flex;
@@ -167,7 +167,7 @@
 .inningsList {
   position: relative;
 
-  min-width: 0;
+  flex: 1 1 auto;
   min-height: 0;
 
   display: flex;
@@ -176,7 +176,6 @@
   gap: 5.5%;
 
   padding: 0;
-  overflow: hidden;
 }
 
 /* =========================================
@@ -432,7 +431,7 @@
 ========================================= */
 
 .resultBanner {
-  min-width: 0;
+  flex: 0 0 8%;
   min-height: 0;
 
   display: flex;
