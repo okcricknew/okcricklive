@@ -34,7 +34,7 @@
   width: min(80vw, 1224px);
   max-width: 94vw;
 
-  aspect-ratio: 2.07 / 1;
+  height: min(calc(min(80vw, 1224px) / 2.07), 88vh);
   max-height: 88vh;
 
   display: flex;
@@ -472,7 +472,11 @@
   .summaryCard {
     width: 96vw;
     max-width: 96vw;
-    aspect-ratio: 2.07 / 1;
+
+    height: min(calc(96vw / 2.07), 88vh);
+    max-height: 88vh;
+
+    aspect-ratio: auto;
   }
 
   .summaryHeader {
