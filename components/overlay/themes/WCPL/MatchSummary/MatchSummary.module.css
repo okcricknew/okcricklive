@@ -41,9 +41,13 @@
   flex-direction: column;
 
   overflow: hidden;
+  contain: paint;
+
+  /* Strict visible artwork boundary */
+  clip-path: inset(0);
 
   color: #ffffff;
-  background: #7418d0;
+  background: #21043d;
 
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
 }
@@ -56,22 +60,21 @@
 .summaryBackground {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
 
-  background-color: #7418d0;
+  width: 100%;
+  height: 100%;
 
-  background-image:
-    repeating-conic-gradient(
-      from 30deg at 50% 50%,
-      #8425e5 0deg 60deg,
-      #6512c3 60deg 120deg,
-      #922fe9 120deg 180deg,
-      #7418d0 180deg 240deg,
-      #570aa9 240deg 300deg,
-      #8120dc 300deg 360deg
-    );
+  pointer-events: none;
 
-  background-size: 110px 110px;
+  background-color: #21043d;
+
+  background-image: url("/themes/WCPL/MatchSummary/matchSummary.webp");
+
+  background-repeat: no-repeat;
+
+  background-size: 125.35% 144.34%;
+  background-position: center center;
 }
 
 /* =========================================
