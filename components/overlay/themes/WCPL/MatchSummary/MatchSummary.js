@@ -160,11 +160,16 @@ export default function MatchSummary({ match }) {
     match.logoUrl ||
     "";
 
-  const headerItems = [
-    metadata.tournamentName,
-    metadata.matchName,
-    metadata.venue,
-  ].filter((item) => String(item || "").trim());
+  // Presentation-only formatting: keep the existing metadata sources,
+  // but arrange them like the WCPL broadcast reference.
+  const tournamentName = String(metadata.tournamentName || "").trim();
+  const matchName = String(metadata.matchName || "").trim();
+  const venue = String(metadata.venue || "").trim();
+
+  const headerLine = [
+    tournamentName,
+    matchName ? `${matchName}` : "",
+  ].filter(Boolean).join(" - ") + (venue ? `, ${venue}` : "");
 
   return (
     <div className={styles.summaryOverlay}>
@@ -194,12 +199,7 @@ export default function MatchSummary({ match }) {
             </div>
 
             <div className={styles.tournamentBar}>
-              {headerItems.map((item, index) => (
-                <span key={`${item}-${index}`}>
-                  {index > 0 && " | "}
-                  {item}
-                </span>
-              ))}
+              {headerLine || "WCPL MATCH SUMMARY"}
             </div>
           </div>
         </header>
@@ -228,4 +228,5 @@ export default function MatchSummary({ match }) {
     </div>
   );
     }
-    
+
+            
