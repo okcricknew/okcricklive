@@ -1,36 +1,48 @@
-/* WCPL broadcast match summary — screenshot-matched 16:9 scorecard */
-
-@font-face {
-  font-family: "WCPL Michroma";
-  src: url("/fonts/wcpl/Michroma-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "WCPL Oxanium";
-  src: url("/fonts/wcpl/Oxanium-VariableFont_wght.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: swap;
-}
+/* =========================================================
+   WCPL 2026 — MATCH SUMMARY BROADCAST UI
+   Designed for the supplied 1280 x 720 reference layout
+   ========================================================= */
 
 .broadcastCanvas {
+  --purple-base: #9c36f5;
+  --purple-dark: #701ec7;
+  --purple-deep: #5a12a8;
+  --purple-light: #b55cff;
+
+  --green-start: #00b14f;
+  --green-end: #009c44;
+
+  --gold-start: #f5b922;
+  --gold-end: #e5a310;
+
+  --yellow-top: #ffd644;
+  --yellow-bottom: #f3bc1d;
+  --gold-border: #c99208;
+
+  --red: #e0081c;
+  --dark: #161616;
+  --white: #ffffff;
+
   position: fixed;
   inset: 0;
   z-index: 100010;
+
   width: 100vw;
   height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background: transparent;
-  font-family: "WCPL Oxanium", Arial, sans-serif;
+
+  padding: 20px;
+  overflow: auto;
   box-sizing: border-box;
+
+  background: #000;
+  color: var(--white);
+  font-family: "Chakra Petch", Arial, sans-serif;
+
+  pointer-events: none;
 }
 
 .broadcastCanvas *,
@@ -40,473 +52,468 @@
 }
 
 .summaryBoard {
-  --purple: #8f27e8;
-  --purple-deep: #6e0bc5;
-  --gold: #f2b91e;
-
   position: relative;
   isolation: isolate;
+
+  width: 1120px;
+  height: 580px;
+  flex: 0 0 auto;
+
   display: flex;
   flex-direction: column;
-  width: min(80vw, 1224px, 170.6vh);
-  aspect-ratio: 1224 / 588;
-  max-height: 82vh;
+
   overflow: hidden;
-  color: #fff;
-  background: linear-gradient(
-    125deg,
-    #a33af0 0%,
-    #8b20e6 52%,
-    #7412cf 100%
-  );
-  border: 1px solid rgba(255,255,255,.18);
-  box-shadow: 0 12px 38px rgba(0,0,0,.24);
+
+  color: var(--white);
+  background:
+    linear-gradient(
+      135deg,
+      #8b2be2 0%,
+      #9d3af7 50%,
+      #7d1fd4 100%
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85);
 }
+
+/* Background geometric chevrons */
 
 .bgChevrons {
   position: absolute;
   inset: 0;
   z-index: 0;
-  pointer-events: none;
-  opacity: .95;
 
+  pointer-events: none;
+
+  background-color: #8b2be2;
   background-image:
     linear-gradient(
-      128deg,
-      transparent 0 12%,
-      rgba(255,255,255,.13) 12.2% 22%,
-      transparent 22.2%
+      125deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.14) 14%,
+      transparent 14.2%
     ),
     linear-gradient(
-      48deg,
-      transparent 0 66%,
-      rgba(76,0,157,.25) 66.2% 79%,
-      transparent 79.2%
+      235deg,
+      rgba(78, 12, 150, 0.35) 0%,
+      rgba(78, 12, 150, 0.35) 18%,
+      transparent 18.2%
     ),
     linear-gradient(
-      310deg,
-      transparent 0 35%,
-      rgba(196,116,255,.20) 35.2% 48%,
-      transparent 48.2%
+      55deg,
+      rgba(196, 122, 255, 0.22) 0%,
+      rgba(196, 122, 255, 0.22) 12%,
+      transparent 12.2%
     ),
     linear-gradient(
-      225deg,
-      transparent 0 76%,
-      rgba(76,0,157,.22) 76.2% 89%,
-      transparent 89.2%
+      305deg,
+      rgba(64, 8, 128, 0.32) 0%,
+      rgba(64, 8, 128, 0.32) 16%,
+      transparent 16.2%
     );
 
   background-size:
-    33% 100%,
-    42% 100%,
-    38% 100%,
-    36% 100%;
+    360px 290px,
+    420px 320px,
+    280px 260px,
+    390px 310px;
 
   background-position:
-    left top,
-    right top,
-    center,
-    left bottom;
-
-  background-repeat: repeat;
+    0 0,
+    120px 40px,
+    210px 150px,
+    50px 180px;
 }
+
+/* Header */
 
 .boardHeader {
   position: relative;
-  z-index: 1;
-  flex: 0 0 17.5%;
-  min-height: 0;
+  z-index: 2;
+
+  flex: 0 0 94px;
+  height: 94px;
+
   display: flex;
   align-items: center;
-  padding: 0 2% 0 23%;
-}
 
-.tournamentLogo {
-  position: absolute;
-  left: 13.5%;
-  top: 4%;
-  width: 6.8%;
-  height: 91%;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 5px rgba(0,0,0,.3));
+  padding: 0 30px 0 262px;
 }
 
 .brandBadge {
   position: absolute;
-  left: 14.2%;
-  top: 2%;
-  width: 5.8%;
-  height: 91%;
+  left: 175px;
+  top: -12px;
+
+  width: 74px;
+  height: 82px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  color: #fff;
-  background: linear-gradient(145deg, #f20d32, #b90020);
-  clip-path: polygon(10% 0, 100% 0, 88% 78%, 50% 100%, 0 78%);
-  transform: rotate(2deg);
-  text-shadow: 0 2px 2px rgba(0,0,0,.3);
+
+  padding-top: 8px;
+
+  color: var(--white);
+  background: var(--red);
+
+  font-family: "Orbitron", sans-serif;
+  font-weight: 800;
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 82%,
+    50% 100%,
+    0 82%
+  );
 }
 
 .badgeSmall {
-  font-family: "WCPL Oxanium", Arial, sans-serif;
-  font-size: clamp(7px, .72vw, 11px);
-  line-height: 1;
-  font-weight: 800;
+  display: block;
+
+  font-size: 13px;
+  line-height: 1.1;
+  letter-spacing: 1px;
 }
 
 .badgeLarge {
-  font-family: "WCPL Michroma", Arial, sans-serif;
-  font-size: clamp(19px, 2.1vw, 32px);
+  display: block;
+
+  font-size: 29px;
   line-height: 1.05;
-  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .headerTitles {
-  width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: .12em;
 }
 
 .mainTitle {
   margin: 0;
-  color: #fff;
-  font-family: "WCPL Michroma", "WCPL Oxanium", Arial, sans-serif;
-  font-size: clamp(17px, 2.3vw, 35px);
-  line-height: 1.18;
-  font-weight: 400;
-  letter-spacing: .035em;
-  white-space: nowrap;
-  text-shadow: 0 2px 4px rgba(0,0,0,.18);
+
+  color: var(--white);
+
+  font-family: "Orbitron", sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 1px;
 }
 
 .subTitle {
-  min-width: 0;
-  margin: 0;
-  padding: .23em .5em;
-  overflow: hidden;
-  color: #fff;
-  background: rgba(76, 0, 157, .34);
-  font-size: clamp(9px, 1.24vw, 18px);
-  line-height: 1.35;
-  font-weight: 800;
-  letter-spacing: .035em;
+  margin: 5px 0 0;
+
+  color: var(--white);
+
+  font-family: "Rajdhani", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 1.1px;
   text-transform: uppercase;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
+
+/* Innings area */
 
 .inningsContainer {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+
   flex: 1 1 auto;
   min-height: 0;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 6.2%;
-  padding: 0;
+
+  gap: 20px;
+  padding: 0 24px 0 0;
 }
 
 .inningsBlock {
-  min-width: 0;
+  width: 100%;
   min-height: 0;
-  flex: 1 1 0;
+
   display: grid;
-  grid-template-columns: 23.1% minmax(0, 1fr);
+  grid-template-columns: 262px minmax(0, 1fr);
   align-items: stretch;
-  overflow: hidden;
 }
+
+/* Team crest area */
 
 .teamLogoCol {
   min-width: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2% 5%;
+
+  padding: 4px 24px;
 }
 
 .teamCrest {
   display: block;
-  width: 68%;
-  height: 88%;
+
+  width: 136px;
+  height: 158px;
+
+  max-width: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,.32));
+
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.28));
 }
+
+/* Score panel */
 
 .scorePanel {
   min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0,0,0,.2);
 }
 
+/* Team header bars */
+
 .teamHeader {
-  flex: 0 0 23%;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  width: 100%;
+  height: 44px;
+
+  display: flex;
   align-items: center;
-  gap: 2.5%;
-  padding: 0 2% 0 1.1%;
-  overflow: hidden;
+  justify-content: space-between;
+
+  gap: 18px;
+  padding: 0 16px 0 20px;
+
+  color: var(--white);
 }
 
 .barGreen {
-  color: #fff;
-  background: linear-gradient(90deg, #00b34c 0%, #009d42 100%);
+  background: linear-gradient(
+    90deg,
+    var(--green-start),
+    var(--green-end)
+  );
 }
 
 .barGold {
-  color: #17120a;
-  background: linear-gradient(90deg, #f7c329 0%, #eeb018 100%);
+  background: linear-gradient(
+    90deg,
+    var(--gold-start),
+    var(--gold-end)
+  );
 }
 
 .teamName {
   min-width: 0;
+
   overflow: hidden;
-  color: inherit;
-  font-family: "WCPL Michroma", "WCPL Oxanium", Arial, sans-serif;
-  font-size: clamp(12px, 1.72vw, 26px);
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: .015em;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-family: "Orbitron", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .teamTotalWrap {
+  flex: 0 0 auto;
+
   display: flex;
   align-items: center;
-  gap: 2.2vw;
+  justify-content: flex-end;
+
+  gap: 36px;
   white-space: nowrap;
 }
 
 .oversLabel {
-  font-size: clamp(9px, 1.15vw, 17px);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 1px;
 }
 
 .teamScore {
-  min-width: 5.1em;
+  min-width: 92px;
+
   text-align: right;
-  font-family: "WCPL Michroma", "WCPL Oxanium", Arial, sans-serif;
-  font-size: clamp(16px, 2.0vw, 30px);
-  font-weight: 700;
+
+  font-family: "Orbitron", sans-serif;
+  font-size: 26px;
+  font-weight: 800;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
 }
 
+/* Player stats grid */
+
 .statsGrid {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: repeat(4, minmax(0, 1fr));
-  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .statRow {
   min-width: 0;
-  min-height: 0;
+  height: 36px;
+
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
 
-.statRow + .statRow {
-  border-top: 1px solid rgba(91, 19, 157, .75);
+  border-bottom: 1px solid rgba(94, 25, 145, 0.65);
 }
 
 .batCell,
 .bowlCell {
   min-width: 0;
+  height: 36px;
+
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 3%;
+  align-items: stretch;
+
   overflow: hidden;
-  padding: 0 2%;
-  color: #15110a;
-  background: linear-gradient(180deg, #f8c52b 0%, #efb31b 100%);
+}
+
+.batCell {
+  border-right: 2px solid rgba(88, 20, 145, 0.8);
 }
 
 .bowlCell {
-  border-left: 2px solid rgba(106, 15, 185, .9);
+  border-left: 0;
 }
+
+/* Yellow player-name strip */
 
 .playerName {
   min-width: 0;
+  flex: 1 1 auto;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 12px;
+
   overflow: hidden;
-  color: #17120a;
-  font-size: clamp(9px, 1.28vw, 19px);
-  font-weight: 800;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: var(--dark);
+  background: linear-gradient(
+    180deg,
+    var(--yellow-top),
+    var(--yellow-bottom)
+  );
+
+  border-bottom: 1px solid var(--gold-border);
+
+  font-family: "Rajdhani", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
 }
+
+/* Purple batting and bowling figures strips */
 
 .batScore,
 .bowlFigs {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: .45em;
-  min-width: 3.3em;
-  color: #fff;
-  font-size: clamp(11px, 1.35vw, 20px);
-  font-weight: 800;
+  flex: 0 0 122px;
+  width: 122px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+  padding: 0 8px;
+
+  color: var(--white);
+  background: linear-gradient(
+    180deg,
+    #7624bd,
+    #5c159e
+  );
+
+  font-family: "Orbitron", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
   white-space: nowrap;
 }
 
 .batScore small,
 .bowlFigs small {
-  color: rgba(255,255,255,.92);
-  font-size: .68em;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+
+  font-family: "Rajdhani", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
 }
+
+/* Result footer */
 
 .resultFooter {
   position: relative;
-  z-index: 1;
-  flex: 0 0 7.5%;
-  min-height: 0;
+  z-index: 2;
+
+  flex: 0 0 44px;
+  height: 44px;
+
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 2%;
+
+  padding: 0 24px 0 220px;
+
   overflow: hidden;
-  border-top: 1px solid rgba(255,255,255,.2);
+
+  color: var(--white);
   background: linear-gradient(
     90deg,
-    rgba(154,62,239,.96),
-    rgba(111,12,205,.96),
-    rgba(154,62,239,.96)
+    #5a12a8,
+    #701ec7 55%,
+    #5a12a8
   );
+
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .resultText {
   width: 100%;
   margin: 0;
+
   overflow: hidden;
-  color: #fff;
-  font-family: "WCPL Michroma", "WCPL Oxanium", Arial, sans-serif;
-  font-size: clamp(10px, 1.75vw, 26px);
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: .025em;
-  text-align: center;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
-  text-shadow: 0 2px 3px rgba(0,0,0,.22);
+  text-overflow: ellipsis;
+
+  color: var(--white);
+
+  font-family: "Orbitron", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
-/* Tablet */
+/* Keep the board readable on smaller preview windows */
 
 @media (max-width: 900px) {
+  .broadcastCanvas {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 12px;
+  }
+
   .summaryBoard {
-    width: 92vw;
+    transform-origin: top left;
   }
-
-  .boardHeader {
-    padding-left: 22%;
   }
-
-  .inningsContainer {
-    gap: 4%;
-  }
-
-  .teamHeader {
-    gap: 1.2%;
-  }
-
-  .teamTotalWrap {
-    gap: 1.2vw;
-  }
-
-  .teamCrest {
-    width: 82%;
-  }
-
-  .playerName {
-    font-size: clamp(8px, 1.55vw, 14px);
-  }
-
-  .batScore,
-  .bowlFigs {
-    font-size: clamp(9px, 1.6vw, 15px);
-  }
-}
-
-/* Mobile */
-
-@media (max-width: 560px) {
-  .summaryBoard {
-    width: 96vw;
-    max-height: 72vh;
-  }
-
-  .boardHeader {
-    padding-left: 20%;
-  }
-
-  .mainTitle {
-    font-size: clamp(12px, 3vw, 17px);
-  }
-
-  .subTitle {
-    font-size: clamp(7px, 1.8vw, 10px);
-  }
-
-  .inningsBlock {
-    grid-template-columns: 18% minmax(0, 1fr);
-  }
-
-  .teamCrest {
-    width: 100%;
-  }
-
-  .teamName {
-    font-size: clamp(8px, 2vw, 12px);
-  }
-
-  .oversLabel {
-    font-size: clamp(7px, 1.5vw, 9px);
-  }
-
-  .teamScore {
-    min-width: 0;
-    font-size: clamp(10px, 2.3vw, 16px);
-  }
-
-  .playerName {
-    font-size: clamp(7px, 1.6vw, 9px);
-  }
-
-  .batScore,
-  .bowlFigs {
-    font-size: clamp(8px, 1.7vw, 10px);
-  }
-
-  .resultText {
-    font-size: clamp(8px, 2vw, 12px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .summaryBoard {
-    scroll-behavior: auto;
-  }
-   }
