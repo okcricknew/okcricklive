@@ -160,16 +160,33 @@ export default function MatchSummary({ match }) {
     match.logoUrl ||
     "";
 
-  // Presentation-only formatting: keep the existing metadata sources,
-  // but arrange them like the WCPL broadcast reference.
-  const tournamentName = String(metadata.tournamentName || "").trim();
-  const matchName = String(metadata.matchName || "").trim();
-  const venue = String(metadata.venue || "").trim();
+  // Keep the broadcast header visible even when optional match metadata
+  // has not been populated in the live match document yet.
+  const tournamentName = String(
+    metadata.tournamentName ||
+    match.tournamentName ||
+    match.tournament ||
+    "LIMACOL WCPL 2026"
+  ).trim();
 
-  const headerLine = [
-    tournamentName,
-    matchName ? `${matchName}` : "",
-  ].filter(Boolean).join(" - ") + (venue ? `, ${venue}` : "");
+  const matchNumber = match.matchNo ?? match.matchNumber;
+  const matchLabel = String(
+    metadata.matchName ||
+    (matchNumber !== undefined && matchNumber !== null && String(matchNumber).trim()
+      ? `MATCH ${matchNumber}`
+      : "MATCH")
+  ).trim();
+
+  const venue = String(
+    metadata.venue ||
+    match.venue ||
+    match.venueName ||
+    match.ground ||
+    match.stadium ||
+    "VENUE TBC"
+  ).trim();
+
+  const headerLine = `${tournamentName} - ${matchLabel}, ${venue}`;
 
   return (
     <div className={styles.summaryOverlay}>
@@ -199,7 +216,7 @@ export default function MatchSummary({ match }) {
             </div>
 
             <div className={styles.tournamentBar}>
-              {headerLine || "WCPL MATCH SUMMARY"}
+              {headerLine}
             </div>
           </div>
         </header>
@@ -229,4 +246,4 @@ export default function MatchSummary({ match }) {
   );
     }
 
-            
+                
