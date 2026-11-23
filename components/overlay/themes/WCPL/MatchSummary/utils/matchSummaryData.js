@@ -21,7 +21,7 @@ const formatOvers = (over, balls) => {
   return `${completedOvers}.${completedBalls}`;
 };
 
-// Same team-selection logic as the existing OkCrick helper.
+// Existing first batting team selection logic preserved.
 const getFirstBattingTeam = (match) => {
   if (match.firstInningsBattingTeam) {
     return match.firstInningsBattingTeam;
@@ -37,7 +37,6 @@ const getFirstBattingTeam = (match) => {
       : match.teamA || "";
   }
 
-  // Existing match data fallback.
   if (Number(match.innings || DEFAULT_INNINGS) >= 2) {
     return match.battingTeam === match.teamA
       ? match.teamB || ""
@@ -62,8 +61,7 @@ const getTopBatters = (battingStats = {}) => {
     }));
 };
 
-// ballHistory records are retained when innings changes.
-// Therefore, filter by innings and bowler before counting legal balls.
+// Existing ball history filtering preserved.
 const getBowlerLegalBalls = (
   match,
   inningsNumber,
@@ -76,16 +74,20 @@ const getBowlerLegalBalls = (
   const targetBowler = normalizeName(bowlerName);
 
   return history.filter((ball) => {
-    const ballInnings = toNumber(ball.innings || DEFAULT_INNINGS);
+    const ballInnings = toNumber(
+      ball.innings || DEFAULT_INNINGS
+    );
 
     const sameInnings = ballInnings === inningsNumber;
 
     const sameBowler =
       normalizeName(ball.bowler) === targetBowler;
 
-    const isLegalDelivery = !["WD", "NB", "PENALTY"].includes(
-      String(ball.type || "").toUpperCase()
-    );
+    const isLegalDelivery = ![
+      "WD",
+      "NB",
+      "PENALTY",
+    ].includes(String(ball.type || "").toUpperCase());
 
     return sameInnings && sameBowler && isLegalDelivery;
   }).length;
@@ -138,6 +140,7 @@ const getInningsData = (match, inningsNumber) => {
   );
 
   const firstInnings = inningsNumber === 1;
+
   const firstInningsBackup =
     match.firstInningsStatsBackup || {};
 
@@ -219,34 +222,54 @@ const getInningsData = (match, inningsNumber) => {
   };
 };
 
+/* =========================================
+   MATCH STATUS BANNER
+========================================= */
+
 const getResultBanner = (
   match,
   firstInnings,
   secondInnings
 ) => {
+
+  // 1. MATCH COMPLETED
+  // Use the actual result saved by existing scoring logic.
   if (match.status === "completed") {
     return (
       match.resultSummary ||
-      "MATCH COMPLETED"
+      (match.winner
+        ? `${match.winner} WON`
+        : "MATCH COMPLETED")
     );
   }
 
-  if (Number(match.innings || DEFAULT_INNINGS) === 1) {
-    if (!match.tossWinner) {
-      return "MATCH IN PROGRESS";
+  const currentInnings = toNumber(
+    match.innings || DEFAULT_INNINGS
+  );
+
+  // 2. TOSS COMPLETED
+  if (currentInnings === 1) {
+
+    if (match.tossCompleted === true && match.tossWinner) {
+
+      const decision = String(
+        match.tossDecision || ""
+      ).trim().toLowerCase();
+
+      if (decision === "bat" || decision === "bowl") {
+        return (
+          `${match.tossWinner} WON THE TOSS ` +
+          `& ELECTED TO ${decision.toUpperCase()}`
+        );
+      }
     }
 
-    const decision = String(
-      match.tossDecision || "bat"
-    ).toUpperCase();
-
-    return (
-      `${match.tossWinner} WON THE TOSS ` +
-      `& ELECTED TO ${decision} FIRST`
-    );
+    return "MATCH IN PROGRESS";
   }
 
-  if (Number(match.innings) === 2) {
+  // 3. SECOND INNINGS - REQUIRED RUNS
+  if (currentInnings === 2) {
+
     const target = toNumber(
       match.target || firstInnings.runs + 1
     );
@@ -263,6 +286,7 @@ const getResultBanner = (
       .map(toNumber);
 
     const ballsPlayed = overs * 6 + balls;
+
     const totalBalls = toNumber(match.overs) * 6;
 
     const ballsLeft = Math.max(
@@ -278,6 +302,10 @@ const getResultBanner = (
 
   return "MATCH IN PROGRESS";
 };
+
+/* =========================================
+   MAIN MATCH SUMMARY DATA
+========================================= */
 
 export const getMatchSummaryData = (match) => {
   if (!match) {
@@ -325,3 +353,4 @@ export const getMatchSummaryData = (match) => {
     },
   };
 };
+  
