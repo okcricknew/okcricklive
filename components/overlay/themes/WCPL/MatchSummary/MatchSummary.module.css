@@ -34,7 +34,7 @@
   width: min(80vw, 1224px);
   max-width: 94vw;
 
-  height: min(calc(min(80vw, 1224px) / 2.07), 88vh);
+  aspect-ratio: 2.07 / 1;
   max-height: 88vh;
 
   display: flex;
@@ -151,7 +151,7 @@
   overflow: hidden;
   white-space: nowrap;
 
-  background: rgba(76, 10, 153, 0.55);
+  background: rgba(76, 10, 153, 0.72);
 
   font-size: clamp(8px, 1.05vw, 17px);
   font-weight: 700;
@@ -173,7 +173,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 5.5%;
+  gap: 8.5%;
 
   padding: 0;
 }
@@ -189,7 +189,7 @@
   min-height: 0;
 
   display: grid;
-  grid-template-columns: 22.5% minmax(0, 1fr);
+  grid-template-columns: 23% minmax(0, 1fr);
 
   overflow: hidden;
 }
@@ -243,7 +243,7 @@
 
 .firstInningsHeader,
 .secondInningsHeader {
-  flex: 0 0 22%;
+  flex: 0 0 20%;
   min-height: 0;
 
   display: grid;
@@ -356,7 +356,7 @@
 
   overflow: hidden;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.42);
 }
 
 /* Player name */
@@ -402,7 +402,7 @@
   padding: 0 8px;
   box-sizing: border-box;
 
-  background: rgba(112, 19, 204, 0.95);
+  background: rgba(112, 19, 204, 0.98);
 
   color: #ffffff;
 
@@ -472,11 +472,7 @@
   .summaryCard {
     width: 96vw;
     max-width: 96vw;
-
-    height: min(calc(96vw / 2.07), 88vh);
-    max-height: 88vh;
-
-    aspect-ratio: auto;
+    aspect-ratio: 2.07 / 1;
   }
 
   .summaryHeader {
@@ -493,11 +489,11 @@
   }
 
   .inningsList {
-    gap: 4%;
+    gap: 8.5%;
   }
 
   .inningsSection {
-    grid-template-columns: 19% minmax(0, 1fr);
+    grid-template-columns: 23% minmax(0, 1fr);
   }
 
   .teamLogo {
@@ -532,5 +528,69 @@
 @media (prefers-reduced-motion: reduce) {
   .summaryCard {
     transition: none;
+  }
+}
+
+
+/* Keep the broadcast scorecard readable at common 16:9 output sizes. */
+@media (max-width: 900px) {
+  .summaryCard {
+    width: 92vw;
+    max-width: 94vw;
+  }
+
+  .summaryTitle {
+    font-size: clamp(14px, 2.4vw, 28px);
+  }
+
+  .teamName {
+    font-size: clamp(10px, 1.8vw, 20px);
+  }
+
+  .playerName {
+    font-size: clamp(8px, 1.25vw, 14px);
+  }
+
+  .playerFigures strong {
+    font-size: clamp(9px, 1.3vw, 15px);
+  }
+}
+
+@media (max-width: 700px) {
+  .summaryCard {
+    width: 96vw;
+    max-width: 96vw;
+  }
+
+  .inningsSection {
+    grid-template-columns: 18% minmax(0, 1fr);
+  }
+
+  .teamName {
+    font-size: clamp(9px, 2vw, 14px);
+  }
+
+  .inningsOvers {
+    font-size: clamp(7px, 1.25vw, 11px);
+  }
+
+  .inningsScore {
+    font-size: clamp(11px, 2.1vw, 17px);
+  }
+
+  .playerName {
+    font-size: clamp(7px, 1.5vw, 11px);
+  }
+
+  .playerFigures strong {
+    font-size: clamp(8px, 1.55vw, 12px);
+  }
+
+  .playerFigures small {
+    font-size: clamp(6px, 1vw, 9px);
+  }
+
+  .resultBanner {
+    font-size: clamp(9px, 1.9vw, 15px);
   }
 }
