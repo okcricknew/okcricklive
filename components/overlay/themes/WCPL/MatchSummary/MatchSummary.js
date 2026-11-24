@@ -151,5 +151,4 @@ export default function MatchSummary({ match }) {
       </div>
     </div>
   );
-            }
-            
+}
