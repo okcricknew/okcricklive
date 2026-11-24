@@ -1,9 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap");
 
+/* Outer Broadcast Frame (Transparent for OBS / CameraFi Live) */
 .broadcastCanvas {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: transparent;
   overflow: hidden;
   font-family: "Chakra Petch", sans-serif;
@@ -28,22 +33,19 @@
   --text-white: #ffffff;
 }
 
-/* Exact 1280x720 frame locked dead-center and scaled cleanly to fit any screen */
+/* Exact 1280x720 stage scaled proportionally to fit any viewport */
 .scaleStage {
-  position: absolute;
-  left: 50%;
-  top: 50%;
   width: 1280px;
   height: 720px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: translate(-50%, -50%)
-    scale(min(calc(100vw / 1280), calc(100vh / 720)));
+  flex-shrink: 0;
+  transform: scale(min(calc(100vw / 1280), calc(100vh / 720)));
   transform-origin: center center;
 }
 
-/* Main Purple Graphic Board (1120x580) */
+/* Main Purple Graphic Board (Exact 1120x580 from HTML) */
 .summaryBoard {
   position: relative;
   width: 1120px;
@@ -86,18 +88,17 @@
   z-index: 2;
   display: flex;
   align-items: flex-start;
-  height: 88px;
+  height: 94px;
   padding-left: 262px;
-  flex-shrink: 0;
 }
 
 /* Red Diagonal "SHE'S IN" Ribbon Badge */
 .brandBadge {
   position: absolute;
   left: 175px;
-  top: -10px;
+  top: -12px;
   width: 74px;
-  height: 80px;
+  height: 82px;
   background: linear-gradient(160deg, #f01428 0%, #c80416 100%);
   transform: skewX(-18deg) rotate(12deg);
   display: flex;
@@ -164,10 +165,7 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 14px;
-  flex: 1;
-  min-height: 0;
+  gap: 20px;
   padding-right: 0;
 }
 
@@ -189,7 +187,7 @@
 
 .teamCrest {
   width: 136px;
-  height: 150px;
+  height: 158px;
   object-fit: contain;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
 }
@@ -205,7 +203,7 @@
 
 /* Team Title & Total Bar */
 .teamHeader {
-  height: 42px;
+  height: 44px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -266,7 +264,7 @@
 .statRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 35px;
+  height: 36px;
   border-bottom: 1.5px solid rgba(90, 18, 168, 0.75);
 }
 
@@ -340,7 +338,6 @@
   position: relative;
   z-index: 2;
   height: 44px;
-  flex-shrink: 0;
   background: linear-gradient(90deg, rgba(168, 85, 247, 0.78) 0%, rgba(147, 51, 234, 0.88) 50%, rgba(168, 85, 247, 0.78) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
@@ -360,4 +357,4 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-    }
+                             }
