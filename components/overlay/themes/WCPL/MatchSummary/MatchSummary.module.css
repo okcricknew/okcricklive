@@ -1,9 +1,18 @@
-/* =========================================================
-   WCPL 2026 BROADCAST MATCH SUMMARY STYLESHEET
-   Exact 16:9 Broadcast Graphic Layout (1280x720 base scale)
-   ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap");
 
-.summary-board {
+/* Outer Broadcast Frame (Transparent for OBS / CameraFi Live) */
+.broadcastCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  overflow: hidden;
+  font-family: "Chakra Petch", sans-serif;
+
   --bg-purple-base: #9c36f5;
   --bg-purple-dark: #701ec7;
   --bg-purple-deep: #5a12a8;
@@ -24,26 +33,20 @@
   --text-white: #ffffff;
 }
 
-.summary-board,
-.summary-board * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* Outer Broadcast Frame (16:9) */
-.broadcast-canvas {
+/* Exact 1280x720 stage scaled proportionally to fit any viewport */
+.scaleStage {
   width: 1280px;
   height: 720px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
-  font-family: 'Chakra Petch', sans-serif;
+  flex-shrink: 0;
+  transform: scale(min(calc(100vw / 1280), calc(100vh / 720)));
+  transform-origin: center center;
 }
 
-/* Main Purple Graphic Board */
-.summary-board {
+/* Main Purple Graphic Board (Exact 1120x580 from HTML) */
+.summaryBoard {
   position: relative;
   width: 1120px;
   height: 580px;
@@ -56,8 +59,14 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.summaryBoard * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 /* Geometric Background Chevrons / Polygons */
-.bg-chevrons {
+.bgChevrons {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -74,17 +83,17 @@
 /* =========================================================
    HEADER SECTION
    ========================================================= */
-.board-header {
+.boardHeader {
   position: relative;
   z-index: 2;
   display: flex;
   align-items: flex-start;
   height: 94px;
-  padding-left: 262px; /* Aligns left edge of MATCH SUMMARY with scorecard */
+  padding-left: 262px;
 }
 
 /* Red Diagonal "SHE'S IN" Ribbon Badge */
-.brand-badge {
+.brandBadge {
   position: absolute;
   left: 175px;
   top: -12px;
@@ -100,35 +109,36 @@
   border-bottom-right-radius: 6px;
 }
 
-.brand-badge span {
+.badgeSmall,
+.badgeLarge {
   transform: skewX(18deg) rotate(-12deg);
   color: #ffffff;
-  font-family: 'Chakra Petch', sans-serif;
+  font-family: "Chakra Petch", sans-serif;
   font-weight: 700;
   line-height: 0.9;
 }
 
-.badge-small {
+.badgeSmall {
   font-size: 11px;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
 }
 
-.badge-large {
+.badgeLarge {
   font-size: 30px;
   font-style: italic;
   letter-spacing: -1px;
 }
 
 /* Header Titles */
-.header-titles {
+.headerTitles {
   padding-top: 10px;
   display: flex;
   flex-direction: column;
 }
 
-.main-title {
-  font-family: 'Orbitron', sans-serif;
+.mainTitle {
+  font-family: "Orbitron", sans-serif;
   font-size: 34px;
   font-weight: 700;
   color: #ffffff;
@@ -137,8 +147,8 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-.sub-title {
-  font-family: 'Rajdhani', sans-serif;
+.subTitle {
+  font-family: "Rajdhani", sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -150,7 +160,7 @@
 /* =========================================================
    MAIN INNINGS SCORECARDS
    ========================================================= */
-.innings-container {
+.inningsContainer {
   position: relative;
   z-index: 2;
   display: flex;
@@ -159,14 +169,14 @@
   padding-right: 0;
 }
 
-.innings-block {
+.inningsBlock {
   display: flex;
   align-items: center;
   width: 100%;
 }
 
 /* Left Logo Column */
-.team-logo-col {
+.teamLogoCol {
   width: 262px;
   display: flex;
   justify-content: center;
@@ -175,7 +185,7 @@
   padding-left: 16px;
 }
 
-.team-crest {
+.teamCrest {
   width: 136px;
   height: 158px;
   object-fit: contain;
@@ -183,15 +193,16 @@
 }
 
 /* Right Scorecard Panel */
-.score-panel {
+.scorePanel {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
 
 /* Team Title & Total Bar */
-.team-header {
+.teamHeader {
   height: 44px;
   display: flex;
   justify-content: space-between;
@@ -199,38 +210,42 @@
   padding: 0 22px 0 14px;
 }
 
-.bar-green {
+.barGreen {
   background: linear-gradient(90deg, var(--bar-green-start) 0%, var(--bar-green-end) 100%);
   color: #ffffff;
 }
 
-.bar-gold {
+.barGold {
   background: linear-gradient(90deg, var(--bar-gold-start) 0%, var(--bar-gold-end) 100%);
   color: var(--text-dark);
 }
 
-.team-name {
-  font-family: 'Orbitron', sans-serif;
+.teamName {
+  font-family: "Orbitron", sans-serif;
   font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.team-total-wrap {
+.teamTotalWrap {
   display: flex;
   align-items: baseline;
   gap: 36px;
+  flex-shrink: 0;
 }
 
-.overs-label {
-  font-family: 'Rajdhani', sans-serif;
+.oversLabel {
+  font-family: "Rajdhani", sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.6px;
 }
 
-.team-score {
-  font-family: 'Orbitron', sans-serif;
+.teamScore {
+  font-family: "Orbitron", sans-serif;
   font-size: 26px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -241,37 +256,39 @@
 /* =========================================================
    4-ROW PLAYER STATS GRID (BATTING LEFT | BOWLING RIGHT)
    ========================================================= */
-.stats-grid {
+.statsGrid {
   display: flex;
   flex-direction: column;
 }
 
-.stat-row {
+.statRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 36px;
   border-bottom: 1.5px solid rgba(90, 18, 168, 0.75);
 }
 
-.stat-row:last-child {
+.statRow:last-child {
   border-bottom: none;
 }
 
 /* Shared Split Cell Styling (Yellow Name Box + Purple Value Box) */
-.bat-cell,
-.bowl-cell {
+.batCell,
+.bowlCell {
   display: flex;
   align-items: center;
   height: 100%;
+  min-width: 0;
 }
 
 /* Left Yellow Name Strip */
-.player-name {
+.playerName {
   flex: 1;
+  min-width: 0;
   height: 100%;
   background: linear-gradient(180deg, var(--row-yellow-top) 0%, var(--row-yellow-bottom) 100%);
   color: var(--text-dark);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 19px;
   font-weight: 700;
   display: flex;
@@ -279,16 +296,20 @@
   padding-left: 14px;
   letter-spacing: 0.3px;
   border-right: 2px solid #7d22d6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Right Purple Figures Strip */
-.bat-score,
-.bowl-figs {
+.batScore,
+.bowlFigs {
   width: 122px;
   height: 100%;
+  flex-shrink: 0;
   background: linear-gradient(180deg, rgba(145, 48, 235, 0.88) 0%, rgba(122, 30, 212, 0.92) 100%);
   color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 20px;
   font-weight: 700;
   display: flex;
@@ -297,8 +318,8 @@
   gap: 5px;
 }
 
-.bat-score small,
-.bowl-figs small {
+.batScore small,
+.bowlFigs small {
   font-size: 13px;
   font-weight: 600;
   opacity: 0.92;
@@ -306,14 +327,14 @@
 }
 
 /* Subtle separator between Batting half and Bowling half */
-.bowl-cell .player-name {
+.bowlCell .playerName {
   border-left: 2px solid #8a2be2;
 }
 
 /* =========================================================
    BOTTOM RESULT FOOTER BAR
    ========================================================= */
-.result-footer {
+.resultFooter {
   position: relative;
   z-index: 2;
   height: 44px;
@@ -322,15 +343,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-left: 220px; /* Visually centered under the scorecard columns */
+  padding-left: 220px;
 }
 
-.result-text {
-  font-family: 'Orbitron', sans-serif;
+.resultText {
+  font-family: "Orbitron", sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
