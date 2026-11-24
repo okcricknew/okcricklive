@@ -1,4 +1,3 @@
-
 const safeNumber = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
@@ -6,25 +5,28 @@ const safeNumber = (value) => {
 
 const formatOvers = (balls) => {
   const legalBalls = Math.max(0, safeNumber(balls));
-  return `${Math.floor(legalBalls / 6)}.${legalBalls % 6}`;
+  const completed = Math.floor(legalBalls / 6);
+  const rem = legalBalls % 6;
+  return rem === 0 ? `${completed}` : `${completed}.${rem}`;
 };
 
 const getInningsOvers = (match, inningsNumber) => {
   if (inningsNumber === 1 && match.innings >= 2) {
     const backup = match.firstInningsStatsBackup || {};
     if (backup.overs !== undefined && backup.overs !== null) {
-      return String(backup.overs);
+      const str = String(backup.overs).trim();
+      return str.endsWith(".0") ? str.slice(0, -2) : str;
     }
   }
 
   if (Number(match.innings || 1) === inningsNumber) {
     return formatOvers(
       safeNumber(match.currentOver) * 6 +
-      safeNumber(match.ballsInOver)
+        safeNumber(match.ballsInOver)
     );
   }
 
-  return "0.0";
+  return "0";
 };
 
 const getInningsScore = (match, inningsNumber) => {
@@ -32,11 +34,11 @@ const getInningsScore = (match, inningsNumber) => {
     return {
       runs: safeNumber(
         match.firstInningsStatsBackup?.totalRuns ??
-        match.firstInningsScore
+          match.firstInningsScore
       ),
       wickets: safeNumber(
         match.firstInningsStatsBackup?.totalWickets ??
-        match.firstInningsWickets
+          match.firstInningsWickets
       ),
     };
   }
@@ -73,16 +75,18 @@ const getInningsStats = (match, inningsNumber) => {
 
 const getBatters = (stats) => {
   return Object.entries(stats || {})
-    .filter(([name, player]) =>
-      name && player && (
-        safeNumber(player.runs) > 0 ||
-        safeNumber(player.balls) > 0 ||
-        player.isOut
-      )
+    .filter(
+      ([name, player]) =>
+        name &&
+        player &&
+        (safeNumber(player.runs) > 0 ||
+          safeNumber(player.balls) > 0 ||
+          player.isOut)
     )
-    .sort((a, b) =>
-      safeNumber(b[1].runs) - safeNumber(a[1].runs) ||
-      safeNumber(b[1].balls) - safeNumber(a[1].balls)
+    .sort(
+      (a, b) =>
+        safeNumber(b[1].runs) - safeNumber(a[1].runs) ||
+        safeNumber(b[1].balls) - safeNumber(a[1].balls)
     )
     .slice(0, 4)
     .map(([name, player]) => ({
@@ -95,22 +99,24 @@ const getBatters = (stats) => {
 
 const getBowlers = (stats, match, inningsNumber) => {
   return Object.entries(stats || {})
-    .filter(([name, player]) =>
-      name && player && (
-        safeNumber(player.wickets) > 0 ||
-        safeNumber(player.runs) > 0 ||
-        safeNumber(player.balls) > 0 ||
-        safeNumber(player.overs) > 0
-      )
+    .filter(
+      ([name, player]) =>
+        name &&
+        player &&
+        (safeNumber(player.wickets) > 0 ||
+          safeNumber(player.runs) > 0 ||
+          safeNumber(player.balls) > 0 ||
+          safeNumber(player.overs) > 0)
     )
     .map(([name, player]) => {
-      const balls = (match.ballHistory || []).filter((ball) =>
-        Number(ball.innings || 1) === inningsNumber &&
-        String(ball.bowler || "").trim().toLowerCase() ===
-          name.trim().toLowerCase() &&
-        !["WD", "NB", "PENALTY"].includes(
-          String(ball.type || "").toUpperCase()
-        )
+      const balls = (match.ballHistory || []).filter(
+        (ball) =>
+          Number(ball.innings || 1) === inningsNumber &&
+          String(ball.bowler || "").trim().toLowerCase() ===
+            name.trim().toLowerCase() &&
+          !["WD", "NB", "PENALTY"].includes(
+            String(ball.type || "").toUpperCase()
+          )
       ).length;
 
       return {
@@ -121,10 +127,7 @@ const getBowlers = (stats, match, inningsNumber) => {
         balls,
       };
     })
-    .sort((a, b) =>
-      b.wickets - a.wickets ||
-      a.runs - b.runs
-    )
+    .sort((a, b) => b.wickets - a.wickets || a.runs - b.runs)
     .slice(0, 4);
 };
 
@@ -159,9 +162,7 @@ export const getWcplMatchSummaryData = (match) => {
   const firstTeam = getFirstBattingTeam(match);
 
   const secondTeam =
-    firstTeam === match.teamA
-      ? match.teamB
-      : match.teamA;
+    firstTeam === match.teamA ? match.teamB : match.teamA;
 
   const teams = [firstTeam, secondTeam];
 
@@ -176,17 +177,14 @@ export const getWcplMatchSummaryData = (match) => {
       wickets: score.wickets,
       overs: getInningsOvers(match, inningsNumber),
       batting: getBatters(stats.batting),
-      bowling: getBowlers(
-        stats.bowling,
-        match,
-        inningsNumber
-      ),
+      bowling: getBowlers(stats.bowling, match, inningsNumber),
     };
   });
 };
 
 export const getWcplTeamLogo = (match, teamName) => {
-  if (!match || !teamName) return "/themes/OkCrick/default-team.png";
+  if (!match || !teamName)
+    return "/themes/OkCrick/default-team.png";
 
   const normalize = (value) =>
     String(value || "").trim().toLowerCase();
