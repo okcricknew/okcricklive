@@ -1,4 +1,3 @@
-import Head from "next/head";
 import styles from "./MatchSummary.module.css";
 import {
   getWcplMatchSummaryData,
@@ -7,12 +6,12 @@ import {
 
 function StatRow({ batting, bowling }) {
   return (
-    <div className={styles["stat-row"]}>
-      <div className={styles["bat-cell"]}>
-        <span className={styles["player-name"]}>
+    <div className={styles.statRow}>
+      <div className={styles.batCell}>
+        <span className={styles.playerName}>
           {batting?.name || ""}
         </span>
-        <span className={styles["bat-score"]}>
+        <span className={styles.batScore}>
           {batting
             ? `${batting.runs}${batting.notOut ? "*" : ""}`
             : ""}
@@ -20,11 +19,11 @@ function StatRow({ batting, bowling }) {
         </span>
       </div>
 
-      <div className={styles["bowl-cell"]}>
-        <span className={styles["player-name"]}>
+      <div className={styles.bowlCell}>
+        <span className={styles.playerName}>
           {bowling?.name || ""}
         </span>
-        <span className={styles["bowl-figs"]}>
+        <span className={styles.bowlFigs}>
           {bowling
             ? `${bowling.wickets}-${bowling.runs}`
             : ""}
@@ -41,10 +40,10 @@ function InningsBlock({ match, innings }) {
   const logo = getWcplTeamLogo(match, innings.team);
 
   return (
-    <section className={styles["innings-block"]}>
-      <div className={styles["team-logo-col"]}>
+    <section className={styles.inningsBlock}>
+      <div className={styles.teamLogoCol}>
         <img
-          className={styles["team-crest"]}
+          className={styles.teamCrest}
           src={logo}
           alt={innings.team}
           loading="eager"
@@ -57,28 +56,28 @@ function InningsBlock({ match, innings }) {
         />
       </div>
 
-      <div className={styles["score-panel"]}>
+      <div className={styles.scorePanel}>
         <div
-          className={`${styles["team-header"]} ${
+          className={`${styles.teamHeader} ${
             innings.inningsNumber === 1
-              ? styles["bar-green"]
-              : styles["bar-gold"]
+              ? styles.barGreen
+              : styles.barGold
           }`}
         >
-          <span className={styles["team-name"]}>
+          <span className={styles.teamName}>
             {innings.team}
           </span>
-          <div className={styles["team-total-wrap"]}>
-            <span className={styles["overs-label"]}>
+          <div className={styles.teamTotalWrap}>
+            <span className={styles.oversLabel}>
               OVERS {innings.overs}
             </span>
-            <span className={styles["team-score"]}>
+            <span className={styles.teamScore}>
               {innings.runs}-{innings.wickets}
             </span>
           </div>
         </div>
 
-        <div className={styles["stats-grid"]}>
+        <div className={styles.statsGrid}>
           {[0, 1, 2, 3].map((index) => (
             <StatRow
               key={`${innings.inningsNumber}-${index}`}
@@ -115,39 +114,26 @@ export default function MatchSummary({ match }) {
     .join(" - ");
 
   return (
-    <>
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-
-      <div className={styles["broadcast-canvas"]}>
-        <div className={styles["summary-board"]}>
+    <div className={styles.broadcastCanvas}>
+      <div className={styles.scaleStage}>
+        <div className={styles.summaryBoard}>
           {/* Background Geometric Pattern Overlay */}
-          <div className={styles["bg-chevrons"]} />
+          <div className={styles.bgChevrons} />
 
           {/* Top Header Section */}
-          <header className={styles["board-header"]}>
-            <div className={styles["brand-badge"]}>
-              <span className={styles["badge-small"]}>SHE&apos;S</span>
-              <span className={styles["badge-large"]}>IN</span>
+          <header className={styles.boardHeader}>
+            <div className={styles.brandBadge}>
+              <span className={styles.badgeSmall}>SHE&apos;S</span>
+              <span className={styles.badgeLarge}>IN</span>
             </div>
-            <div className={styles["header-titles"]}>
-              <h1 className={styles["main-title"]}>MATCH SUMMARY</h1>
-              <p className={styles["sub-title"]}>{subtitle}</p>
+            <div className={styles.headerTitles}>
+              <h1 className={styles.mainTitle}>MATCH SUMMARY</h1>
+              <p className={styles.subTitle}>{subtitle}</p>
             </div>
           </header>
 
           {/* Main Scorecards Container */}
-          <main className={styles["innings-container"]}>
+          <main className={styles.inningsContainer}>
             {inningsData.map((innings) => (
               <InningsBlock
                 key={innings.inningsNumber}
@@ -158,11 +144,12 @@ export default function MatchSummary({ match }) {
           </main>
 
           {/* Bottom Result Footer Bar */}
-          <footer className={styles["result-footer"]}>
-            <p className={styles["result-text"]}>{result}</p>
+          <footer className={styles.resultFooter}>
+            <p className={styles.resultText}>{result}</p>
           </footer>
         </div>
       </div>
-    </>
+    </div>
   );
             }
+            
