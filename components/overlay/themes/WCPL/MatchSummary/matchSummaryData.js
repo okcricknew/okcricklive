@@ -3,128 +3,26 @@ const safeNumber = (value) => {
   return Number.isFinite(number) ? number : 0;
 };
 
-const formatOvers = (balls) => {
-  const legalBalls = Math.max(0, safeNumber(balls));
-  return `${Math.floor(legalBalls / 6)}.${legalBalls % 6}`;
+const normalize = (value) =>
+  String(value || "").trim().toLowerCase();
+
+const formatOvers = (legalBalls) => {
+  const balls = Math.max(0, safeNumber(legalBalls));
+
+  return `${Math.floor(balls / 6)}.${balls % 6}`;
 };
 
-const getInningsOvers = (match, inningsNumber) => {
-  if (inningsNumber === 1 && match.innings >= 2) {
-    const backup = match.firstInningsStatsBackup || {};
-    if (backup.overs !== undefined && backup.overs !== null) {
-      return String(backup.overs);
-    }
+const getCurrentOvers = (match) => {
+  const over = safeNumber(match.currentOver);
+  const balls = safeNumber(match.ballsInOver);
+
+  // Scoring system mein 6 balls complete hone par
+  // currentOver increment hone se pehle summary aa sakti hai.
+  if (balls >= 6) {
+    return `${over + Math.floor(balls / 6)}.${balls % 6}`;
   }
 
-  if (Number(match.innings || 1) === inningsNumber) {
-    return formatOvers(
-      safeNumber(match.currentOver) * 6 +
-      safeNumber(match.ballsInOver)
-    );
-  }
-
-  return "0.0";
-};
-
-const getInningsScore = (match, inningsNumber) => {
-  if (inningsNumber === 1 && Number(match.innings) >= 2) {
-    return {
-      runs: safeNumber(
-        match.firstInningsStatsBackup?.totalRuns ??
-        match.firstInningsScore
-      ),
-      wickets: safeNumber(
-        match.firstInningsStatsBackup?.totalWickets ??
-        match.firstInningsWickets
-      ),
-    };
-  }
-
-  if (Number(match.innings || 1) === inningsNumber) {
-    return {
-      runs: safeNumber(match.totalRuns),
-      wickets: safeNumber(match.totalWickets),
-    };
-  }
-
-  return { runs: 0, wickets: 0 };
-};
-
-const getInningsStats = (match, inningsNumber) => {
-  if (inningsNumber === 1 && Number(match.innings) >= 2) {
-    const backup = match.firstInningsStatsBackup || {};
-
-    return {
-      batting: backup.batting || {},
-      bowling: backup.bowling || {},
-    };
-  }
-
-  if (Number(match.innings || 1) === inningsNumber) {
-    return {
-      batting: match.battingStats || {},
-      bowling: match.bowlingStats || {},
-    };
-  }
-
-  return { batting: {}, bowling: {} };
-};
-
-const getBatters = (stats) => {
-  return Object.entries(stats || {})
-    .filter(([name, player]) =>
-      name && player && (
-        safeNumber(player.runs) > 0 ||
-        safeNumber(player.balls) > 0 ||
-        player.isOut
-      )
-    )
-    .sort((a, b) =>
-      safeNumber(b[1].runs) - safeNumber(a[1].runs) ||
-      safeNumber(b[1].balls) - safeNumber(a[1].balls)
-    )
-    .slice(0, 4)
-    .map(([name, player]) => ({
-      name: player.name || name,
-      runs: safeNumber(player.runs),
-      balls: safeNumber(player.balls),
-      notOut: !player.isOut,
-    }));
-};
-
-const getBowlers = (stats, match, inningsNumber) => {
-  return Object.entries(stats || {})
-    .filter(([name, player]) =>
-      name && player && (
-        safeNumber(player.wickets) > 0 ||
-        safeNumber(player.runs) > 0 ||
-        safeNumber(player.balls) > 0 ||
-        safeNumber(player.overs) > 0
-      )
-    )
-    .map(([name, player]) => {
-      const balls = (match.ballHistory || []).filter((ball) =>
-        Number(ball.innings || 1) === inningsNumber &&
-        String(ball.bowler || "").trim().toLowerCase() ===
-          name.trim().toLowerCase() &&
-        !["WD", "NB", "PENALTY"].includes(
-          String(ball.type || "").toUpperCase()
-        )
-      ).length;
-
-      return {
-        name: player.name || name,
-        wickets: safeNumber(player.wickets),
-        runs: safeNumber(player.runs),
-        overs: formatOvers(balls),
-        balls,
-      };
-    })
-    .sort((a, b) =>
-      b.wickets - a.wickets ||
-      a.runs - b.runs
-    )
-    .slice(0, 4);
+  return `${over}.${balls}`;
 };
 
 const getFirstBattingTeam = (match) => {
@@ -137,19 +35,193 @@ const getFirstBattingTeam = (match) => {
   }
 
   const tossWinner = match.tossWinner;
-  const decision = String(
-    match.tossDecision || match.tossChoice || ""
-  ).toLowerCase();
+  const decision = normalize(
+    match.tossDecision || match.tossChoice
+  );
 
   if (tossWinner && decision) {
-    return decision === "bat"
-      ? tossWinner
-      : tossWinner === match.teamA
-        ? match.teamB
-        : match.teamA;
+    if (decision === "bat") {
+      return tossWinner;
+    }
+
+    return normalize(tossWinner) === normalize(match.teamA)
+      ? match.teamB
+      : match.teamA;
   }
 
   return match.teamA || match.battingTeam || "TEAM A";
+};
+
+const getInningsScore = (match, inningsNumber) => {
+  const currentInnings = safeNumber(match.innings || 1);
+
+  if (inningsNumber === 1 && currentInnings >= 2) {
+    const backup = match.firstInningsStatsBackup || {};
+
+    return {
+      runs: safeNumber(
+        backup.totalRuns ?? match.firstInningsScore
+      ),
+      wickets: safeNumber(
+        backup.totalWickets ?? match.firstInningsWickets
+      ),
+    };
+  }
+
+  if (currentInnings === inningsNumber) {
+    return {
+      runs: safeNumber(match.totalRuns),
+      wickets: safeNumber(match.totalWickets),
+    };
+  }
+
+  return {
+    runs: 0,
+    wickets: 0,
+  };
+};
+
+const getInningsOvers = (match, inningsNumber) => {
+  const currentInnings = safeNumber(match.innings || 1);
+
+  if (inningsNumber === 1 && currentInnings >= 2) {
+    const backup = match.firstInningsStatsBackup || {};
+
+    if (backup.overs !== undefined && backup.overs !== null) {
+      return String(backup.overs);
+    }
+
+    const firstInningsBalls = (match.ballHistory || []).filter(
+      (ball) =>
+        Number(ball.innings || 1) === 1 &&
+        !["WD", "NB", "PENALTY"].includes(
+          String(ball.type || "").toUpperCase()
+        )
+    ).length;
+
+    return formatOvers(firstInningsBalls);
+  }
+
+  if (currentInnings === inningsNumber) {
+    return getCurrentOvers(match);
+  }
+
+  return "0.0";
+};
+
+const getInningsStats = (match, inningsNumber) => {
+  const currentInnings = safeNumber(match.innings || 1);
+
+  if (inningsNumber === 1 && currentInnings >= 2) {
+    const backup = match.firstInningsStatsBackup || {};
+
+    return {
+      batting: backup.batting || {},
+      bowling: backup.bowling || {},
+      battingPlayers: backup.battingPlayers || [],
+    };
+  }
+
+  if (currentInnings === inningsNumber) {
+    return {
+      batting: match.battingStats || {},
+      bowling: match.bowlingStats || {},
+      battingPlayers: match.battingPlayers || [],
+    };
+  }
+
+  return {
+    batting: {},
+    bowling: {},
+    battingPlayers: [],
+  };
+};
+
+const getBatters = (stats, battingPlayers = []) => {
+  const entries = Object.entries(stats || {});
+
+  const order = Array.isArray(battingPlayers)
+    ? battingPlayers.map(normalize)
+    : [];
+
+  return entries
+    .filter(([name, player]) => {
+      if (!name || !player) return false;
+
+      return (
+        safeNumber(player.runs) > 0 ||
+        safeNumber(player.balls) > 0 ||
+        Boolean(player.isOut) ||
+        Boolean(player.retiredHurt)
+      );
+    })
+    .sort(([nameA, playerA], [nameB, playerB]) => {
+      const indexA = order.indexOf(normalize(nameA));
+      const indexB = order.indexOf(normalize(nameB));
+
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+
+      return (
+        safeNumber(playerB.runs) - safeNumber(playerA.runs) ||
+        safeNumber(playerB.balls) - safeNumber(playerA.balls)
+      );
+    })
+    .slice(0, 4)
+    .map(([name, player]) => ({
+      name: player.name || name,
+      runs: safeNumber(player.runs),
+      balls: safeNumber(player.balls),
+      notOut: !player.isOut,
+    }));
+};
+
+const getBowlers = (stats, match, inningsNumber) => {
+  return Object.entries(stats || {})
+    .filter(([name, player]) => {
+      if (!name || !player) return false;
+
+      return (
+        safeNumber(player.wickets) > 0 ||
+        safeNumber(player.runs) > 0 ||
+        safeNumber(player.balls) > 0 ||
+        safeNumber(player.overs) > 0
+      );
+    })
+    .map(([name, player]) => {
+      const balls = (match.ballHistory || []).filter((ball) => {
+        const sameInnings =
+          Number(ball.innings || 1) === inningsNumber;
+
+        const sameBowler =
+          normalize(ball.bowler) === normalize(name);
+
+        const legalBall = ![
+          "WD",
+          "NB",
+          "PENALTY",
+        ].includes(String(ball.type || "").toUpperCase());
+
+        return sameInnings && sameBowler && legalBall;
+      }).length;
+
+      return {
+        name: player.name || name,
+        wickets: safeNumber(player.wickets),
+        runs: safeNumber(player.runs),
+        overs: formatOvers(balls),
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.wickets - a.wickets ||
+        a.runs - b.runs
+    )
+    .slice(0, 4);
 };
 
 export const getWcplMatchSummaryData = (match) => {
@@ -158,7 +230,7 @@ export const getWcplMatchSummaryData = (match) => {
   const firstTeam = getFirstBattingTeam(match);
 
   const secondTeam =
-    firstTeam === match.teamA
+    normalize(firstTeam) === normalize(match.teamA)
       ? match.teamB
       : match.teamA;
 
@@ -174,7 +246,10 @@ export const getWcplMatchSummaryData = (match) => {
       runs: score.runs,
       wickets: score.wickets,
       overs: getInningsOvers(match, inningsNumber),
-      batting: getBatters(stats.batting),
+      batting: getBatters(
+        stats.batting,
+        stats.battingPlayers
+      ),
       bowling: getBowlers(
         stats.bowling,
         match,
@@ -185,16 +260,17 @@ export const getWcplMatchSummaryData = (match) => {
 };
 
 export const getWcplTeamLogo = (match, teamName) => {
-  if (!match || !teamName) return "/themes/OkCrick/default-team.png";
+  const defaultLogo = "/themes/OkCrick/default-team.png";
 
-  const normalize = (value) =>
-    String(value || "").trim().toLowerCase();
+  if (!match || !teamName) {
+    return defaultLogo;
+  }
 
   if (normalize(teamName) === normalize(match.teamA)) {
     return (
       match.teamALogoUrl ||
       match.teamAColorDocument?.logoUrl ||
-      "/themes/OkCrick/default-team.png"
+      defaultLogo
     );
   }
 
@@ -202,9 +278,10 @@ export const getWcplTeamLogo = (match, teamName) => {
     return (
       match.teamBLogoUrl ||
       match.teamBColorDocument?.logoUrl ||
-      "/themes/OkCrick/default-team.png"
+      defaultLogo
     );
   }
 
-  return "/themes/OkCrick/default-team.png";
+  return defaultLogo;
 };
+        
