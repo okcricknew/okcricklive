@@ -1,18 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap");
-
-/* Outer Broadcast Frame (Transparent for OBS / CameraFi Live) */
 .broadcastCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: transparent;
-  overflow: hidden;
-  font-family: "Chakra Petch", sans-serif;
-
   --bg-purple-base: #9c36f5;
   --bg-purple-dark: #701ec7;
   --bg-purple-deep: #5a12a8;
@@ -31,21 +17,24 @@
   --badge-red: #e0081c;
   --text-dark: #161616;
   --text-white: #ffffff;
-}
 
-/* Exact 1280x720 stage scaled proportionally to fit any viewport */
-.scaleStage {
   width: 1280px;
   height: 720px;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #000000;
+  font-family: "Chakra Petch", sans-serif;
+  overflow: hidden;
   flex-shrink: 0;
-  transform: scale(min(calc(100vw / 1280), calc(100vh / 720)));
-  transform-origin: center center;
 }
 
-/* Main Purple Graphic Board (Exact 1120x580 from HTML) */
+.broadcastCanvas * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 .summaryBoard {
   position: relative;
   width: 1120px;
@@ -59,13 +48,6 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.summaryBoard * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* Geometric Background Chevrons / Polygons */
 .bgChevrons {
   position: absolute;
   inset: 0;
@@ -80,9 +62,7 @@
   background-position: 0 0, 120px 40px, 210px 150px, 50px 180px;
 }
 
-/* =========================================================
-   HEADER SECTION
-   ========================================================= */
+/* HEADER */
 .boardHeader {
   position: relative;
   z-index: 2;
@@ -92,7 +72,6 @@
   padding-left: 262px;
 }
 
-/* Red Diagonal "SHE'S IN" Ribbon Badge */
 .brandBadge {
   position: absolute;
   left: 175px;
@@ -109,8 +88,7 @@
   border-bottom-right-radius: 6px;
 }
 
-.badgeSmall,
-.badgeLarge {
+.brandBadge span {
   transform: skewX(18deg) rotate(-12deg);
   color: #ffffff;
   font-family: "Chakra Petch", sans-serif;
@@ -130,7 +108,6 @@
   letter-spacing: -1px;
 }
 
-/* Header Titles */
 .headerTitles {
   padding-top: 10px;
   display: flex;
@@ -157,9 +134,7 @@
   text-transform: uppercase;
 }
 
-/* =========================================================
-   MAIN INNINGS SCORECARDS
-   ========================================================= */
+/* INNINGS SCORECARDS */
 .inningsContainer {
   position: relative;
   z-index: 2;
@@ -175,7 +150,6 @@
   width: 100%;
 }
 
-/* Left Logo Column */
 .teamLogoCol {
   width: 262px;
   display: flex;
@@ -188,20 +162,17 @@
 .teamCrest {
   width: 136px;
   height: 158px;
-  object-fit: contain;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
 }
 
-/* Right Scorecard Panel */
 .scorePanel {
   flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
 
-/* Team Title & Total Bar */
+/* TEAM HEADER */
 .teamHeader {
   height: 44px;
   display: flex;
@@ -225,16 +196,12 @@
   font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .teamTotalWrap {
   display: flex;
   align-items: baseline;
   gap: 36px;
-  flex-shrink: 0;
 }
 
 .oversLabel {
@@ -253,9 +220,7 @@
   text-align: right;
 }
 
-/* =========================================================
-   4-ROW PLAYER STATS GRID (BATTING LEFT | BOWLING RIGHT)
-   ========================================================= */
+/* PLAYER STATS */
 .statsGrid {
   display: flex;
   flex-direction: column;
@@ -272,19 +237,15 @@
   border-bottom: none;
 }
 
-/* Shared Split Cell Styling (Yellow Name Box + Purple Value Box) */
 .batCell,
 .bowlCell {
   display: flex;
   align-items: center;
   height: 100%;
-  min-width: 0;
 }
 
-/* Left Yellow Name Strip */
 .playerName {
   flex: 1;
-  min-width: 0;
   height: 100%;
   background: linear-gradient(180deg, var(--row-yellow-top) 0%, var(--row-yellow-bottom) 100%);
   color: var(--text-dark);
@@ -296,17 +257,12 @@
   padding-left: 14px;
   letter-spacing: 0.3px;
   border-right: 2px solid #7d22d6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Right Purple Figures Strip */
 .batScore,
 .bowlFigs {
   width: 122px;
   height: 100%;
-  flex-shrink: 0;
   background: linear-gradient(180deg, rgba(145, 48, 235, 0.88) 0%, rgba(122, 30, 212, 0.92) 100%);
   color: #ffffff;
   font-family: "Rajdhani", sans-serif;
@@ -326,14 +282,11 @@
   margin-top: 2px;
 }
 
-/* Subtle separator between Batting half and Bowling half */
 .bowlCell .playerName {
   border-left: 2px solid #8a2be2;
 }
 
-/* =========================================================
-   BOTTOM RESULT FOOTER BAR
-   ========================================================= */
+/* RESULT FOOTER */
 .resultFooter {
   position: relative;
   z-index: 2;
@@ -354,7 +307,4 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-                             }
+}
