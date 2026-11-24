@@ -334,6 +334,7 @@ useEffect(() => {
     !showBatsmanStats &&
     !isSummaryActive;
 
+  
   return (
     <div
       style={{
@@ -343,10 +344,14 @@ useEffect(() => {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 99999,
-        visibility: wcplReady ? "visible" : "hidden",
+        visibility:
+          wcplReady || isSummaryActive
+            ? "visible"
+            : "hidden",
       }}
-      aria-hidden={!wcplReady}
+      aria-hidden={!wcplReady && !isSummaryActive}
     >
+        
       {/* LOWER THIRD - PERMANENTLY MOUNTED */}
       <div
         style={{
