@@ -423,18 +423,7 @@ useEffect(() => {
       </div>
 
       {/* MATCH SUMMARY - PERMANENTLY MOUNTED */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          opacity: isSummaryActive ? 1 : 0,
-          visibility: isSummaryActive ? "visible" : "hidden",
-          pointerEvents: isSummaryActive ? "auto" : "none",
-          zIndex: 100000,
-        }}
-      >
         <MatchSummary match={match} />
-      </div>
     </div>
   );
         }
