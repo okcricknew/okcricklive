@@ -1,0 +1,422 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap');
+
+/* =========================================================
+   WCPL 2026 BROADCAST MATCH SUMMARY
+   Original HTML/CSS - Isolated React CSS Module
+   1280x720 Broadcast Canvas
+   ========================================================= */
+
+.broadcastCanvas {
+  --bg-purple-base: #9c36f5;
+  --bg-purple-dark: #701ec7;
+  --bg-purple-deep: #5a12a8;
+  --bg-purple-light: #b55cff;
+
+  --bar-green-start: #00b14f;
+  --bar-green-end: #009c44;
+
+  --bar-gold-start: #f5b922;
+  --bar-gold-end: #e5a310;
+
+  --row-yellow-top: #ffd644;
+  --row-yellow-bottom: #f3bc1d;
+  --row-border-gold: #c99208;
+
+  --badge-red: #e0081c;
+  --text-dark: #161616;
+  --text-white: #ffffff;
+
+  box-sizing: border-box;
+  width: 1280px;
+  height: 720px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000000;
+  font-family: 'Chakra Petch', sans-serif;
+  overflow: hidden;
+}
+
+.broadcastCanvas *,
+.broadcastCanvas *::before,
+.broadcastCanvas *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   OUTER BROADCAST FRAME
+   ========================================================= */
+
+.summaryBoard {
+  position: relative;
+  width: 1120px;
+  height: 580px;
+  background: linear-gradient(
+    135deg,
+    #8b2be2 0%,
+    #9d3af7 50%,
+    #7d1fd4 100%
+  );
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* =========================================================
+   GEOMETRIC BACKGROUND CHEVRONS / POLYGONS
+   ========================================================= */
+
+.bgChevrons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  background-image:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.14) 14%,
+      transparent 14.2%
+    ),
+    linear-gradient(
+      235deg,
+      rgba(78, 12, 150, 0.35) 0%,
+      rgba(78, 12, 150, 0.35) 18%,
+      transparent 18.2%
+    ),
+    linear-gradient(
+      55deg,
+      rgba(196, 122, 255, 0.22) 0%,
+      rgba(196, 122, 255, 0.22) 12%,
+      transparent 12.2%
+    ),
+    linear-gradient(
+      305deg,
+      rgba(64, 8, 128, 0.32) 0%,
+      rgba(64, 8, 128, 0.32) 16%,
+      transparent 16.2%
+    );
+
+  background-size:
+    360px 290px,
+    420px 320px,
+    280px 260px,
+    390px 310px;
+
+  background-position:
+    0 0,
+    120px 40px,
+    210px 150px,
+    50px 180px;
+}
+
+/* =========================================================
+   HEADER SECTION
+   ========================================================= */
+
+.boardHeader {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  height: 94px;
+  padding-left: 262px;
+}
+
+/* Red Diagonal SHE'S IN Ribbon Badge */
+
+.brandBadge {
+  position: absolute;
+  left: 175px;
+  top: -12px;
+  width: 74px;
+  height: 82px;
+  background: linear-gradient(
+    160deg,
+    #f01428 0%,
+    #c80416 100%
+  );
+  transform: skewX(-18deg) rotate(12deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 3px 5px 12px rgba(0, 0, 0, 0.35);
+  border-bottom-right-radius: 6px;
+}
+
+.brandBadge span {
+  transform: skewX(18deg) rotate(-12deg);
+  color: #ffffff;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.badgeSmall {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.badgeLarge {
+  font-size: 30px;
+  font-style: italic;
+  letter-spacing: -1px;
+}
+
+/* Header Titles */
+
+.headerTitles {
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainTitle {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.subTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   MAIN INNINGS SCORECARDS
+   ========================================================= */
+
+.inningsContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-right: 0;
+}
+
+.inningsBlock {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Left Logo Column */
+
+.teamLogoCol {
+  width: 262px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  padding-left: 16px;
+}
+
+.teamCrest {
+  width: 136px;
+  height: 158px;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+}
+
+/* Right Scorecard Panel */
+
+.scorePanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================================
+   TEAM TITLE & TOTAL BAR
+   ========================================================= */
+
+.teamHeader {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 22px 0 14px;
+}
+
+.barGreen {
+  background: linear-gradient(
+    90deg,
+    var(--bar-green-start) 0%,
+    var(--bar-green-end) 100%
+  );
+  color: #ffffff;
+}
+
+.barGold {
+  background: linear-gradient(
+    90deg,
+    var(--bar-gold-start) 0%,
+    var(--bar-gold-end) 100%
+  );
+  color: var(--text-dark);
+}
+
+.teamName {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.teamTotalWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 36px;
+}
+
+.oversLabel {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.teamScore {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  min-width: 104px;
+  text-align: right;
+}
+
+/* =========================================================
+   4-ROW PLAYER STATS GRID
+   BATTING LEFT | BOWLING RIGHT
+   ========================================================= */
+
+.statsGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 36px;
+  border-bottom: 1.5px solid rgba(90, 18, 168, 0.75);
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+/* Shared Split Cell Styling */
+
+.batCell,
+.bowlCell {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Left Yellow Name Strip */
+
+.playerName {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--row-yellow-top) 0%,
+    var(--row-yellow-bottom) 100%
+  );
+  color: var(--text-dark);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  letter-spacing: 0.3px;
+  border-right: 2px solid #7d22d6;
+}
+
+/* Right Purple Figures Strip */
+
+.batScore,
+.bowlFigs {
+  width: 122px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(145, 48, 235, 0.88) 0%,
+    rgba(122, 30, 212, 0.92) 100%
+  );
+  color: #ffffff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.batScore small,
+.bowlFigs small {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.92;
+  margin-top: 2px;
+}
+
+/* Subtle Separator Between Batting & Bowling */
+
+.bowlCell .playerName {
+  border-left: 2px solid #8a2be2;
+}
+
+/* =========================================================
+   BOTTOM RESULT FOOTER BAR
+   ========================================================= */
+
+.resultFooter {
+  position: relative;
+  z-index: 2;
+  height: 44px;
+  background: linear-gradient(
+    90deg,
+    rgba(168, 85, 247, 0.78) 0%,
+    rgba(147, 51, 234, 0.88) 50%,
+    rgba(168, 85, 247, 0.78) 100%
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 220px;
+}
+
+.resultText {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
